@@ -251,13 +251,19 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Username</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="johndoe" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
+                              <div className="relative">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <Input 
+                                  placeholder="username" 
+                                  {...field} 
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                />
+                              </div>
                             </FormControl>
                             <FormMessage className="text-red-300" />
                           </FormItem>
@@ -269,14 +275,20 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Password</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="••••••••" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
+                              <div className="relative">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <Input 
+                                  type="password" 
+                                  placeholder="password" 
+                                  {...field} 
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                />
+                              </div>
                             </FormControl>
                             <FormMessage className="text-red-300" />
                           </FormItem>
@@ -285,7 +297,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
 
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold py-3 mt-6" 
+                        className="w-full h-14 rounded-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold mt-6" 
                         disabled={isLoading}
                       >
                         {isLoading ? 'Signing in...' : 'Sign In'}
@@ -302,72 +314,19 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         name="username"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Username</FormLabel>
                             <FormControl>
-                              <Input 
-                                placeholder="johndoe" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
-                            </FormControl>
-                            <FormDescription className="text-white/70 text-sm">
-                              This will be your display name
-                            </FormDescription>
-                            <FormMessage className="text-red-300" />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={registerForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white">Email</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="email" 
-                                placeholder="john.doe@example.com" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-red-300" />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={registerForm.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white">Full Name (Optional)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="John Doe" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
-                            </FormControl>
-                            <FormMessage className="text-red-300" />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={registerForm.control}
-                        name="phoneNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-white">Phone Number (Optional)</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="tel" 
-                                placeholder="+1 (555) 123-4567" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
+                              <div className="relative">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <Input 
+                                  placeholder="username" 
+                                  {...field} 
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                />
+                              </div>
                             </FormControl>
                             <FormMessage className="text-red-300" />
                           </FormItem>
@@ -379,18 +338,21 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         name="password"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Password</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="••••••••" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
+                              <div className="relative">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <Input 
+                                  type="password" 
+                                  placeholder="password" 
+                                  {...field} 
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                />
+                              </div>
                             </FormControl>
-                            <FormDescription className="text-white/70 text-sm">
-                              Must be at least 6 characters
-                            </FormDescription>
                             <FormMessage className="text-red-300" />
                           </FormItem>
                         )}
@@ -401,26 +363,94 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                         name="passwordConfirm"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Confirm Password</FormLabel>
                             <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="••••••••" 
-                                {...field} 
-                                className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                              />
+                              <div className="relative">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <Input 
+                                  type="password" 
+                                  placeholder="Confirm Password" 
+                                  {...field} 
+                                  className="h-14 pl-14 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                />
+                              </div>
                             </FormControl>
                             <FormMessage className="text-red-300" />
                           </FormItem>
                         )}
                       />
 
+                      <FormField
+                        control={registerForm.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <div className="relative">
+                                <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                                  <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                  </svg>
+                                </div>
+                                <div className="absolute left-14 top-1/2 transform -translate-y-1/2 flex items-center">
+                                  <span className="w-6 h-4 bg-red-500 rounded-sm mr-2 flex items-center justify-center">
+                                    <span className="text-white text-xs font-bold">*</span>
+                                  </span>
+                                  <span className="text-white/70 text-sm">+852</span>
+                                  <svg className="w-3 h-3 text-white/70 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                  </svg>
+                                </div>
+                                <Input 
+                                  type="tel" 
+                                  placeholder="phone number" 
+                                  {...field} 
+                                  className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage className="text-red-300" />
+                          </FormItem>
+                        )}
+                      />
+
+                      <div className="relative">
+                        <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 bg-white/20 rounded-full flex items-center justify-center">
+                          <svg className="w-3 h-3 text-white/70" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <Input 
+                          placeholder="SMS verification code" 
+                          className="h-14 pl-14 pr-20 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                        />
+                        <Button 
+                          type="button"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-medium"
+                        >
+                          Get
+                        </Button>
+                      </div>
+
+                      <div className="flex items-center space-x-3 mt-6">
+                        <input 
+                          type="checkbox" 
+                          className="w-4 h-4 rounded border-white/30 bg-white/10"
+                        />
+                        <span className="text-white/80 text-sm">
+                          I have read and agreed to the terms and privacy policy.
+                        </span>
+                      </div>
+
                       <Button 
                         type="submit" 
-                        className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-semibold py-3 mt-6" 
+                        className="w-full h-14 rounded-full bg-gradient-to-r from-pink-200 to-pink-300 hover:from-pink-300 hover:to-pink-400 text-gray-800 font-semibold mt-6" 
                         disabled={isLoading}
                       >
-                        {isLoading ? 'Creating Account...' : 'Create Account'}
+                        {isLoading ? 'Creating Account...' : 'register'}
                       </Button>
                     </form>
                   </Form>
