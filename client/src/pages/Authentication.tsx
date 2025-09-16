@@ -534,41 +534,43 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                           return (
                             <FormItem>
                               <FormControl>
-                                <div className="relative">
-                                  <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
-                                    <svg
-                                      className="w-4 h-4 text-white/70"
-                                      fill="currentColor"
-                                      viewBox="0 0 20 20"
-                                    >
-                                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                    </svg>
+                                <div className="relative flex items-center gap-4">
+                                  <div className="relative flex-1">
+                                    <div className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 bg-white/20 rounded-full flex items-center justify-center z-0">
+                                      <svg
+                                        className="w-4 h-4 text-white/70"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                                      </svg>
+                                    </div>
+                                    <CountryCodeSelect 
+                                      value={selectedCountryCode} 
+                                      onValueChange={setSelectedCountryCode}
+                                    />
+                                    <Input
+                                      type="tel"
+                                      placeholder="Phone Number"
+                                      {...field}
+                                      value={phoneNumberWithoutCode}
+                                      onFocus={() => setIsPhoneInputFocused(true)}
+                                      onBlur={() => setIsPhoneInputFocused(false)}
+                                      onChange={(e) => {
+                                        const inputValue = e.target.value.replace(/\D/g, ''); // Only allow digits
+                                        if (inputValue.length <= expectedDigits) {
+                                          const fullNumber = selectedCountryCode + inputValue;
+                                          field.onChange(fullNumber);
+                                        }
+                                      }}
+                                      className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
+                                      style={{ fontSize: "16px" }}
+                                      maxLength={expectedDigits}
+                                    />
                                   </div>
-                                  <CountryCodeSelect 
-                                    value={selectedCountryCode} 
-                                    onValueChange={setSelectedCountryCode}
-                                  />
-                                  <Input
-                                    type="tel"
-                                    placeholder="Phone Number"
-                                    {...field}
-                                    value={phoneNumberWithoutCode}
-                                    onFocus={() => setIsPhoneInputFocused(true)}
-                                    onBlur={() => setIsPhoneInputFocused(false)}
-                                    onChange={(e) => {
-                                      const inputValue = e.target.value.replace(/\D/g, ''); // Only allow digits
-                                      if (inputValue.length <= expectedDigits) {
-                                        const fullNumber = selectedCountryCode + inputValue;
-                                        field.onChange(fullNumber);
-                                      }
-                                    }}
-                                    className="h-14 pl-32 pr-4 rounded-full bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/60 focus:bg-white/20"
-                                    style={{ fontSize: "16px" }}
-                                    maxLength={expectedDigits}
-                                  />
-                                  {/* Helper text that appears on focus */}
+                                  {/* Helper text positioned to the right outside the input */}
                                   {isPhoneInputFocused && (
-                                    <div className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 text-xs text-white/80 whitespace-nowrap">
+                                    <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max">
                                       Please enter {expectedDigits} digits
                                     </div>
                                   )}
