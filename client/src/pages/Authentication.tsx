@@ -173,7 +173,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
         <Card className="w-full p-2">
           <CardHeader className="pt-0">
             <div className="flex flex-col items-center mb-4">
-              <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center justify-center mb-4 mt-4">
                 <img
                   src="/CSSPORT_1_updated.png"
                   alt="CS SPORT Logo"
