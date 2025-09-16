@@ -329,7 +329,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
           {/* Auth Card */}
           <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-lg">
-            <CardContent className="p-6">
+            <CardContent className="p-6 relative">
               <Tabs
                 value={activeTab}
                 onValueChange={(value) => setActiveTab(value as AuthMode)}
@@ -568,12 +568,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                                       maxLength={expectedDigits}
                                     />
                                   </div>
-                                  {/* Helper text positioned to the right outside the input */}
-                                  {isPhoneInputFocused && (
-                                    <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max">
-                                      Please enter {expectedDigits} digits
-                                    </div>
-                                  )}
+                                  
                                 </div>
                               </FormControl>
                               <FormMessage className="text-red-300" />
@@ -640,6 +635,16 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                 </TabsContent>
               </Tabs>
             </CardContent>
+
+            {/* Helper text positioned outside the card */}
+            {activeTab === "register" && isPhoneInputFocused && (
+              <div className="absolute left-full ml-4 top-1/2 transform -translate-y-1/2 bg-white/20 backdrop-blur-sm rounded-lg px-3 py-2 text-sm text-white/90 whitespace-nowrap min-w-max z-50">
+                Please enter {(() => {
+                  const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
+                  return selectedCountry?.digits || 8;
+                })()} digits
+              </div>
+            )}
 
             <CardFooter className="flex justify-center pb-6">
               <p className="text-white/80 text-sm">
