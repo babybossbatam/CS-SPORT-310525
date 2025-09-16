@@ -216,7 +216,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
           </div>
 
           {/* Auth Card */}
-          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl">
+          <Card className="bg-white/10 backdrop-blur-md border border-white/20 shadow-2xl rounded-lg">
             <CardHeader className="text-center pb-4">
               <CardDescription className="text-white/90 text-lg">
                 {activeTab === 'login'
