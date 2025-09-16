@@ -35,6 +35,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import MyCircularFlag from "@/components/common/MyCircularFlag";
 
 // Extend the user schema with login validation
 const loginSchema = z.object({
@@ -81,14 +82,20 @@ const countryCodes = [
 ];
 
 const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueChange: (value: string) => void }) => {
+  const selectedCountry = countryCodes.find(c => c.code === value);
+  
   return (
     <div className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10">
       <Select value={value} onValueChange={onValueChange}>
         <SelectTrigger className="w-24 h-8 border-none bg-transparent text-white/70 text-sm focus:ring-0 focus:ring-offset-0 hover:bg-white/10 cursor-pointer">
           <SelectValue>
             <div className="flex items-center gap-1">
-              <span>{countryCodes.find(c => c.code === value)?.flag}</span>
-              <span>{value}</span>
+              <MyCircularFlag 
+                teamName={selectedCountry?.country || "Hong Kong"}
+                size="20px"
+                className="flex-shrink-0"
+              />
+              <span className="text-xs">{value}</span>
             </div>
           </SelectValue>
         </SelectTrigger>
@@ -100,7 +107,11 @@ const CountryCodeSelect = ({ value, onValueChange }: { value: string; onValueCha
               className="flex items-center gap-2 hover:bg-gray-100 cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <span className="text-lg">{country.flag}</span>
+                <MyCircularFlag 
+                  teamName={country.country}
+                  size="24px"
+                  className="flex-shrink-0"
+                />
                 <span className="text-sm font-medium">{country.code}</span>
                 <span className="text-xs text-gray-600">{country.country}</span>
               </div>
