@@ -1,4 +1,3 @@
-
 import { Router } from 'express';
 import { z } from 'zod';
 import twilio from 'twilio';
@@ -6,7 +5,7 @@ import twilio from 'twilio';
 const router = Router();
 
 // Initialize Twilio client
-const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN 
+const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
   ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
   : null;
 
@@ -22,7 +21,7 @@ function generateVerificationCode(): string {
 router.post('/send-verification', async (req, res) => {
   try {
     const { phoneNumber } = req.body;
-    
+
     if (!phoneNumber) {
       return res.status(400).json({ error: 'Phone number is required' });
     }
@@ -63,15 +62,18 @@ router.post('/send-verification', async (req, res) => {
 // Test Twilio endpoint
 router.post('/test-twilio', async (req, res) => {
   try {
+    // Set proper JSON content type
+    res.setHeader('Content-Type', 'application/json');
+
     const { phoneNumber } = req.body;
-    
+
     if (!phoneNumber) {
       return res.status(400).json({ error: 'Phone number is required' });
     }
 
     // Check if Twilio is configured
     if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Twilio not configured properly',
         details: {
           hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
@@ -89,9 +91,9 @@ router.post('/test-twilio', async (req, res) => {
     });
 
     console.log(`Test SMS sent successfully to ${phoneNumber}. Message SID: ${message.sid}`);
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: 'Test SMS sent successfully',
       messageSid: message.sid,
       to: phoneNumber,
@@ -99,9 +101,10 @@ router.post('/test-twilio', async (req, res) => {
     });
   } catch (error) {
     console.error('Twilio test error:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to send test SMS',
-      details: error.message 
+      details: error.message || 'Unknown Twilio error',
+      message: 'Failed to send test message'
     });
   }
 });
@@ -110,13 +113,13 @@ router.post('/test-twilio', async (req, res) => {
 router.post('/verify-code', async (req, res) => {
   try {
     const { phoneNumber, code } = req.body;
-    
+
     if (!phoneNumber || !code) {
       return res.status(400).json({ error: 'Phone number and code are required' });
     }
 
     const storedData = verificationCodes.get(phoneNumber);
-    
+
     if (!storedData) {
       return res.status(400).json({ error: 'No verification code found for this phone number' });
     }
@@ -132,7 +135,7 @@ router.post('/verify-code', async (req, res) => {
 
     // Clean up the used code
     verificationCodes.delete(phoneNumber);
-    
+
     res.json({ success: true, message: 'Phone number verified successfully' });
   } catch (error) {
     console.error('Error verifying code:', error);
