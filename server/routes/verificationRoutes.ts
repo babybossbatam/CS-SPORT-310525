@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import twilio from 'twilio';
+import fetch from 'node-fetch';
 
 const router = Router();
 
@@ -16,6 +17,13 @@ router.options('*', (req, res) => {
 let accountSid = process.env.TWILIO_ACCOUNT_SID;
 let authToken = process.env.TWILIO_AUTH_TOKEN;
 let phoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+// AccessYou SMS API configuration
+const accessYouConfig = {
+  baseUrl: 'https://smsapi.accessyou.com',
+  apiKey: process.env.ACCESSYOU_API_KEY,
+  senderId: process.env.ACCESSYOU_SENDER_ID || 'CS-SPORT'
+};
 
 // Force refresh environment variables if they're missing
 if (!accountSid || !authToken || !phoneNumber) {
@@ -51,6 +59,48 @@ const verificationCodes = new Map<string, {
 // Generate a random 6-digit code
 function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// Send SMS via AccessYou API
+async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    if (!accessYouConfig.apiKey) {
+      throw new Error('AccessYou API key not configured');
+    }
+
+    const response = await fetch(`${accessYouConfig.baseUrl}/send-sms`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessYouConfig.apiKey}`
+      },
+      body: JSON.stringify({
+        to: phoneNumber,
+        message: message,
+        sender_id: accessYouConfig.senderId
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.status === 'success') {
+      return {
+        success: true,
+        messageId: data.message_id
+      };
+    } else {
+      return {
+        success: false,
+        error: data.message || 'Failed to send SMS via AccessYou'
+      };
+    }
+  } catch (error) {
+    console.error('AccessYou SMS error:', error);
+    return {
+      success: false,
+      error: error.message || 'AccessYou SMS service error'
+    };
+  }
 }
 
 // Send verification code endpoint
@@ -98,39 +148,63 @@ router.post('/send-verification', async (req, res) => {
 
     let smsSuccess = false;
     let smsError = null;
+    let messageProvider = 'none';
 
-    // Send SMS using Twilio
-    if (twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+    const smsMessage = `Your CS Sport verification code is: ${code}. Valid for 10 minutes.`;
+
+    // Try AccessYou SMS first
+    if (accessYouConfig.apiKey) {
       try {
+        console.log(`📱 Attempting to send SMS via AccessYou to: ${formattedNumber}`);
+        const accessYouResult = await sendAccessYouSMS(formattedNumber, smsMessage);
+        
+        if (accessYouResult.success) {
+          console.log(`✅ SMS sent successfully via AccessYou to ${formattedNumber} (ID: ${accessYouResult.messageId})`);
+          smsSuccess = true;
+          messageProvider = 'AccessYou';
+        } else {
+          console.error('❌ AccessYou SMS failed:', accessYouResult.error);
+          smsError = accessYouResult.error;
+        }
+      } catch (accessYouError) {
+        console.error('❌ AccessYou SMS error:', accessYouError);
+        smsError = accessYouError.message;
+      }
+    }
+
+    // Fallback to Twilio if AccessYou failed
+    if (!smsSuccess && twilioClient && process.env.TWILIO_PHONE_NUMBER) {
+      try {
+        console.log(`📱 Falling back to Twilio for: ${formattedNumber}`);
         const message = await twilioClient.messages.create({
-          body: `Your CS Sport verification code is: ${code}. Valid for 10 minutes.`,
+          body: smsMessage,
           from: process.env.TWILIO_PHONE_NUMBER,
           to: formattedNumber
         });
-        console.log(`✅ SMS sent successfully to ${formattedNumber} (SID: ${message.sid})`);
+        console.log(`✅ SMS sent successfully via Twilio to ${formattedNumber} (SID: ${message.sid})`);
         smsSuccess = true;
+        messageProvider = 'Twilio';
       } catch (twilioError) {
         console.error('❌ Twilio SMS error:', twilioError);
         smsError = twilioError.message;
-        // In development, still allow the process to continue
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`[DEV] Verification code for ${formattedNumber}: ${code}`);
-          smsSuccess = true; // Allow development to continue
-        }
       }
-    } else {
-      // Development fallback - log to console
+    }
+
+    // Development fallback - log to console
+    if (!smsSuccess && process.env.NODE_ENV === 'development') {
       console.log(`[DEV] Verification code for ${formattedNumber}: ${code}`);
-      console.log('⚠️ Twilio not configured - using console logging');
-      smsSuccess = process.env.NODE_ENV === 'development';
+      console.log('⚠️ No SMS provider configured - using console logging');
+      smsSuccess = true;
+      messageProvider = 'Development Console';
     }
 
     if (smsSuccess) {
-      console.log(`✅ SMS verification successful for ${formattedNumber}`);
+      console.log(`✅ SMS verification successful for ${formattedNumber} via ${messageProvider}`);
       res.json({
         success: true,
         message: 'Verification code sent successfully',
-        phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2') // Mask phone number
+        phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
+        provider: messageProvider
       });
     } else {
       console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
@@ -138,7 +212,10 @@ router.post('/send-verification', async (req, res) => {
         success: false,
         error: 'SMS service unavailable. Please try again later.',
         details: process.env.NODE_ENV === 'development' ? smsError : undefined,
-        twilioConfigured: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
+        providers: {
+          accessYou: !!accessYouConfig.apiKey,
+          twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
+        }
       });
     }
   } catch (error) {
@@ -151,6 +228,69 @@ router.post('/send-verification', async (req, res) => {
       success: false,
       error: 'Internal server error',
       details: error.message || 'Unknown error occurred'
+    });
+  }
+});
+
+// Test AccessYou endpoint
+router.get('/test-accessyou', async (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    console.log('🔧 Testing AccessYou configuration...');
+    
+    if (!accessYouConfig.apiKey) {
+      return res.status(500).json({
+        error: 'AccessYou API key not configured',
+        configured: false,
+        details: {
+          hasApiKey: false,
+          senderId: accessYouConfig.senderId
+        }
+      });
+    }
+
+    // Test API connectivity
+    try {
+      const response = await fetch(`${accessYouConfig.baseUrl}/balance`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessYouConfig.apiKey}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        res.json({
+          success: true,
+          message: 'AccessYou SMS API is properly configured',
+          configured: true,
+          balance: data.balance || 'Unknown',
+          senderId: accessYouConfig.senderId
+        });
+      } else {
+        res.status(500).json({
+          error: 'AccessYou API authentication failed',
+          configured: false,
+          details: data.message || 'Unknown error'
+        });
+      }
+    } catch (apiError) {
+      console.error('❌ AccessYou API test failed:', apiError);
+      res.status(500).json({
+        error: 'AccessYou API connection failed',
+        details: apiError.message,
+        configured: false
+      });
+    }
+  } catch (error) {
+    console.error('AccessYou test error:', error);
+    res.status(500).json({
+      error: 'Failed to test AccessYou configuration',
+      details: error.message || 'Unknown error',
+      configured: false
     });
   }
 });
@@ -337,7 +477,32 @@ router.post('/simple-test', async (req, res) => {
   }
 });
 
-// Debug endpoint to check Twilio configuration
+// Debug endpoint to check SMS providers configuration
+router.get('/sms-status', (req, res) => {
+  res.json({
+    providers: {
+      accessYou: {
+        configured: !!accessYouConfig.apiKey,
+        apiKey: accessYouConfig.apiKey ? `${accessYouConfig.apiKey.substring(0, 8)}...` : 'Missing',
+        senderId: accessYouConfig.senderId,
+        baseUrl: accessYouConfig.baseUrl
+      },
+      twilio: {
+        hasClient: !!twilioClient,
+        hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
+        hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
+        hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER,
+        accountSidLength: process.env.TWILIO_ACCOUNT_SID?.length || 0,
+        phoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not set',
+        accountSidPreview: process.env.TWILIO_ACCOUNT_SID ? `${process.env.TWILIO_ACCOUNT_SID.substring(0, 6)}...` : 'Missing'
+      }
+    },
+    environment: process.env.NODE_ENV || 'development',
+    allSmsKeys: Object.keys(process.env).filter(key => key.includes('TWILIO') || key.includes('ACCESSYOU'))
+  });
+});
+
+// Legacy endpoint for backward compatibility
 router.get('/twilio-status', (req, res) => {
   res.json({
     twilioConfigured: {
