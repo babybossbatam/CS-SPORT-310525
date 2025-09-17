@@ -175,7 +175,7 @@ router.get('/test-twilio', async (req, res) => {
     try {
       // Just validate the client without sending SMS
       console.log('✅ Twilio client initialized successfully');
-      
+
       res.json({
         success: true,
         message: 'Twilio is properly configured and ready to send SMS',
@@ -202,41 +202,6 @@ router.get('/test-twilio', async (req, res) => {
       error: 'Failed to test Twilio configuration',
       details: error.message || 'Unknown error',
       configured: false
-    });
-  }
-});</old_str>
-
-    // Test endpoint - no phone number required, just check configuration
-
-    // Check if Twilio is configured
-    if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
-      return res.status(500).json({
-        error: 'Twilio not configured properly',
-        details: {
-          hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
-          hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
-          hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER
-        }
-      });
-    }
-
-    // Just check if Twilio is configured - don't send actual SMS
-    console.log('Twilio configuration test - credentials are properly configured');
-
-    res.json({
-      success: true,
-      message: 'Twilio is properly configured and ready to send SMS',
-      configured: true,
-      hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
-      hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
-      hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER
-    });
-  } catch (error) {
-    console.error('Twilio test error:', error);
-    res.status(500).json({
-      error: 'Failed to send test SMS',
-      details: error.message || 'Unknown Twilio error',
-      message: 'Failed to send test message'
     });
   }
 });
