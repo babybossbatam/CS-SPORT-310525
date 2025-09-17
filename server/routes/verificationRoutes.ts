@@ -12,17 +12,30 @@ router.options('*', (req, res) => {
   res.sendStatus(200);
 });
 
-// Initialize Twilio client
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
+// Initialize Twilio client with environment refresh
+let accountSid = process.env.TWILIO_ACCOUNT_SID;
+let authToken = process.env.TWILIO_AUTH_TOKEN;
+let phoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+// Force refresh environment variables if they're missing
+if (!accountSid || !authToken || !phoneNumber) {
+  console.log('🔄 Attempting to refresh Twilio environment variables...');
+  accountSid = process.env.TWILIO_ACCOUNT_SID;
+  authToken = process.env.TWILIO_AUTH_TOKEN;
+  phoneNumber = process.env.TWILIO_PHONE_NUMBER;
+}
 
 console.log('🔧 Twilio Environment Check:', {
   hasAccountSid: !!accountSid,
   hasAuthToken: !!authToken,
   hasPhoneNumber: !!phoneNumber,
   accountSidLength: accountSid ? accountSid.length : 0,
-  phoneNumber: phoneNumber || 'Not set'
+  phoneNumber: phoneNumber || 'Not set',
+  // Debug: Show first 6 chars of SID for verification
+  accountSidPreview: accountSid ? `${accountSid.substring(0, 6)}...` : 'Missing',
+  authTokenPreview: authToken ? 'Present' : 'Missing',
+  allEnvKeys: Object.keys(process.env).filter(key => key.includes('TWILIO')),
+  nodeEnv: process.env.NODE_ENV
 });
 
 const twilioClient = accountSid && authToken ? twilio(accountSid, authToken) : null;
@@ -333,9 +346,24 @@ router.get('/twilio-status', (req, res) => {
       hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
       hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER,
       accountSidLength: process.env.TWILIO_ACCOUNT_SID?.length || 0,
-      phoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not set'
+      phoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not set',
+      accountSidPreview: process.env.TWILIO_ACCOUNT_SID ? `${process.env.TWILIO_ACCOUNT_SID.substring(0, 6)}...` : 'Missing'
     },
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    allTwilioKeys: Object.keys(process.env).filter(key => key.includes('TWILIO'))
+  });
+});
+
+// Simple environment check endpoint
+router.get('/env-check', (req, res) => {
+  res.json({
+    twilioVars: {
+      TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ? 'SET' : 'MISSING',
+      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ? 'SET' : 'MISSING', 
+      TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER ? 'SET' : 'MISSING'
+    },
+    phoneNumberValue: process.env.TWILIO_PHONE_NUMBER,
+    timestamp: new Date().toISOString()
   });
 });
 
