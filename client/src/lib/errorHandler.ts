@@ -585,8 +585,11 @@ export const setupGlobalErrorHandlers = () => {
         error?.message?.includes('NetworkError') ||
         error?.message?.includes('attached_assets') ||
         error?.message?.includes('background.js') ||
-        error?.message?.includes('Invalid or unexpected token')) {
-      console.log('🌐 Network/asset error in global handler');
+        error?.message?.includes('Invalid or unexpected token') ||
+        error?.message?.includes('Unexpected token') ||
+        error?.message?.includes('DOCTYPE') ||
+        error?.message?.includes('not valid JSON')) {
+      console.log('🌐 Network/JSON parsing error in global handler');
       event.preventDefault();
       handleNetworkRecovery();
       return;
@@ -685,4 +688,38 @@ export const analyzeStoredErrors = () => {
 export const clearStoredErrors = () => {
   localStorage.removeItem('app-errors');
   console.log('🧹 Stored errors cleared');
+};
+
+// Safe JSON parsing utility
+export const safeJsonParse = async (response: Response) => {
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    const text = await response.text();
+    console.warn('⚠️ Non-JSON response received:', text.substring(0, 100) + '...');
+    throw new Error(`Expected JSON but received: ${contentType || 'unknown content type'}`);
+  }
+  
+  try {
+    return await response.json();
+  } catch (error) {
+    const text = await response.text();
+    console.error('❌ JSON parsing failed. Response text:', text.substring(0, 100) + '...');
+    throw new Error('Invalid JSON response');
+  }
+};
+
+// Enhanced fetch wrapper with error handling
+export const safeFetch = async (url: string, options?: RequestInit) => {
+  try {
+    const response = await fetch(url, options);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return await safeJsonParse(response);
+  } catch (error) {
+    console.error(`🌐 Fetch error for ${url}:`, error);
+    throw error;
+  }
 };
