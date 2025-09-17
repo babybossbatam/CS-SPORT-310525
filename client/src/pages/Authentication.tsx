@@ -256,29 +256,58 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       return;
     }
 
+    // Validate phone number format
+    const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
+    const phoneNumberWithoutCode = phoneNumber.replace(selectedCountryCode, "");
+    if (phoneNumberWithoutCode.length !== (selectedCountry?.digits || 8)) {
+      toast({
+        title: "Invalid Phone Number",
+        description: `Please enter a valid ${selectedCountry?.country} phone number`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSendingCode(true);
     try {
-      const response = await apiRequest("POST", "/api/auth/send-verification", {
+      const response = await apiRequest("POST", "/api/verification/send-verification", {
         phoneNumber: phoneNumber
       });
       
-      if (response.ok) {
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
         setCodeSent(true);
         setCountdown(60); // 60 second countdown
         toast({
           title: "Verification Code Sent",
-          description: "Please check your phone for the verification code",
+          description: `SMS code sent to ${phoneNumber}. Please check your messages.`,
         });
+        
+        // Focus on verification code input
+        setTimeout(() => {
+          const codeInput = document.querySelector('input[placeholder="SMS Verification Code"]') as HTMLInputElement;
+          if (codeInput) {
+            codeInput.focus();
+          }
+        }, 100);
       } else {
-        throw new Error("Failed to send verification code");
+        throw new Error(data.error || "Failed to send verification code");
       }
     } catch (error) {
       console.error("Failed to send verification code:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
       toast({
-        title: "Error",
-        description: "Failed to send verification code. Please try again.",
+        title: "SMS Sending Failed",
+        description: errorMessage.includes('Twilio') 
+          ? "SMS service unavailable. Please try again later." 
+          : errorMessage,
         variant: "destructive",
       });
+      
+      // Reset states on failure
+      setCodeSent(false);
+      setCountdown(0);
     } finally {
       setIsSendingCode(false);
     }
@@ -304,14 +333,14 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
     try {
       // First verify the SMS code
-      const verifyResponse = await apiRequest("POST", "/api/auth/verify-code", {
+      const verifyResponse = await apiRequest("POST", "/api/verification/verify-code", {
         phoneNumber: data.phoneNumber,
         code: verificationCode
       });
 
-      if (!verifyResponse.ok) {
-        const errorData = await verifyResponse.json();
-        throw new Error(errorData.error || "Invalid verification code");
+      const verifyData = await verifyResponse.json();
+      if (!verifyResponse.ok || !verifyData.success) {
+        throw new Error(verifyData.error || "Invalid verification code");
       }
 
       // Remove passwordConfirm as it's not part of the API model
