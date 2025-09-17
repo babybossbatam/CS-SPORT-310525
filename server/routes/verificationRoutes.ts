@@ -10,11 +10,11 @@ const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_T
   : null;
 
 // In-memory store for verification codes (in production, use Redis or database)
-const verificationCodes = new Map<string, { 
-  code: string; 
-  expires: Date; 
-  attempts?: number; 
-  createdAt?: Date; 
+const verificationCodes = new Map<string, {
+  code: string;
+  expires: Date;
+  attempts?: number;
+  createdAt?: Date;
 }>();
 
 // Generate a random 6-digit code
@@ -25,44 +25,39 @@ function generateVerificationCode(): string {
 // Send verification code endpoint
 router.post('/send-verification', async (req, res) => {
   try {
-    const { phoneNumber } = req.body;
+    const { phoneNumber, countryCode = '+1' } = req.body;
 
     if (!phoneNumber) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Phone number is required' 
-      });
+      return res.status(400).json({ error: 'Phone number is required' });
     }
 
-    // Validate phone number format (basic validation)
-    const phoneRegex = /^\+[1-9]\d{1,14}$/;
-    if (!phoneRegex.test(phoneNumber)) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Invalid phone number format' 
-      });
-    }
+    // Format phone number properly
+    const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber}`;
 
-    // Check if code was recently sent (rate limiting)
-    const existingCode = verificationCodes.get(phoneNumber);
+    console.log(`📱 Sending SMS to: ${formattedNumber}`);
+
+    // Generate verification code
+    const code = generateVerificationCode();
+    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    // Store the code with attempt tracking
+    verificationCodes.set(formattedNumber, {
+      code,
+      expires,
+      attempts: 0,
+      createdAt: new Date()
+    });
+
+    // Basic rate limiting for sending codes
+    const existingCode = verificationCodes.get(formattedNumber);
     if (existingCode && new Date() < new Date(existingCode.expires.getTime() - 8 * 60 * 1000)) {
-      return res.status(429).json({ 
-        success: false, 
+      return res.status(429).json({
+        success: false,
         error: 'Please wait before requesting another code',
         remainingTime: Math.ceil((existingCode.expires.getTime() - 8 * 60 * 1000 - Date.now()) / 1000)
       });
     }
 
-    const code = generateVerificationCode();
-    const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-
-    // Store the code with attempt tracking
-    verificationCodes.set(phoneNumber, { 
-      code, 
-      expires, 
-      attempts: 0,
-      createdAt: new Date()
-    });
 
     let smsSuccess = false;
     let smsError = null;
@@ -73,44 +68,49 @@ router.post('/send-verification', async (req, res) => {
         const message = await twilioClient.messages.create({
           body: `Your CS Sport verification code is: ${code}. Valid for 10 minutes.`,
           from: process.env.TWILIO_PHONE_NUMBER,
-          to: phoneNumber
+          to: formattedNumber
         });
-        console.log(`✅ SMS sent successfully to ${phoneNumber} (SID: ${message.sid})`);
+        console.log(`✅ SMS sent successfully to ${formattedNumber} (SID: ${message.sid})`);
         smsSuccess = true;
       } catch (twilioError) {
         console.error('❌ Twilio SMS error:', twilioError);
         smsError = twilioError.message;
         // In development, still allow the process to continue
         if (process.env.NODE_ENV === 'development') {
-          console.log(`[DEV] Verification code for ${phoneNumber}: ${code}`);
+          console.log(`[DEV] Verification code for ${formattedNumber}: ${code}`);
           smsSuccess = true; // Allow development to continue
         }
       }
     } else {
       // Development fallback - log to console
-      console.log(`[DEV] Verification code for ${phoneNumber}: ${code}`);
+      console.log(`[DEV] Verification code for ${formattedNumber}: ${code}`);
       console.log('⚠️ Twilio not configured - using console logging');
       smsSuccess = process.env.NODE_ENV === 'development';
     }
 
     if (smsSuccess) {
-      res.json({ 
-        success: true, 
+      res.json({
+        success: true,
         message: 'Verification code sent successfully',
-        phoneNumber: phoneNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2') // Mask phone number
+        phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2') // Mask phone number
       });
     } else {
-      res.status(503).json({ 
-        success: false, 
+      res.status(503).json({
+        success: false,
         error: 'SMS service unavailable. Please try again later.',
         details: process.env.NODE_ENV === 'development' ? smsError : undefined
       });
     }
   } catch (error) {
     console.error('Error sending verification code:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Internal server error' 
+    // Ensure we always return JSON, never HTML
+    if (res.headersSent) {
+      return;
+    }
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      details: error.message || 'Unknown error occurred'
     });
   }
 });
@@ -171,26 +171,26 @@ router.post('/verify-code', async (req, res) => {
     const { phoneNumber, code } = req.body;
 
     if (!phoneNumber || !code) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Phone number and code are required' 
+      return res.status(400).json({
+        success: false,
+        error: 'Phone number and code are required'
       });
     }
 
     const storedData = verificationCodes.get(phoneNumber);
 
     if (!storedData) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'No verification code found. Please request a new code.' 
+      return res.status(400).json({
+        success: false,
+        error: 'No verification code found. Please request a new code.'
       });
     }
 
     if (new Date() > storedData.expires) {
       verificationCodes.delete(phoneNumber);
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Verification code has expired. Please request a new code.' 
+      return res.status(400).json({
+        success: false,
+        error: 'Verification code has expired. Please request a new code.'
       });
     }
 
@@ -198,16 +198,16 @@ router.post('/verify-code', async (req, res) => {
     storedData.attempts = (storedData.attempts || 0) + 1;
     if (storedData.attempts > 5) {
       verificationCodes.delete(phoneNumber);
-      return res.status(429).json({ 
-        success: false, 
-        error: 'Too many failed attempts. Please request a new code.' 
+      return res.status(429).json({
+        success: false,
+        error: 'Too many failed attempts. Please request a new code.'
       });
     }
 
     if (storedData.code !== code.toString()) {
       verificationCodes.set(phoneNumber, storedData); // Update attempts count
-      return res.status(400).json({ 
-        success: false, 
+      return res.status(400).json({
+        success: false,
         error: 'Invalid verification code',
         attemptsRemaining: 5 - storedData.attempts
       });
@@ -217,16 +217,17 @@ router.post('/verify-code', async (req, res) => {
     verificationCodes.delete(phoneNumber);
     console.log(`✅ Phone number ${phoneNumber} verified successfully`);
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: 'Phone number verified successfully',
       verifiedAt: new Date().toISOString()
     });
   } catch (error) {
     console.error('Error verifying code:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to verify code' 
+    res.status(500).json({
+      success: false,
+      error: 'Failed to verify code',
+      details: error.message || 'Unknown error occurred'
     });
   }
 });
@@ -235,7 +236,7 @@ router.post('/verify-code', async (req, res) => {
 router.post('/simple-test', async (req, res) => {
   try {
     if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Twilio not configured',
         needsConfig: {
           accountSid: !process.env.TWILIO_ACCOUNT_SID,
@@ -246,7 +247,7 @@ router.post('/simple-test', async (req, res) => {
     }
 
     const { phoneNumber, message } = req.body;
-    
+
     if (!phoneNumber) {
       return res.status(400).json({ error: 'Phone number is required' });
     }
@@ -260,7 +261,7 @@ router.post('/simple-test', async (req, res) => {
     });
 
     console.log(`Simple test SMS sent successfully. SID: ${twilioMessage.sid}`);
-    
+
     res.json({
       success: true,
       messageSid: twilioMessage.sid,

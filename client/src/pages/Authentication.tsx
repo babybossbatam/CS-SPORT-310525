@@ -270,12 +270,21 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
     setIsSendingCode(true);
     try {
+      // Use the existing apiRequest function for consistency
       const response = await apiRequest("POST", "/api/verification/send-verification", {
-        phoneNumber: phoneNumber
+        phoneNumber: phoneNumber,
       });
-      
+
+      // Check if response is JSON
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        console.error('❌ Non-JSON response received:', text.substring(0, 200));
+        throw new Error('Server returned invalid response format');
+      }
+
       const data = await response.json();
-      
+
       if (response.ok && data.success) {
         setCodeSent(true);
         setCountdown(60); // 60 second countdown
@@ -283,7 +292,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           title: "Verification Code Sent",
           description: `SMS code sent to ${phoneNumber}. Please check your messages.`,
         });
-        
+
         // Focus on verification code input
         setTimeout(() => {
           const codeInput = document.querySelector('input[placeholder="SMS Verification Code"]') as HTMLInputElement;
@@ -296,15 +305,22 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       }
     } catch (error) {
       console.error("Failed to send verification code:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+      
+      let errorMessage = 'Failed to send verification code';
+      if (error instanceof Error) {
+        if (error.message.includes('Server returned invalid response')) {
+          errorMessage = 'Server error - please try again later';
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       toast({
         title: "SMS Sending Failed",
-        description: errorMessage.includes('Twilio') 
-          ? "SMS service unavailable. Please try again later." 
-          : errorMessage,
+        description: errorMessage,
         variant: "destructive",
       });
-      
+
       // Reset states on failure
       setCodeSent(false);
       setCountdown(0);
