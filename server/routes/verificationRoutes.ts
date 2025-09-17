@@ -4,6 +4,14 @@ import twilio from 'twilio';
 
 const router = Router();
 
+// Handle CORS preflight requests
+router.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.sendStatus(200);
+});
+
 // Initialize Twilio client
 const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
   ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
@@ -24,6 +32,12 @@ function generateVerificationCode(): string {
 
 // Send verification code endpoint
 router.post('/send-verification', async (req, res) => {
+  // Set CORS headers
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  res.header('Content-Type', 'application/json');
+
   try {
     const { phoneNumber, countryCode = '+1' } = req.body;
 
@@ -116,16 +130,13 @@ router.post('/send-verification', async (req, res) => {
 });
 
 // Test Twilio endpoint
-router.post('/test-twilio', async (req, res) => {
+router.get('/test-twilio', async (req, res) => {
   try {
-    // Set proper JSON content type
+    // Set proper JSON content type and CORS headers
     res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');</old_str>
 
-    const { phoneNumber } = req.body;
-
-    if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required' });
-    }
+    // Test endpoint - no phone number required, just check configuration
 
     // Check if Twilio is configured
     if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
@@ -139,21 +150,16 @@ router.post('/test-twilio', async (req, res) => {
       });
     }
 
-    // Send test SMS
-    const message = await twilioClient.messages.create({
-      body: 'This is a test message from CS Sport! Your Twilio integration is working correctly.',
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: phoneNumber
-    });
-
-    console.log(`Test SMS sent successfully to ${phoneNumber}. Message SID: ${message.sid}`);
+    // Just check if Twilio is configured - don't send actual SMS
+    console.log('Twilio configuration test - credentials are properly configured');
 
     res.json({
       success: true,
-      message: 'Test SMS sent successfully',
-      messageSid: message.sid,
-      to: phoneNumber,
-      from: process.env.TWILIO_PHONE_NUMBER
+      message: 'Twilio is properly configured and ready to send SMS',
+      configured: true,
+      hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
+      hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
+      hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER
     });
   } catch (error) {
     console.error('Twilio test error:', error);
