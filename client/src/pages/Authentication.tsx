@@ -305,7 +305,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       }
     } catch (error) {
       console.error("Failed to send verification code:", error);
-      
+
       let errorMessage = 'Failed to send verification code';
       if (error instanceof Error) {
         if (error.message.includes('Server returned invalid response')) {

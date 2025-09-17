@@ -113,16 +113,19 @@ router.post('/send-verification', async (req, res) => {
     }
 
     if (smsSuccess) {
+      console.log(`✅ SMS verification successful for ${formattedNumber}`);
       res.json({
         success: true,
         message: 'Verification code sent successfully',
         phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2') // Mask phone number
       });
     } else {
+      console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
       res.status(503).json({
         success: false,
         error: 'SMS service unavailable. Please try again later.',
-        details: process.env.NODE_ENV === 'development' ? smsError : undefined
+        details: process.env.NODE_ENV === 'development' ? smsError : undefined,
+        twilioConfigured: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
       });
     }
   } catch (error) {
@@ -319,6 +322,21 @@ router.post('/simple-test', async (req, res) => {
       details: error.message
     });
   }
+});
+
+// Debug endpoint to check Twilio configuration
+router.get('/twilio-status', (req, res) => {
+  res.json({
+    twilioConfigured: {
+      hasClient: !!twilioClient,
+      hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
+      hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
+      hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER,
+      accountSidLength: process.env.TWILIO_ACCOUNT_SID?.length || 0,
+      phoneNumber: process.env.TWILIO_PHONE_NUMBER || 'Not set'
+    },
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 export default router;
