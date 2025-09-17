@@ -60,6 +60,52 @@ router.post('/send-verification', async (req, res) => {
   }
 });
 
+// Test Twilio endpoint
+router.post('/test-twilio', async (req, res) => {
+  try {
+    const { phoneNumber } = req.body;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    // Check if Twilio is configured
+    if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+      return res.status(500).json({ 
+        error: 'Twilio not configured properly',
+        details: {
+          hasAccountSid: !!process.env.TWILIO_ACCOUNT_SID,
+          hasAuthToken: !!process.env.TWILIO_AUTH_TOKEN,
+          hasPhoneNumber: !!process.env.TWILIO_PHONE_NUMBER
+        }
+      });
+    }
+
+    // Send test SMS
+    const message = await twilioClient.messages.create({
+      body: 'This is a test message from CS Sport! Your Twilio integration is working correctly.',
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber
+    });
+
+    console.log(`Test SMS sent successfully to ${phoneNumber}. Message SID: ${message.sid}`);
+    
+    res.json({ 
+      success: true, 
+      message: 'Test SMS sent successfully',
+      messageSid: message.sid,
+      to: phoneNumber,
+      from: process.env.TWILIO_PHONE_NUMBER
+    });
+  } catch (error) {
+    console.error('Twilio test error:', error);
+    res.status(500).json({ 
+      error: 'Failed to send test SMS',
+      details: error.message 
+    });
+  }
+});
+
 // Verify code endpoint
 router.post('/verify-code', async (req, res) => {
   try {
