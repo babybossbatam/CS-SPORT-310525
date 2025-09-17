@@ -191,7 +191,38 @@ function App() {
         preloadData();
       }, { timeout: 2000 });
       
-      // Preload critical fonts with proper timing
+      // Optimize font loading strategy
+      const optimizeFontLoading = () => {
+        // Create multiple font display elements to trigger immediate usage
+        const triggerElements = [
+          document.createElement('span'),
+          document.createElement('div'),
+          document.createElement('p')
+        ];
+        
+        triggerElements.forEach((element, index) => {
+          element.style.fontFamily = 'Inter, sans-serif';
+          element.style.position = 'fixed';
+          element.style.top = '-100px';
+          element.style.left = '-100px';
+          element.style.fontSize = '12px';
+          element.style.visibility = 'hidden';
+          element.style.pointerEvents = 'none';
+          element.textContent = 'Inter font trigger';
+          element.setAttribute('aria-hidden', 'true');
+          
+          document.body.appendChild(element);
+          
+          // Remove after font is registered
+          setTimeout(() => {
+            if (document.body.contains(element)) {
+              document.body.removeChild(element);
+            }
+          }, 50 + (index * 10));
+        });
+      };
+
+      // Preload font with immediate usage
       const fontPreload = document.createElement('link');
       fontPreload.rel = 'preload';
       fontPreload.href = '/fonts/Inter-Regular.woff2';
@@ -199,16 +230,9 @@ function App() {
       fontPreload.type = 'font/woff2';
       fontPreload.crossOrigin = 'anonymous';
       
-      // Add error handling and immediate usage trigger
       fontPreload.onload = () => {
-        // Force immediate font usage by creating a hidden element
-        const testElement = document.createElement('div');
-        testElement.style.fontFamily = 'Inter, sans-serif';
-        testElement.style.position = 'absolute';
-        testElement.style.left = '-9999px';
-        testElement.textContent = 'preload';
-        document.body.appendChild(testElement);
-        setTimeout(() => document.body.removeChild(testElement), 100);
+        // Immediate font usage
+        optimizeFontLoading();
       };
       
       fontPreload.onerror = () => {
@@ -216,6 +240,11 @@ function App() {
       };
       
       document.head.appendChild(fontPreload);
+      
+      // Also trigger font usage immediately for safety
+      requestAnimationFrame(() => {
+        optimizeFontLoading();
+      });
     } else {
       preloadData();
     }

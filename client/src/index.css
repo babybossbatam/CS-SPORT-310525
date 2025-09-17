@@ -537,7 +537,26 @@ footer {
   }
 }
 
+/* Font face declaration for immediate recognition */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+}
+
 /* Force immediate font usage */
 html {
   font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Ensure font is used in body immediately */
+body::before {
+  content: '';
+  font-family: 'Inter', sans-serif;
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  visibility: hidden;
 }
