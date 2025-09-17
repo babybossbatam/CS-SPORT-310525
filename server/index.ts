@@ -1,5 +1,8 @@
 import express, { type Request, Response, NextFunction } from "express";
 import logoRoutes from './routes/logoRoutes';
+import playerVerificationRoutes from './routes/playerVerificationRoutes.js';
+import headtoheadRoutes from './routes/headtoheadRoutes.js';
+import verificationRoutes from './routes/verificationRoutes.js';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
@@ -24,11 +27,11 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-  
+
   if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-    
+
     if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
@@ -154,6 +157,9 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
 
   // API routes
   app.use('/api', logoRoutes);
+  app.use('/api', playerVerificationRoutes);
+  app.use('/api', headtoheadRoutes);
+  app.use('/api/verification', verificationRoutes);
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
