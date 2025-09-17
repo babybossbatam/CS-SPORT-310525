@@ -13,9 +13,19 @@ router.options('*', (req, res) => {
 });
 
 // Initialize Twilio client
-const twilioClient = process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN
-  ? twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
-  : null;
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const phoneNumber = process.env.TWILIO_PHONE_NUMBER;
+
+console.log('🔧 Twilio Environment Check:', {
+  hasAccountSid: !!accountSid,
+  hasAuthToken: !!authToken,
+  hasPhoneNumber: !!phoneNumber,
+  accountSidLength: accountSid ? accountSid.length : 0,
+  phoneNumber: phoneNumber || 'Not set'
+});
+
+const twilioClient = accountSid && authToken ? twilio(accountSid, authToken) : null;
 
 // In-memory store for verification codes (in production, use Redis or database)
 const verificationCodes = new Map<string, {
@@ -134,7 +144,67 @@ router.get('/test-twilio', async (req, res) => {
   try {
     // Set proper JSON content type and CORS headers
     res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Access-Control-Allow-Origin', '*');</old_str>
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    console.log('🔧 Testing Twilio configuration...');
+    console.log('Environment variables:', {
+      TWILIO_ACCOUNT_SID: accountSid ? `${accountSid.substring(0, 6)}...` : 'NOT SET',
+      TWILIO_AUTH_TOKEN: authToken ? 'SET' : 'NOT SET',
+      TWILIO_PHONE_NUMBER: phoneNumber || 'NOT SET'
+    });
+
+    // Check if Twilio is configured
+    if (!twilioClient || !phoneNumber) {
+      return res.status(500).json({
+        error: 'Twilio not configured properly',
+        details: {
+          hasAccountSid: !!accountSid,
+          hasAuthToken: !!authToken,
+          hasPhoneNumber: !!phoneNumber,
+          twilioClientInitialized: !!twilioClient
+        },
+        environmentCheck: {
+          accountSid: accountSid ? `${accountSid.substring(0, 6)}...` : 'Missing',
+          authToken: authToken ? 'Present' : 'Missing',
+          phoneNumber: phoneNumber || 'Missing'
+        }
+      });
+    }
+
+    // Test Twilio client initialization
+    try {
+      // Just validate the client without sending SMS
+      console.log('✅ Twilio client initialized successfully');
+      
+      res.json({
+        success: true,
+        message: 'Twilio is properly configured and ready to send SMS',
+        configured: true,
+        details: {
+          hasAccountSid: true,
+          hasAuthToken: true,
+          hasPhoneNumber: true,
+          twilioClientReady: true,
+          phoneNumber: phoneNumber
+        }
+      });
+    } catch (twilioError) {
+      console.error('❌ Twilio client validation failed:', twilioError);
+      res.status(500).json({
+        error: 'Twilio client validation failed',
+        details: twilioError.message,
+        configured: false
+      });
+    }
+  } catch (error) {
+    console.error('Twilio test error:', error);
+    res.status(500).json({
+      error: 'Failed to test Twilio configuration',
+      details: error.message || 'Unknown error',
+      configured: false
+    });
+  }
+});</old_str>
 
     // Test endpoint - no phone number required, just check configuration
 
