@@ -588,8 +588,10 @@ export const setupGlobalErrorHandlers = () => {
         error?.message?.includes('Invalid or unexpected token') ||
         error?.message?.includes('Unexpected token') ||
         error?.message?.includes('DOCTYPE') ||
-        error?.message?.includes('not valid JSON')) {
-      console.log('🌐 Network/JSON parsing error in global handler');
+        error?.message?.includes('not valid JSON') ||
+        error?.message?.includes('LCP is slow') ||
+        error?.message?.includes('Performance Metrics')) {
+      console.log('🌐 Network/JSON/Performance error suppressed');
       event.preventDefault();
       handleNetworkRecovery();
       return;

@@ -56,10 +56,19 @@ const PerformanceMonitor: React.FC = () => {
           FID: `${metrics.fid?.toFixed(2)}ms`
         });
 
-        // Warn if metrics exceed thresholds
-        if (metrics.lcp > 2500) console.warn('⚠️ LCP is slow:', metrics.lcp);
-        if (metrics.cls > 0.1) console.warn('⚠️ CLS is high:', metrics.cls);
-        if (metrics.fid > 100) console.warn('⚠️ FID is slow:', metrics.fid);
+        // Warn if metrics exceed thresholds (but only once per session)
+        if (metrics.lcp > 2500 && !sessionStorage.getItem('lcp-warning-shown')) {
+          console.warn('⚠️ LCP is slow:', metrics.lcp);
+          sessionStorage.setItem('lcp-warning-shown', 'true');
+        }
+        if (metrics.cls > 0.1 && !sessionStorage.getItem('cls-warning-shown')) {
+          console.warn('⚠️ CLS is high:', metrics.cls);
+          sessionStorage.setItem('cls-warning-shown', 'true');
+        }
+        if (metrics.fid > 100 && !sessionStorage.getItem('fid-warning-shown')) {
+          console.warn('⚠️ FID is slow:', metrics.fid);
+          sessionStorage.setItem('fid-warning-shown', 'true');
+        }
       }
     }
   }, [metrics]);

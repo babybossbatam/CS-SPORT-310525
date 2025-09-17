@@ -184,8 +184,24 @@ function App() {
     // Start performance monitoring
     console.log('🚀 Starting performance monitoring...');
 
-    // Preload critical data
-    preloadData();
+    // Optimize performance for initial load
+    if (typeof window !== 'undefined') {
+      // Reduce initial bundle size impact
+      requestIdleCallback(() => {
+        preloadData();
+      }, { timeout: 2000 });
+      
+      // Preload critical fonts
+      const fontPreload = document.createElement('link');
+      fontPreload.rel = 'preload';
+      fontPreload.href = '/fonts/Inter-Regular.woff2';
+      fontPreload.as = 'font';
+      fontPreload.type = 'font/woff2';
+      fontPreload.crossOrigin = 'anonymous';
+      document.head.appendChild(fontPreload);
+    } else {
+      preloadData();
+    }
 
     return () => {
       cleanupCacheRefresh(refreshInterval);

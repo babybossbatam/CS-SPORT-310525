@@ -50,12 +50,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           throw new Error('No internet connection');
         }
 
-        // Set up timeout that only aborts if request is still pending - reduced to 15 seconds for better reliability
+        // Set up timeout that only aborts if request is still pending - reduced to 8 seconds for faster response
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 15 seconds');
+            controller.abort('Request timeout after 8 seconds');
           }
-        }, 15000);
+        }, 8000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -137,7 +137,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         const cachedData = queryClient.getQueryData(['central-date-fixtures', validDate]);
 
         if (errorName === 'AbortError' || errorMessage.includes('timeout')) {
-          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 15 seconds`);
+          console.warn(`⏰ [CentralDataProvider] Request timeout for ${validDate} after 8 seconds`);
         } else if (errorMessage.includes('Failed to fetch')) {
           console.warn(`🌐 [CentralDataProvider] Network error for ${validDate}: Server unreachable or connection lost`);
         } else if (isNetworkError) {

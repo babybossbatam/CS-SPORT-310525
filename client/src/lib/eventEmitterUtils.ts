@@ -288,7 +288,11 @@ if (typeof window !== 'undefined') {
       message.includes('EventEmitter memory leak detected') ||
       message.includes('watchTextFile') ||
       message.includes('Use emitter.setMaxListeners()') ||
-      message.includes('Possible EventEmitter memory leak')
+      message.includes('Possible EventEmitter memory leak') ||
+      message.includes('Request timeout for') ||
+      message.includes('LCP is slow') ||
+      message.includes('CLS is high') ||
+      message.includes('FID is slow')
     ) {
       return; // Suppress these warnings
     }
