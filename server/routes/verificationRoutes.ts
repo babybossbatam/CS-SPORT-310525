@@ -143,4 +143,52 @@ router.post('/verify-code', async (req, res) => {
   }
 });
 
+// Simple test endpoint for manual Twilio testing
+router.post('/simple-test', async (req, res) => {
+  try {
+    if (!twilioClient || !process.env.TWILIO_PHONE_NUMBER) {
+      return res.status(500).json({ 
+        error: 'Twilio not configured',
+        needsConfig: {
+          accountSid: !process.env.TWILIO_ACCOUNT_SID,
+          authToken: !process.env.TWILIO_AUTH_TOKEN,
+          phoneNumber: !process.env.TWILIO_PHONE_NUMBER
+        }
+      });
+    }
+
+    const { phoneNumber, message } = req.body;
+    
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    const messageBody = message || 'Test message from CS Sport - Twilio is working!';
+
+    const twilioMessage = await twilioClient.messages.create({
+      body: messageBody,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      to: phoneNumber
+    });
+
+    console.log(`Simple test SMS sent successfully. SID: ${twilioMessage.sid}`);
+    
+    res.json({
+      success: true,
+      messageSid: twilioMessage.sid,
+      message: 'Test SMS sent successfully',
+      body: messageBody,
+      to: phoneNumber,
+      from: process.env.TWILIO_PHONE_NUMBER
+    });
+
+  } catch (error) {
+    console.error('Simple Twilio test error:', error);
+    res.status(500).json({
+      error: 'Failed to send test SMS',
+      details: error.message
+    });
+  }
+});
+
 export default router;
