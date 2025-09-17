@@ -191,13 +191,30 @@ function App() {
         preloadData();
       }, { timeout: 2000 });
       
-      // Preload critical fonts
+      // Preload critical fonts with proper timing
       const fontPreload = document.createElement('link');
       fontPreload.rel = 'preload';
       fontPreload.href = '/fonts/Inter-Regular.woff2';
       fontPreload.as = 'font';
       fontPreload.type = 'font/woff2';
       fontPreload.crossOrigin = 'anonymous';
+      
+      // Add error handling and immediate usage trigger
+      fontPreload.onload = () => {
+        // Force immediate font usage by creating a hidden element
+        const testElement = document.createElement('div');
+        testElement.style.fontFamily = 'Inter, sans-serif';
+        testElement.style.position = 'absolute';
+        testElement.style.left = '-9999px';
+        testElement.textContent = 'preload';
+        document.body.appendChild(testElement);
+        setTimeout(() => document.body.removeChild(testElement), 100);
+      };
+      
+      fontPreload.onerror = () => {
+        console.log('🔧 Font preload failed, using fallback');
+      };
+      
       document.head.appendChild(fontPreload);
     } else {
       preloadData();

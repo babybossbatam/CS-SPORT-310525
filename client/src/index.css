@@ -528,11 +528,16 @@ footer {
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
+}
+
+/* Force immediate font usage */
+html {
+  font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
 }
