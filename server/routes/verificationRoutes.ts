@@ -698,9 +698,6 @@ router.get('/deployment-ip', async (req, res) => {
   }
 });
 
-export default router;
-
-
 // Server IP check endpoint for AccessYou whitelisting
 router.get('/server-ip', async (req, res) => {
   try {
