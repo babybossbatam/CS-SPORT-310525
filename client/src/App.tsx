@@ -73,64 +73,35 @@ const AppWithLanguageRouting = () => {
   );
 };
 
-// Protected Route Component
-const ProtectedRoute = ({ component: Component, ...props }: any) => {
-  const { user, isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-  const [location] = useLocation();
-  
-  // Extract language from current path
-  const pathParts = location.split('/').filter(part => part);
-  const currentLang = pathParts[0] || 'en';
-  
-  // Show loading while checking authentication
-  if (isLoading) {
-    return <BrandedLoading />;
-  }
-  
-  // If user is not authenticated, redirect to login
-  if (!isAuthenticated || !user) {
-    const loginPath = `/${currentLang}/login`;
-    if (location !== loginPath) {
-      // Prevent redirect loops by using a more reliable redirect
-      window.location.replace(loginPath);
-      return null;
-    }
-  }
-  
-  return <Component {...props} />;
-};
+      // Separate component for routes
+      const AppRoutes = () => {
+        return (
+          <Switch>
+            {/* Routes with language prefix */}
+            <Route path="/:lang" component={Home} />
+            <Route path="/:lang/" component={Home} />
+            <Route path="/:lang/football" component={Football} />
+            <Route path="/:lang/basketball" component={Basketball} />
+            <Route path="/:lang/tv" component={TV} />
+            <Route path="/:lang/horse-racing" component={HorseRacing} />
+            <Route path="/:lang/snooker" component={Snooker} />
+            <Route path="/:lang/esport" component={Esport} />
+            <Route path="/:lang/match/:matchId" component={MatchDetails} />
+            <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
+            <Route path="/:lang/my-scores" component={MyScores} />
+            <Route path="/:lang/login" component={Authentication} />
 
-// Separate component for routes
-const AppRoutes = () => {
-  return (
-    <Switch>
-      {/* Authentication routes (unprotected) */}
-      <Route path="/:lang/login" component={Authentication} />
-      
-      {/* Protected routes with language prefix */}
-      <Route path="/:lang" component={(props: any) => <ProtectedRoute component={Home} {...props} />} />
-      <Route path="/:lang/" component={(props: any) => <ProtectedRoute component={Home} {...props} />} />
-      <Route path="/:lang/football" component={(props: any) => <ProtectedRoute component={Football} {...props} />} />
-      <Route path="/:lang/basketball" component={(props: any) => <ProtectedRoute component={Basketball} {...props} />} />
-      <Route path="/:lang/tv" component={(props: any) => <ProtectedRoute component={TV} {...props} />} />
-      <Route path="/:lang/horse-racing" component={(props: any) => <ProtectedRoute component={HorseRacing} {...props} />} />
-      <Route path="/:lang/snooker" component={(props: any) => <ProtectedRoute component={Snooker} {...props} />} />
-      <Route path="/:lang/esport" component={(props: any) => <ProtectedRoute component={Esport} {...props} />} />
-      <Route path="/:lang/match/:matchId" component={(props: any) => <ProtectedRoute component={MatchDetails} {...props} />} />
-      <Route path="/:lang/league/:leagueId" component={(props: any) => <ProtectedRoute component={LeagueDetails} {...props} />} />
-      <Route path="/:lang/my-scores" component={(props: any) => <ProtectedRoute component={MyScores} {...props} />} />
-
-      {/* Fallback routes without language (redirect to default language login) */}
-      <Route path="/" component={() => {
-        window.location.href = "/en/login";
+            {/* Fallback routes without language (redirect to default language) */}
+            <Route path="/" component={() => {
+              window.location.href = "/en";
         return null;
       }} />
       <Route path="/football" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en/football";
         return null;
       }} />
       <Route path="/basketball" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en/basketball";
         return null;
       }} />
 
