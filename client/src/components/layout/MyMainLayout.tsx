@@ -107,53 +107,53 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           }}
         >
           {/* Left column (5 columns on desktop, full width on mobile) - Hide on mobile when match is selected */}
-          {(!isMobile || !selectedFixture) && (
-            <div
-              className={cn(
-                "space-y-4",
-                isMobile ? "w-full col-span-1 px-0" : "lg:col-span-5",
-              )}
-              style={{
-                width: isMobile ? "100%" : "auto",
-                maxWidth: isMobile ? "100%" : "none",
-              }}
-            >
-              {/* Render children if provided, otherwise show TodayMatchPageCard */}
-              {children ? (
-                <div>{children}</div>
-              ) : (
-                <div>
-                  <TodayMatchPageCard
-                    fixtures={filteredFixtures}
-                    onMatchClick={handleMatchClick}
-                    onMatchCardClick={handleMatchCardClick}
-                  />
-                </div>
-              )}
-            </div>
-          )}
+          <div
+            className={cn(
+              "space-y-4",
+              isMobile ? "w-full col-span-1 px-0" : "lg:col-span-5",
+              // Hide on mobile when fixture is selected, but keep mounted
+              isMobile && selectedFixture ? "hidden" : "",
+            )}
+            style={{
+              width: isMobile ? "100%" : "auto",
+              maxWidth: isMobile ? "100%" : "none",
+            }}
+          >
+            {/* Render children if provided, otherwise show TodayMatchPageCard */}
+            {children ? (
+              <div>{children}</div>
+            ) : (
+              <div>
+                <TodayMatchPageCard
+                  fixtures={filteredFixtures}
+                  onMatchClick={handleMatchClick}
+                  onMatchCardClick={handleMatchCardClick}
+                />
+              </div>
+            )}
+          </div>
 
           {/* Right column (7 columns) - Show when match is selected on mobile, always show on desktop */}
-          {(!isMobile || selectedFixture) && (
-            <div
-              className={cn(
-                "space-y-4 ",
-                isMobile ? "col-span-1" : "lg:col-span-7",
-                isMobile && selectedFixture
-                  ? "fixed inset-0 z-50 bg-white"
-                  : "",
-              )}
-            >
-              {selectedFixture ? (
-                <MyMainLayoutRight
-                  selectedFixture={selectedFixture}
-                  onClose={handleBackToMain}
-                />
-              ) : (
-                <MyRightContent />
-              )}
-            </div>
-          )}
+          <div
+            className={cn(
+              "space-y-4",
+              isMobile ? "col-span-1" : "lg:col-span-7",
+              isMobile && selectedFixture
+                ? "fixed inset-0 z-50 bg-white"
+                : "",
+              // Hide on mobile when no fixture is selected, but keep mounted
+              isMobile && !selectedFixture ? "hidden" : "",
+            )}
+          >
+            {selectedFixture ? (
+              <MyMainLayoutRight
+                selectedFixture={selectedFixture}
+                onClose={handleBackToMain}
+              />
+            ) : (
+              <MyRightContent />
+            )}
+          </div>
         </div>
       </div>
     </>
