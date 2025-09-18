@@ -15,11 +15,14 @@ export const users = pgTable("users", {
 export const userPreferences = pgTable("user_preferences", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),
-  favoriteTeams: jsonb("favorite_teams").$type<string[]>(),
-  favoriteLeagues: jsonb("favorite_leagues").$type<string[]>(),
+  favoriteTeams: jsonb("favorite_teams").$type<string[]>().default([]),
+  favoriteLeagues: jsonb("favorite_leagues").$type<string[]>().default([]),
+  favoriteMatches: jsonb("favorite_matches").$type<string[]>().default([]),
+  region: text("region").default("global"),
+  notifications: boolean("notifications").default(true),
+  theme: text("theme").default("light"),
   language: text("language").default("en"),
   timezone: text("timezone").default("UTC"),
-  theme: text("theme").default("light"),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
