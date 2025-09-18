@@ -94,31 +94,45 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         if (playerName && playerName.trim()) {
           try {
             const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName.trim())}`;
+            console.log(`🔍 [MyAvatarInfo-${componentId}] Trying name search: ${nameSearchUrl}`);
+            
             const response = await fetch(nameSearchUrl, {
-              method: "GET", // Use GET instead of HEAD to get actual response
+              method: "GET",
+              headers: {
+                'Accept': 'application/json, image/*',
+                'Cache-Control': 'no-cache'
+              }
+            });
+
+            console.log(`📡 [MyAvatarInfo-${componentId}] Name search response:`, {
+              status: response.status,
+              statusText: response.statusText,
+              url: response.url,
+              headers: Object.fromEntries(response.headers.entries())
             });
 
             if (response.ok) {
-              const finalUrl = response.url;
-              // Check if we got a real image URL (not a fallback)
-              if (
-                finalUrl &&
-                !finalUrl.includes("ui-avatars.com") &&
-                !finalUrl.includes("default.png") &&
-                !finalUrl.includes("placeholder") &&
-                !finalUrl.includes("fallback")
-              ) {
-                console.log(
-                  `✅ [MyAvatarInfo-${componentId}] Found via name search: ${finalUrl}`,
-                );
+              const contentType = response.headers.get('content-type');
+              if (contentType && contentType.startsWith('image/')) {
+                // Direct image response
+                const finalUrl = response.url;
+                console.log(`✅ [MyAvatarInfo-${componentId}] Found image via name search: ${finalUrl}`);
                 imageCache.set(cacheKey, finalUrl);
                 return finalUrl;
+              } else if (contentType && contentType.includes('json')) {
+                // JSON response with image URL
+                const data = await response.json();
+                if (data.imageUrl && data.imageUrl !== fallbackUrl) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found JSON image via name search: ${data.imageUrl}`);
+                  imageCache.set(cacheKey, data.imageUrl);
+                  return data.imageUrl;
+                }
               }
+            } else {
+              console.log(`❌ [MyAvatarInfo-${componentId}] Name search failed: ${response.status} ${response.statusText}`);
             }
           } catch (error) {
-            console.log(
-              `⚠️ [MyAvatarInfo-${componentId}] Name search failed: ${error}`,
-            );
+            console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search error:`, error);
           }
         }
 
@@ -126,30 +140,45 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         if (playerId && playerId > 0) {
           try {
             const idSearchUrl = `/api/player-photo/${playerId}`;
+            console.log(`🔍 [MyAvatarInfo-${componentId}] Trying ID search: ${idSearchUrl}`);
+            
             const response = await fetch(idSearchUrl, {
               method: "GET",
+              headers: {
+                'Accept': 'application/json, image/*',
+                'Cache-Control': 'no-cache'
+              }
+            });
+
+            console.log(`📡 [MyAvatarInfo-${componentId}] ID search response:`, {
+              status: response.status,
+              statusText: response.statusText,
+              url: response.url,
+              headers: Object.fromEntries(response.headers.entries())
             });
 
             if (response.ok) {
-              const finalUrl = response.url;
-              if (
-                finalUrl &&
-                !finalUrl.includes("ui-avatars.com") &&
-                !finalUrl.includes("default.png") &&
-                !finalUrl.includes("placeholder") &&
-                !finalUrl.includes("fallback")
-              ) {
-                console.log(
-                  `✅ [MyAvatarInfo-${componentId}] Found via ID search: ${finalUrl}`,
-                );
+              const contentType = response.headers.get('content-type');
+              if (contentType && contentType.startsWith('image/')) {
+                // Direct image response
+                const finalUrl = response.url;
+                console.log(`✅ [MyAvatarInfo-${componentId}] Found image via ID search: ${finalUrl}`);
                 imageCache.set(cacheKey, finalUrl);
                 return finalUrl;
+              } else if (contentType && contentType.includes('json')) {
+                // JSON response with image URL
+                const data = await response.json();
+                if (data.imageUrl && data.imageUrl !== fallbackUrl) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found JSON image via ID search: ${data.imageUrl}`);
+                  imageCache.set(cacheKey, data.imageUrl);
+                  return data.imageUrl;
+                }
               }
+            } else {
+              console.log(`❌ [MyAvatarInfo-${componentId}] ID search failed: ${response.status} ${response.statusText}`);
             }
           } catch (error) {
-            console.log(
-              `⚠️ [MyAvatarInfo-${componentId}] ID search failed: ${error}`,
-            );
+            console.log(`⚠️ [MyAvatarInfo-${componentId}] ID search error:`, error);
           }
         }
 
