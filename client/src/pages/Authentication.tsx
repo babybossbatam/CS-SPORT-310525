@@ -177,6 +177,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
   // Handle login submission
   const onLoginSubmit = async (data: z.infer<typeof loginSchema>) => {
     setIsLoading(true);
+    dispatch(userActions.setLoading(true));
 
     try {
       const response = await apiRequest("POST", "/api/auth/login", data);
@@ -237,6 +238,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Login failed:", error);
+      dispatch(userActions.setLoading(false));
+      dispatch(userActions.setAuthenticated(false));
       toast({
         title: "Login Failed",
         description: "Invalid username or password",

@@ -1,5 +1,5 @@
-import { 
-  User, InsertUser, 
+import {
+  User, InsertUser,
   UserPreferences, InsertUserPreferences,
   CachedFixture, InsertCachedFixture,
   CachedLeague, InsertCachedLeague,
@@ -88,11 +88,11 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.userIdCounter++;
-    const user: User = { 
-      ...insertUser, 
-      id, 
+    const user: User = {
+      ...insertUser,
+      id,
       createdAt: new Date(),
-      fullName: insertUser.fullName || null 
+      fullName: insertUser.fullName || null
     };
     this.users.set(id, user);
     return user;
@@ -107,8 +107,8 @@ export class MemStorage implements IStorage {
 
   async createUserPreferences(insertPrefs: InsertUserPreferences): Promise<UserPreferences> {
     const id = this.prefIdCounter++;
-    const prefs: UserPreferences = { 
-      ...insertPrefs, 
+    const prefs: UserPreferences = {
+      ...insertPrefs,
       id,
       favoriteTeams: insertPrefs.favoriteTeams || [],
       favoriteLeagues: insertPrefs.favoriteLeagues || [],
@@ -120,7 +120,7 @@ export class MemStorage implements IStorage {
   }
 
   async updateUserPreferences(
-    userId: number, 
+    userId: number,
     updatedFields: Partial<InsertUserPreferences>
   ): Promise<UserPreferences | undefined> {
     const existingPrefs = await this.getUserPreferences(userId);
@@ -162,10 +162,10 @@ export class MemStorage implements IStorage {
 
   async createCachedFixture(insertFixture: InsertCachedFixture): Promise<CachedFixture> {
     const id = this.fixtureIdCounter++;
-    const fixture: CachedFixture = { 
-      ...insertFixture, 
-      id, 
-      timestamp: new Date() 
+    const fixture: CachedFixture = {
+      ...insertFixture,
+      id,
+      timestamp: new Date()
     };
     this.fixtures.set(insertFixture.fixtureId, fixture);
     return fixture;
@@ -199,10 +199,10 @@ export class MemStorage implements IStorage {
 
   async createCachedLeague(insertLeague: InsertCachedLeague): Promise<CachedLeague> {
     const id = this.leagueIdCounter++;
-    const league: CachedLeague = { 
-      ...insertLeague, 
-      id, 
-      timestamp: new Date() 
+    const league: CachedLeague = {
+      ...insertLeague,
+      id,
+      timestamp: new Date()
     };
     this.leagues.set(insertLeague.leagueId, league);
     return league;
@@ -362,7 +362,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateUserPreferences(
-    userId: number, 
+    userId: number,
     updatedFields: Partial<InsertUserPreferences>
   ): Promise<UserPreferences | undefined> {
     try {
