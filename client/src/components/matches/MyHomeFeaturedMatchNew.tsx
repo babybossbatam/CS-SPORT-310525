@@ -29,7 +29,7 @@ import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslati
 import { RoundBadge } from "@/components/ui/round-badge";
 import MatchCard from "./MatchCard"; // Assuming MatchCard component exists
 
-// Import popular teams data from the same source as PopularTeamsList
+// Popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: "Manchester United", country: "England" },
   { id: 40, name: "Liverpool", country: "England" },
@@ -69,6 +69,17 @@ const POPULAR_TEAMS_DATA = [
   { id: 1860, name: "Borussia Dortmund II", country: "Germany" },
   { id: 8572, name: "Jong PSV", country: "Netherlands" },
   { id: 8564, name: "Jong Ajax", country: "Netherlands" },
+];
+
+// Elite teams for Champions League - only the most popular clubs
+const CHAMPIONS_LEAGUE_ELITE_TEAMS = [
+  33, 40, 50, 42, 49, // Premier League elite: Man United, Liverpool, Man City, Arsenal, Chelsea
+  541, 529, 548, // La Liga elite: Real Madrid, Barcelona, Atletico Madrid
+  157, 165, 168, // Bundesliga elite: Bayern Munich, Borussia Dortmund, Bayer Leverkusen
+  489, 492, 496, 502, // Serie A elite: AC Milan, Inter, Juventus, Napoli
+  81, // Ligue 1 elite: PSG
+  610, 194, // Eredivisie elite: Ajax, PSV
+  211, 212, 228, // Primeira Liga elite: Porto, Benfica, Sporting CP
 ];
 
 const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map((team) => team.id);
@@ -148,12 +159,19 @@ const isPopularTeamMatch = (
   awayTeam: string,
   homeTeamId?: number,
   awayTeamId?: number,
+  leagueId?: number, // Added leagueId parameter
 ): boolean => {
+  // If it's Champions League, only consider elite teams
+  const isChampionsLeague = leagueId === 2; // Assuming League ID 2 is Champions League
+  const popularIdsToCheck = isChampionsLeague
+    ? CHAMPIONS_LEAGUE_ELITE_TEAMS
+    : POPULAR_TEAM_IDS;
+
   // First check by team ID (most accurate)
   if (homeTeamId && awayTeamId) {
     const hasPopularTeamById =
-      POPULAR_TEAM_IDS.includes(homeTeamId) ||
-      POPULAR_TEAM_IDS.includes(awayTeamId);
+      popularIdsToCheck.includes(homeTeamId) ||
+      popularIdsToCheck.includes(awayTeamId);
     if (hasPopularTeamById) {
       return true;
     }
@@ -163,17 +181,24 @@ const isPopularTeamMatch = (
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
 
-  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
+  const popularNamesToCheck = isChampionsLeague
+    ? CHAMPIONS_LEAGUE_ELITE_TEAMS.map(
+        (id) =>
+          POPULAR_TEAMS_DATA.find((team) => team.id === id)?.name.toLowerCase(),
+      ).filter(Boolean)
+    : POPULAR_TEAM_NAMES;
+
+  const hasPopularTeamByName = popularNamesToCheck.some(
     (popularTeam) =>
-      homeTeamLower.includes(popularTeam) ||
-      awayTeamLower.includes(popularTeam),
+      homeTeamLower.includes(popularTeam!) ||
+      awayTeamLower.includes(popularTeam!),
   );
 
   if (hasPopularTeamByName) {
     return true;
   }
 
-  // Enhanced keyword-based matching
+  // Enhanced keyword-based matching (can also be made league-specific if needed)
   const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(
     (keyword) =>
       homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword),
@@ -1130,6 +1155,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     awayTeam,
                     homeTeamId,
                     awayTeamId,
+                    fixture.league?.id, // Pass league ID
                   );
 
                   if (isPopular) {
@@ -1427,6 +1453,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           awayTeam,
                           homeTeamId,
                           awayTeamId,
+                          fixture.league?.id, // Pass league ID
                         );
 
                         if (isPopular) {
