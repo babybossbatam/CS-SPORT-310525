@@ -38,11 +38,11 @@ const MyRightContent: React.FC = () => {
 
   return (
     <div className="h-full min-h-0 relative">
-      {/* Main content - always rendered but hidden when match is selected */}
+      {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
           "h-full min-h-0 overflow-y-auto space-y-4 pb-4 transition-opacity duration-200",
-          selectedFixture ? "opacity-0 pointer-events-none" : "opacity-100"
+          selectedFixture ? "opacity-0 pointer-events-none absolute inset-0 z-0" : "opacity-100"
         )}
       >
         {/* Featured Match Section - Hidden on mobile */}
@@ -58,8 +58,31 @@ const MyRightContent: React.FC = () => {
 
         <LeagueStandingsFilter />
 
-        {/* CS SPORT Information Card */}
+        {/* Popular Leagues and All League List sections */}
+        <div className="grid grid-cols-2 gap-4 ">
+          <div className="space-y-4">
+            <PopularLeaguesList />
+            <PopularTeamsList />
+          </div>
+          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+        </div>
+
         <MyInfo />
+      </div>
+
+      {/* Match details overlay - shown when fixture is selected */}
+      {selectedFixture && (
+        <div className={cn(
+          "absolute inset-0 z-10 bg-white dark:bg-gray-900 transition-opacity duration-200",
+          selectedFixture ? "opacity-100" : "opacity-0 pointer-events-none"
+        )}>
+          <MyMainLayoutRight
+            selectedFixture={selectedFixture}
+            onClose={handleCloseDetails}
+          />
+        </div>
+      )}
+    </div>nfo />
 
         {/* Popular Leagues and All League List sections */}
         <div className="grid grid-cols-2 gap-4 ">
