@@ -182,9 +182,9 @@ const isPopularTeamMatch = (
   return hasKeywordMatch;
 };
 interface MyHomeFeaturedMatchNewProps {
-  selectedDate?: string;
+  selectedDate: string;
   maxMatches?: number;
-  onMatchSelect?: (matchId: number) => void;
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 // Popular leagues from PopularLeaguesList.tsx
@@ -290,8 +290,9 @@ interface DayMatches {
 }
 
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
-  maxMatches = 15,
-  onMatchSelect,
+  selectedDate,
+  maxMatches = 6,
+  onMatchCardClick,
 }) => {
   // Add CSS for truePulse animation
   const truePulseStyle = `
@@ -3046,12 +3047,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
 
                       // Call onMatchSelect if provided (for Details tab)
-                      if (onMatchSelect) {
+                      if (onMatchCardClick) {
                         console.log(
                           `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
                           currentMatch.fixture.id,
                         );
-                        onMatchSelect(currentMatch.fixture.id);
+                        onMatchCardClick(currentMatch.fixture); // Pass the entire fixture object
                       } else {
                         // Navigate to match details page if no callback provided
                         navigate(`/match/${currentMatch.fixture.id}`);
