@@ -23,8 +23,19 @@ const accessYouConfig = {
   baseUrl: 'https://smsapi.accessyou.com',
   apiKey: process.env.ACCESSYOU_API_KEY,
   accountNo: process.env.ACCESSYOU_ACCOUNT_NO,
+  
+  // Basic SMS API (web login credentials)
   user: process.env.ACCESSYOU_USER,
   password: process.env.ACCESSYOU_PASSWORD,
+  
+  // OTP API (separate credentials - different from web login)
+  otpUser: process.env.ACCESSYOU_OTP_USER,
+  otpPassword: process.env.ACCESSYOU_OTP_PASSWORD,
+  
+  // Template configuration for OTP API
+  templateId: process.env.ACCESSYOU_TEMPLATE_ID, // e.g., "12345"
+  templateFormat: process.env.ACCESSYOU_TEMPLATE_FORMAT || '【CS-SPORT】验证码：#a#，请在10分钟内使用',
+  
   senderId: process.env.ACCESSYOU_SENDER_ID || 'CS-SPORT'
 };
 
@@ -64,8 +75,64 @@ function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send SMS via AccessYou API using verification code endpoint
-async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+// Send SMS via AccessYou OTP API with template support
+async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword || !accessYouConfig.templateId) {
+      console.log('⚠️ AccessYou OTP API not configured, falling back to basic SMS API');
+      return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
+    }
+
+    // Format phone number (remove + prefix if present)
+    const formattedPhone = phoneNumber.replace('+', '');
+
+    // Use OTP API with template (Part D of documentation)
+    const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?` +
+      `user=${accessYouConfig.otpUser}&` +
+      `pwd=${accessYouConfig.otpPassword}&` +
+      `phone=${formattedPhone}&` +
+      `template_id=${accessYouConfig.templateId}&` +
+      `param1=${verificationCode}` +
+      (accessYouConfig.senderId ? `&from=${accessYouConfig.senderId}` : '');
+
+    console.log('🔐 AccessYou OTP API request:', {
+      phone: formattedPhone,
+      templateId: accessYouConfig.templateId,
+      code: verificationCode,
+      from: accessYouConfig.senderId
+    });
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
+    });
+
+    const xmlText = await response.text();
+
+    // Parse XML response for OTP API
+    const statusMatch = xmlText.match(/<msg_status>(\d+)<\/msg_status>/);
+    const msgIdMatch = xmlText.match(/<msg_id>([^<]+)<\/msg_id>/);
+    const descMatch = xmlText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
+
+    if (statusMatch && statusMatch[1] === '100') {
+      const messageId = msgIdMatch ? msgIdMatch[1] : 'success';
+      console.log('✅ AccessYou OTP sent successfully:', messageId);
+      return { success: true, messageId };
+    } else {
+      const errorMessage = descMatch ? descMatch[1] : `OTP API error status: ${statusMatch?.[1] || 'unknown'}`;
+      console.error('❌ AccessYou OTP failed:', errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  } catch (error) {
+    console.error('AccessYou OTP API error:', error);
+    return { success: false, error: error.message || 'OTP API service error' };
+  }
+}
+
+// Send SMS via AccessYou API using basic verification code endpoint (fallback)
+async function sendAccessYouBasicSMS(phoneNumber: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     if (!accessYouConfig.accountNo || !accessYouConfig.user || !accessYouConfig.password) {
       throw new Error('AccessYou credentials not configured properly');
@@ -207,22 +274,22 @@ router.post('/send-verification', async (req, res) => {
 
     const smsMessage = `Your CS Sport verification code is: ${code}. Valid for 10 minutes.`;
 
-    // Try AccessYou SMS first
-    if (accessYouConfig.apiKey) {
+    // Try AccessYou OTP API first (recommended for verification codes)
+    if (accessYouConfig.accountNo) {
       try {
-        console.log(`📱 Attempting to send SMS via AccessYou to: ${formattedNumber}`);
-        const accessYouResult = await sendAccessYouSMS(formattedNumber, smsMessage);
+        console.log(`📱 Attempting to send OTP via AccessYou to: ${formattedNumber}`);
+        const accessYouResult = await sendAccessYouOTP(formattedNumber, code);
 
         if (accessYouResult.success) {
-          console.log(`✅ SMS sent successfully via AccessYou to ${formattedNumber} (ID: ${accessYouResult.messageId})`);
+          console.log(`✅ OTP sent successfully via AccessYou to ${formattedNumber} (ID: ${accessYouResult.messageId})`);
           smsSuccess = true;
-          messageProvider = 'AccessYou';
+          messageProvider = 'AccessYou OTP API';
         } else {
-          console.error('❌ AccessYou SMS failed:', accessYouResult.error);
+          console.error('❌ AccessYou OTP failed:', accessYouResult.error);
           smsError = accessYouResult.error;
         }
       } catch (accessYouError) {
-        console.error('❌ AccessYou SMS error:', accessYouError);
+        console.error('❌ AccessYou OTP error:', accessYouError);
         smsError = accessYouError.message;
       }
     }
@@ -295,14 +362,25 @@ router.get('/test-accessyou', async (req, res) => {
 
     console.log('🔧 Testing AccessYou configuration...');
 
-    if (!accessYouConfig.accountNo || !accessYouConfig.user || !accessYouConfig.password) {
+    const hasBasicCredentials = accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password;
+    const hasOtpCredentials = accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId;
+
+    if (!hasBasicCredentials && !hasOtpCredentials) {
       return res.status(500).json({
         error: 'AccessYou credentials not configured properly',
         configured: false,
         details: {
-          hasAccountNo: !!accessYouConfig.accountNo,
-          hasUser: !!accessYouConfig.user,
-          hasPassword: !!accessYouConfig.password
+          basic: {
+            hasAccountNo: !!accessYouConfig.accountNo,
+            hasUser: !!accessYouConfig.user,
+            hasPassword: !!accessYouConfig.password
+          },
+          otp: {
+            hasOtpUser: !!accessYouConfig.otpUser,
+            hasOtpPassword: !!accessYouConfig.otpPassword,
+            hasTemplateId: !!accessYouConfig.templateId
+          },
+          recommendation: hasOtpCredentials ? 'Using OTP API (recommended)' : 'Using Basic API (fallback)'
         }
       });
     }
