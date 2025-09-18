@@ -187,6 +187,9 @@ const userSlice = createSlice({
       state.preferences.region = action.payload;
     },
     logout: (state) => {
+      // Clear all user-related state and persist the cleared state
+      localStorage.removeItem('cs_sport_user');
+      localStorage.removeItem('cs_sport_preferences');
       return initialUserState;
     },
   },

@@ -182,6 +182,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const response = await apiRequest("POST", "/api/auth/login", data);
       const userData = await response.json();
 
+      // Set user data in Redux store
       dispatch(
         userActions.setUser({
           id: userData.id,
@@ -189,6 +190,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           email: userData.email,
         }),
       );
+
+      // Set authenticated state immediately
+      dispatch(userActions.setAuthenticated(true));
 
       // Get user preferences
       try {
@@ -208,6 +212,15 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         );
       } catch (error) {
         console.error("Failed to fetch user preferences:", error);
+        // Set default preferences even if fetch fails
+        dispatch(
+          userActions.setUserPreferences({
+            favoriteTeams: [],
+            favoriteLeagues: [],
+            favoriteMatches: [],
+            region: "global",
+          }),
+        );
       }
 
       toast({
@@ -220,11 +233,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Small delay to ensure Redux state is updated
-      setTimeout(() => {
-        // Navigate to home page instead of login page
-        navigate(`/${currentLang}/football`);
-      }, 100);
+      // Navigate immediately after state is set
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Login failed:", error);
       toast({
@@ -369,6 +379,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const response = await apiRequest("POST", "/api/auth/register", userData);
       const newUser = await response.json();
 
+      // Set user data in Redux store
       dispatch(
         userActions.setUser({
           id: newUser.id,
@@ -376,6 +387,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           email: newUser.email,
         }),
       );
+
+      // Set authenticated state immediately
+      dispatch(userActions.setAuthenticated(true));
 
       // Set default preferences
       dispatch(
@@ -397,7 +411,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate to home page instead of login page
+      // Navigate to home page immediately
       navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Registration failed:", error);

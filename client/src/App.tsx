@@ -75,21 +75,24 @@ const AppWithLanguageRouting = () => {
 
 // Protected Route Component
 const ProtectedRoute = ({ component: Component, ...props }: any) => {
-  const user = useSelector((state: RootState) => state.user.user);
+  const { user, isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
   const [location] = useLocation();
   
   // Extract language from current path
   const pathParts = location.split('/').filter(part => part);
   const currentLang = pathParts[0] || 'en';
   
+  // Show loading while checking authentication
+  if (isLoading) {
+    return <BrandedLoading />;
+  }
+  
   // If user is not authenticated, redirect to login
-  if (!user) {
+  if (!isAuthenticated || !user) {
     const loginPath = `/${currentLang}/login`;
     if (location !== loginPath) {
-      // Use navigate instead of window.location.href to avoid page reload
-      setTimeout(() => {
-        window.location.href = loginPath;
-      }, 100);
+      // Prevent redirect loops by using a more reliable redirect
+      window.location.replace(loginPath);
       return null;
     }
   }
