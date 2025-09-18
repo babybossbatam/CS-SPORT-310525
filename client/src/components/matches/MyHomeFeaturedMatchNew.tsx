@@ -2229,6 +2229,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
+        // Remove duplicates based on fixture ID
+        const uniqueFixtures = allMatches.reduce((acc, dayData) => {
+          dayData.matches.forEach((match) => {
+            if (!acc.some((existingMatch) => existingMatch.fixture.id === match.fixture.id)) {
+              acc.push(match);
+            }
+          });
+          return acc;
+        }, [] as FeaturedMatch[]);
+
+
         // Group fixtures by league and update state
         const leagueMap: Record<number, FeaturedMatch[]> = {};
         uniqueFixtures.forEach((match) => {
@@ -2244,7 +2255,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         setFeaturedMatches((prevMatches) => {
           // Compare match IDs for efficiency instead of full JSON stringify
           const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
-          const newIds = allMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
+          const newIds = uniqueFixtures.flatMap(m => m.fixture.id).sort();
 
           if (prevIds.join(',') !== newIds.join(',')) {
             console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
@@ -2880,13 +2891,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   );
 
   // Handle match click navigation
-  const handleMatchClick = useCallback((matchId: number) => {
-    if (onMatchSelect) {
-      onMatchSelect(matchId);
+  const handleMatchClick = useCallback((fixture: FeaturedMatch) => { // Changed parameter to fixture
+    if (onMatchCardClick) {
+      console.log(
+        `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
+        fixture.fixture.id,
+      );
+      onMatchCardClick(fixture.fixture); // Pass the fixture object
     } else {
-      navigate(`/match/${matchId}`);
+      navigate(`/match/${fixture.fixture.id}`);
     }
-  }, [navigate, onMatchSelect]);
+  }, [navigate, onMatchCardClick]);
 
   // Toggle star for a match
   const toggleStar = useCallback((matchId: number) => {
@@ -3046,17 +3061,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         },
                       );
 
-                      // Call onMatchSelect if provided (for Details tab)
-                      if (onMatchCardClick) {
-                        console.log(
-                          `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
-                          currentMatch.fixture.id,
-                        );
-                        onMatchCardClick(currentMatch.fixture); // Pass the entire fixture object
-                      } else {
-                        // Navigate to match details page if no callback provided
-                        navigate(`/match/${currentMatch.fixture.id}`);
-                      }
+                      // Call onMatchCardClick if provided, passing the fixture object
+                      handleMatchClick(currentMatch);
                     }}
                   >
                     {/* League header */}
