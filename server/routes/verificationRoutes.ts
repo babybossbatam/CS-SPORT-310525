@@ -22,6 +22,9 @@ let phoneNumber = process.env.TWILIO_PHONE_NUMBER;
 const accessYouConfig = {
   baseUrl: 'https://smsapi.accessyou.com',
   apiKey: process.env.ACCESSYOU_API_KEY,
+  accountNo: process.env.ACCESSYOU_ACCOUNT_NO,
+  user: process.env.ACCESSYOU_USER,
+  password: process.env.ACCESSYOU_PASSWORD,
   senderId: process.env.ACCESSYOU_SENDER_ID || 'CS-SPORT'
 };
 
@@ -64,35 +67,75 @@ function generateVerificationCode(): string {
 // Send SMS via AccessYou API
 async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
-    if (!accessYouConfig.apiKey) {
-      throw new Error('AccessYou API key not configured');
+    if (!accessYouConfig.accountNo || !accessYouConfig.user || !accessYouConfig.password) {
+      throw new Error('AccessYou credentials not configured properly');
     }
 
-    const response = await fetch(`${accessYouConfig.baseUrl}/send-sms`, {
-      method: 'POST',
+    // Format phone number (remove + prefix if present)
+    const formattedPhone = phoneNumber.replace('+', '');
+
+    // URL encode the message
+    const encodedMessage = encodeURIComponent(message);
+
+    // Build GET request URL as per AccessYou API specification
+    const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-vercode.php?` +
+      `accountno=${accessYouConfig.accountNo}&` +
+      `user=${accessYouConfig.user}&` +
+      `pwd=${accessYouConfig.password}&` +
+      `msg=${encodedMessage}&` +
+      `phone=${formattedPhone}` +
+      (accessYouConfig.senderId ? `&from=${accessYouConfig.senderId}` : '');
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessYouConfig.apiKey}`
-      },
-      body: JSON.stringify({
-        to: phoneNumber,
-        message: message,
-        sender_id: accessYouConfig.senderId
-      })
+        'Content-Type': 'application/x-www-form-urlencoded',
+      }
     });
 
-    const data = await response.json();
+    // AccessYou returns XML response
+    const xmlText = await response.text();
 
-    if (response.ok && data.status === 'success') {
-      return {
-        success: true,
-        messageId: data.message_id
-      };
+    // Parse XML response
+    let messageId = null;
+    let errorMessage = null;
+
+    // Simple XML parsing to extract msg_status and msg_id
+    const statusMatch = xmlText.match(/<msg_status>(\d+)<\/msg_status>/);
+    const msgIdMatch = xmlText.match(/<msg_id>([^<]+)<\/msg_id>/);
+    const descMatch = xmlText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
+
+    if (statusMatch) {
+      const status = statusMatch[1];
+      if (status === '100') {
+        // Success
+        messageId = msgIdMatch ? msgIdMatch[1] : 'success';
+        return {
+          success: true,
+          messageId: messageId
+        };
+      } else {
+        // Error
+        errorMessage = descMatch ? descMatch[1] : `AccessYou error status: ${status}`;
+        return {
+          success: false,
+          error: errorMessage
+        };
+      }
     } else {
-      return {
-        success: false,
-        error: data.message || 'Failed to send SMS via AccessYou'
-      };
+      // If we get a numeric response (for basic SMS API), it's a message ID
+      const numericResponse = xmlText.trim();
+      if (/^\d+$/.test(numericResponse)) {
+        return {
+          success: true,
+          messageId: numericResponse
+        };
+      } else {
+        return {
+          success: false,
+          error: xmlText || 'Unknown AccessYou API response'
+        };
+      }
     }
   } catch (error) {
     console.error('AccessYou SMS error:', error);
@@ -157,7 +200,7 @@ router.post('/send-verification', async (req, res) => {
       try {
         console.log(`📱 Attempting to send SMS via AccessYou to: ${formattedNumber}`);
         const accessYouResult = await sendAccessYouSMS(formattedNumber, smsMessage);
-        
+
         if (accessYouResult.success) {
           console.log(`✅ SMS sent successfully via AccessYou to ${formattedNumber} (ID: ${accessYouResult.messageId})`);
           smsSuccess = true;
@@ -239,42 +282,49 @@ router.get('/test-accessyou', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     console.log('🔧 Testing AccessYou configuration...');
-    
-    if (!accessYouConfig.apiKey) {
+
+    if (!accessYouConfig.accountNo || !accessYouConfig.user || !accessYouConfig.password) {
       return res.status(500).json({
-        error: 'AccessYou API key not configured',
+        error: 'AccessYou credentials not configured properly',
         configured: false,
         details: {
-          hasApiKey: false,
-          senderId: accessYouConfig.senderId
+          hasAccountNo: !!accessYouConfig.accountNo,
+          hasUser: !!accessYouConfig.user,
+          hasPassword: !!accessYouConfig.password
         }
       });
     }
 
-    // Test API connectivity
+    // Test API connectivity with account detail check
     try {
-      const response = await fetch(`${accessYouConfig.baseUrl}/balance`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${accessYouConfig.apiKey}`
-        }
+      const testUrl = `https://check.accessyou.com/sms/check_accinfo.php?` +
+        `accountno=${accessYouConfig.accountNo}&` +
+        `user=${accessYouConfig.user}&` +
+        `pwd=${accessYouConfig.password}`;
+
+      const response = await fetch(testUrl, {
+        method: 'GET'
       });
 
-      const data = await response.json();
+      const xmlText = await response.text();
 
-      if (response.ok) {
+      // Check if authentication passed
+      const authStatusMatch = xmlText.match(/<auth_status>(\d+)<\/auth_status>/);
+
+      if (authStatusMatch && authStatusMatch[1] === '100') {
         res.json({
           success: true,
           message: 'AccessYou SMS API is properly configured',
           configured: true,
-          balance: data.balance || 'Unknown',
-          senderId: accessYouConfig.senderId
+          accountNo: accessYouConfig.accountNo,
+          senderId: accessYouConfig.senderId || 'Default'
         });
       } else {
+        const errorMatch = xmlText.match(/<auth_status_desc>([^<]+)<\/auth_status_desc>/);
         res.status(500).json({
           error: 'AccessYou API authentication failed',
           configured: false,
-          details: data.message || 'Unknown error'
+          details: errorMatch ? errorMatch[1] : 'Authentication failed'
         });
       }
     } catch (apiError) {
@@ -485,7 +535,10 @@ router.get('/sms-status', (req, res) => {
         configured: !!accessYouConfig.apiKey,
         apiKey: accessYouConfig.apiKey ? `${accessYouConfig.apiKey.substring(0, 8)}...` : 'Missing',
         senderId: accessYouConfig.senderId,
-        baseUrl: accessYouConfig.baseUrl
+        baseUrl: accessYouConfig.baseUrl,
+        accountNo: accessYouConfig.accountNo ? 'SET' : 'MISSING',
+        user: accessYouConfig.user ? 'SET' : 'MISSING',
+        password: accessYouConfig.password ? 'SET' : 'MISSING'
       },
       twilio: {
         hasClient: !!twilioClient,
@@ -524,8 +577,15 @@ router.get('/env-check', (req, res) => {
   res.json({
     twilioVars: {
       TWILIO_ACCOUNT_SID: process.env.TWILIO_ACCOUNT_SID ? 'SET' : 'MISSING',
-      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ? 'SET' : 'MISSING', 
+      TWILIO_AUTH_TOKEN: process.env.TWILIO_AUTH_TOKEN ? 'SET' : 'MISSING',
       TWILIO_PHONE_NUMBER: process.env.TWILIO_PHONE_NUMBER ? 'SET' : 'MISSING'
+    },
+    accessYouVars: {
+      ACCESSYOU_API_KEY: process.env.ACCESSYOU_API_KEY ? 'SET' : 'MISSING',
+      ACCESSYOU_ACCOUNT_NO: process.env.ACCESSYOU_ACCOUNT_NO ? 'SET' : 'MISSING',
+      ACCESSYOU_USER: process.env.ACCESSYOU_USER ? 'SET' : 'MISSING',
+      ACCESSYOU_PASSWORD: process.env.ACCESSYOU_PASSWORD ? 'SET' : 'MISSING',
+      ACCESSYOU_SENDER_ID: process.env.ACCESSYOU_SENDER_ID ? 'SET' : 'MISSING'
     },
     phoneNumberValue: process.env.TWILIO_PHONE_NUMBER,
     timestamp: new Date().toISOString()
