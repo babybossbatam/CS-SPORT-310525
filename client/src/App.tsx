@@ -86,13 +86,16 @@ const ProtectedRoute = ({ component: Component, ...props }: any) => {
   if (!user) {
     const loginPath = `/${currentLang}/login`;
     if (location !== loginPath) {
-      window.location.href = loginPath;
+      // Use navigate instead of window.location.href to avoid page reload
+      setTimeout(() => {
+        window.location.href = loginPath;
+      }, 100);
       return null;
     }
   }
   
   return <Component {...props} />;
-};
+};</ProtectedRoute>
 
 // Separate component for routes
 const AppRoutes = () => {

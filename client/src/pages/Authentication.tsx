@@ -220,8 +220,11 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate to home page instead of login page
-      navigate(`/${currentLang}/football`);
+      // Small delay to ensure Redux state is updated
+      setTimeout(() => {
+        // Navigate to home page instead of login page
+        navigate(`/${currentLang}/football`);
+      }, 100);
     } catch (error) {
       console.error("Login failed:", error);
       toast({
