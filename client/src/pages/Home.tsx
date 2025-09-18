@@ -21,6 +21,8 @@ const Home = () => {
   const [showTop20, setShowTop20] = React.useState(false);
   const [liveFilterActive, setLiveFilterActive] = React.useState(false);
 
+  console.log("🏠 [Home] Component rendered");
+
   const handleMatchCardClick = (match: any) => {
     console.log("Match card clicked:", match);
   };

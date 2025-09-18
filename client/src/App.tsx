@@ -76,7 +76,7 @@ const AppWithLanguageRouting = () => {
 // Protected Route Component
 const ProtectedRoute = ({ component: Component, ...props }: any) => {
   const { user, isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   
   // Extract language from current path
   const pathParts = location.split('/').filter(part => part);
@@ -90,13 +90,12 @@ const ProtectedRoute = ({ component: Component, ...props }: any) => {
   // If user is not authenticated, redirect to login
   if (!isAuthenticated || !user) {
     const loginPath = `/${currentLang}/login`;
-    if (location !== loginPath) {
-      // Prevent redirect loops by using a more reliable redirect
-      window.location.replace(loginPath);
-      return null;
-    }
+    console.log(`🔐 [Auth] User not authenticated, redirecting from ${location} to ${loginPath}`);
+    navigate(loginPath, { replace: true });
+    return <BrandedLoading />;
   }
   
+  console.log(`✅ [Auth] User authenticated: ${user.username}, rendering component`);
   return <Component {...props} />;
 };
 
@@ -120,18 +119,39 @@ const AppRoutes = () => {
       <Route path="/:lang/league/:leagueId" component={(props: any) => <ProtectedRoute component={LeagueDetails} {...props} />} />
       <Route path="/:lang/my-scores" component={(props: any) => <ProtectedRoute component={MyScores} {...props} />} />
 
-      {/* Fallback routes without language (redirect to default language login) */}
+      {/* Fallback routes without language (redirect to default language) */}
       <Route path="/" component={() => {
-        window.location.href = "/en/login";
-        return null;
+        const [, navigate] = useLocation();
+        const { isAuthenticated } = useSelector((state: RootState) => state.user);
+        
+        React.useEffect(() => {
+          const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
+          navigate(redirectPath, { replace: true });
+        }, [navigate, isAuthenticated]);
+        
+        return <BrandedLoading />;
       }} />
       <Route path="/football" component={() => {
-        window.location.href = "/en/login";
-        return null;
+        const [, navigate] = useLocation();
+        const { isAuthenticated } = useSelector((state: RootState) => state.user);
+        
+        React.useEffect(() => {
+          const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
+          navigate(redirectPath, { replace: true });
+        }, [navigate, isAuthenticated]);
+        
+        return <BrandedLoading />;
       }} />
       <Route path="/basketball" component={() => {
-        window.location.href = "/en/login";
-        return null;
+        const [, navigate] = useLocation();
+        const { isAuthenticated } = useSelector((state: RootState) => state.user);
+        
+        React.useEffect(() => {
+          const redirectPath = isAuthenticated ? "/en/basketball" : "/en/login";
+          navigate(redirectPath, { replace: true });
+        }, [navigate, isAuthenticated]);
+        
+        return <BrandedLoading />;
       }} />
 
       {/* 404 page */}
