@@ -145,16 +145,22 @@ const ProtectedRoute = ({ component: Component, ...props }: any) => {
   const pathParts = location.split('/').filter(part => part);
   const currentLang = pathParts[0] || 'en';
   
+  React.useEffect(() => {
+    // Only redirect when loading is complete and user is not authenticated
+    if (!isLoading && (!isAuthenticated || !user)) {
+      const loginPath = `/${currentLang}/login`;
+      console.log(`🔐 [Auth] User not authenticated, redirecting from ${location} to ${loginPath}`);
+      navigate(loginPath, { replace: true });
+    }
+  }, [isLoading, isAuthenticated, user, location, navigate, currentLang]);
+  
   // Show loading while checking authentication
   if (isLoading) {
     return <BrandedLoading />;
   }
   
-  // If user is not authenticated, redirect to login
+  // If user is not authenticated, show loading (redirect is handled in useEffect)
   if (!isAuthenticated || !user) {
-    const loginPath = `/${currentLang}/login`;
-    console.log(`🔐 [Auth] User not authenticated, redirecting from ${location} to ${loginPath}`);
-    navigate(loginPath, { replace: true });
     return <BrandedLoading />;
   }
   
@@ -185,34 +191,57 @@ const AppRoutes = () => {
       {/* Fallback routes without language (redirect to default language) */}
       <Route path="/" component={() => {
         const [, navigate] = useLocation();
-        const { isAuthenticated } = useSelector((state: RootState) => state.user);
+        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
         
         React.useEffect(() => {
-          const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
-          navigate(redirectPath, { replace: true });
-        }, [navigate, isAuthenticated]);
+          if (!isLoading) {
+            const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
+            navigate(redirectPath, { replace: true });
+          }
+        }, [navigate, isAuthenticated, isLoading]);
         
         return <BrandedLoading />;
       }} />
-      <Route path="/football" component={() => {
+      
+      {/* Language-only routes (like /en) - redirect to appropriate page */}
+      <Route path="/:lang" component={(props: any) => {
         const [, navigate] = useLocation();
-        const { isAuthenticated } = useSelector((state: RootState) => state.user);
+        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
+        const lang = props.params.lang || 'en';
         
         React.useEffect(() => {
-          const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
-          navigate(redirectPath, { replace: true });
-        }, [navigate, isAuthenticated]);
+          if (!isLoading) {
+            const redirectPath = isAuthenticated ? `/${lang}/football` : `/${lang}/login`;
+            navigate(redirectPath, { replace: true });
+          }
+        }, [navigate, isAuthenticated, isLoading, lang]);
+        
+        return <BrandedLoading />;
+      }} />
+      
+      <Route path="/football" component={() => {
+        const [, navigate] = useLocation();
+        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
+        
+        React.useEffect(() => {
+          if (!isLoading) {
+            const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
+            navigate(redirectPath, { replace: true });
+          }
+        }, [navigate, isAuthenticated, isLoading]);
         
         return <BrandedLoading />;
       }} />
       <Route path="/basketball" component={() => {
         const [, navigate] = useLocation();
-        const { isAuthenticated } = useSelector((state: RootState) => state.user);
+        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
         
         React.useEffect(() => {
-          const redirectPath = isAuthenticated ? "/en/basketball" : "/en/login";
-          navigate(redirectPath, { replace: true });
-        }, [navigate, isAuthenticated]);
+          if (!isLoading) {
+            const redirectPath = isAuthenticated ? "/en/basketball" : "/en/login";
+            navigate(redirectPath, { replace: true });
+          }
+        }, [navigate, isAuthenticated, isLoading]);
         
         return <BrandedLoading />;
       }} />
