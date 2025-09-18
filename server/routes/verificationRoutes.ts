@@ -64,7 +64,7 @@ function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send SMS via AccessYou API
+// Send SMS via AccessYou API using verification code endpoint
 async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     if (!accessYouConfig.accountNo || !accessYouConfig.user || !accessYouConfig.password) {
@@ -74,17 +74,25 @@ async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{
     // Format phone number (remove + prefix if present)
     const formattedPhone = phoneNumber.replace('+', '');
 
-    // URL encode the message
-    const encodedMessage = encodeURIComponent(message);
+    // Extract verification code from message for OTP endpoint
+    const codeMatch = message.match(/\d{6}/);
+    const verificationCode = codeMatch ? codeMatch[0] : '';
 
-    // Build GET request URL as per AccessYou API specification
+    // For verification codes, use the specialized endpoint with code parameter
     const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-vercode.php?` +
       `accountno=${accessYouConfig.accountNo}&` +
       `user=${accessYouConfig.user}&` +
       `pwd=${accessYouConfig.password}&` +
-      `msg=${encodedMessage}&` +
+      `code=${verificationCode}&` +
       `phone=${formattedPhone}` +
-      (accessYouConfig.senderId ? `&from=${accessYouConfig.senderId}` : '');
+      (accessYouConfig.senderId ? `&from=${accessYouConfig.senderId}` : '') +
+      `&msg=${encodeURIComponent(message)}`;
+
+    console.log('🔐 AccessYou verification SMS request:', {
+      phone: formattedPhone,
+      code: verificationCode,
+      from: accessYouConfig.senderId
+    });
 
     const response = await fetch(apiUrl, {
       method: 'GET',
@@ -110,6 +118,7 @@ async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{
       if (status === '100') {
         // Success
         messageId = msgIdMatch ? msgIdMatch[1] : 'success';
+        console.log('✅ AccessYou verification SMS sent successfully:', messageId);
         return {
           success: true,
           messageId: messageId
@@ -117,6 +126,7 @@ async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{
       } else {
         // Error
         errorMessage = descMatch ? descMatch[1] : `AccessYou error status: ${status}`;
+        console.error('❌ AccessYou verification SMS failed:', errorMessage);
         return {
           success: false,
           error: errorMessage
@@ -126,11 +136,13 @@ async function sendAccessYouSMS(phoneNumber: string, message: string): Promise<{
       // If we get a numeric response (for basic SMS API), it's a message ID
       const numericResponse = xmlText.trim();
       if (/^\d+$/.test(numericResponse)) {
+        console.log('✅ AccessYou verification SMS sent (numeric response):', numericResponse);
         return {
           success: true,
           messageId: numericResponse
         };
       } else {
+        console.error('❌ AccessYou unexpected response:', xmlText);
         return {
           success: false,
           error: xmlText || 'Unknown AccessYou API response'
