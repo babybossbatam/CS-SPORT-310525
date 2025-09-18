@@ -195,6 +195,13 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       // Set authenticated state immediately
       dispatch(userActions.setAuthenticated(true));
 
+      // Persist user data to localStorage
+      localStorage.setItem('cs_sport_user', JSON.stringify({
+        id: userData.id,
+        username: userData.username,
+        email: userData.email
+      }));
+
       // Get user preferences
       try {
         const prefsResponse = await apiRequest(
@@ -203,25 +210,31 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         );
         const prefsData = await prefsResponse.json();
 
-        dispatch(
-          userActions.setUserPreferences({
-            favoriteTeams: prefsData.favoriteTeams || [],
-            favoriteLeagues: prefsData.favoriteLeagues || [],
-            favoriteMatches: prefsData.favoriteMatches || [],
-            region: prefsData.region || "global",
-          }),
-        );
+        const preferences = {
+          favoriteTeams: prefsData.favoriteTeams || [],
+          favoriteLeagues: prefsData.favoriteLeagues || [],
+          favoriteMatches: prefsData.favoriteMatches || [],
+          region: prefsData.region || "global",
+        };
+        
+        dispatch(userActions.setUserPreferences(preferences));
+        
+        // Persist preferences to localStorage
+        localStorage.setItem('cs_sport_preferences', JSON.stringify(preferences));
       } catch (error) {
         console.error("Failed to fetch user preferences:", error);
         // Set default preferences even if fetch fails
-        dispatch(
-          userActions.setUserPreferences({
-            favoriteTeams: [],
-            favoriteLeagues: [],
-            favoriteMatches: [],
-            region: "global",
-          }),
-        );
+        const defaultPreferences = {
+          favoriteTeams: [],
+          favoriteLeagues: [],
+          favoriteMatches: [],
+          region: "global",
+        };
+        
+        dispatch(userActions.setUserPreferences(defaultPreferences));
+        
+        // Persist default preferences to localStorage
+        localStorage.setItem('cs_sport_preferences', JSON.stringify(defaultPreferences));
       }
 
       toast({
@@ -394,15 +407,25 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       // Set authenticated state immediately
       dispatch(userActions.setAuthenticated(true));
 
+      // Persist user data to localStorage
+      localStorage.setItem('cs_sport_user', JSON.stringify({
+        id: newUser.id,
+        username: newUser.username,
+        email: newUser.email
+      }));
+
       // Set default preferences
-      dispatch(
-        userActions.setUserPreferences({
-          favoriteTeams: [],
-          favoriteLeagues: [],
-          favoriteMatches: [],
-          region: "global",
-        }),
-      );
+      const defaultPreferences = {
+        favoriteTeams: [],
+        favoriteLeagues: [],
+        favoriteMatches: [],
+        region: "global",
+      };
+      
+      dispatch(userActions.setUserPreferences(defaultPreferences));
+      
+      // Persist preferences to localStorage
+      localStorage.setItem('cs_sport_preferences', JSON.stringify(defaultPreferences));
 
       toast({
         title: "Registration Successful",

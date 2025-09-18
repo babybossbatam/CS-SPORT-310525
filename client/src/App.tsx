@@ -56,21 +56,84 @@ const AppWithLanguageRouting = () => {
 
   return (
     <Provider store={store}>
-      <LanguageProvider initialLanguage={urlLanguage}>
-        <CentralDataProvider>
-          <TooltipProvider>
-            <div className="App">
-              <Suspense fallback={<BrandedLoading />}>
-                <AppRoutes />
-              </Suspense>
-              <Toaster />
-              <LanguageToast />
-            </div>
-          </TooltipProvider>
-        </CentralDataProvider>
-      </LanguageProvider>
+      <AuthInitializer>
+        <LanguageProvider initialLanguage={urlLanguage}>
+          <CentralDataProvider>
+            <TooltipProvider>
+              <div className="App">
+                <Suspense fallback={<BrandedLoading />}>
+                  <AppRoutes />
+                </Suspense>
+                <Toaster />
+                <LanguageToast />
+              </div>
+            </TooltipProvider>
+          </CentralDataProvider>
+        </LanguageProvider>
+      </AuthInitializer>
     </Provider>
   );
+};
+
+// Auth initialization component to restore authentication state on app load
+const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
+  const dispatch = useDispatch();
+  const [isInitialized, setIsInitialized] = React.useState(false);
+
+  React.useEffect(() => {
+    const initializeAuth = () => {
+      try {
+        // Check localStorage for persisted user data
+        const savedUser = localStorage.getItem('cs_sport_user');
+        const savedPreferences = localStorage.getItem('cs_sport_preferences');
+        
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          console.log('🔄 [Auth] Restoring user from localStorage:', userData.username);
+          
+          // Restore user data
+          dispatch(userActions.setUser({
+            id: userData.id,
+            username: userData.username,
+            email: userData.email
+          }));
+          
+          // Restore preferences if available
+          if (savedPreferences) {
+            const preferencesData = JSON.parse(savedPreferences);
+            dispatch(userActions.setUserPreferences(preferencesData));
+          } else {
+            // Set default preferences
+            dispatch(userActions.setUserPreferences({
+              favoriteTeams: [],
+              favoriteLeagues: [],
+              favoriteMatches: [],
+              region: 'global'
+            }));
+          }
+          
+          console.log('✅ [Auth] User authentication restored successfully');
+        } else {
+          console.log('🔐 [Auth] No saved user data found');
+          dispatch(userActions.setAuthenticated(false));
+        }
+      } catch (error) {
+        console.error('❌ [Auth] Failed to restore authentication:', error);
+        dispatch(userActions.setAuthenticated(false));
+      } finally {
+        dispatch(userActions.setLoading(false));
+        setIsInitialized(true);
+      }
+    };
+
+    initializeAuth();
+  }, [dispatch]);
+
+  if (!isInitialized) {
+    return <BrandedLoading />;
+  }
+
+  return <>{children}</>;
 };
 
 // Protected Route Component
