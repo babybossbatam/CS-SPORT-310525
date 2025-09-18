@@ -220,7 +220,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      navigate(`/${currentLang}`);
+      // Navigate to home page instead of login page
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Login failed:", error);
       toast({
@@ -393,7 +394,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      navigate(`/${currentLang}`);
+      // Navigate to home page instead of login page
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Registration failed:", error);
       toast({
