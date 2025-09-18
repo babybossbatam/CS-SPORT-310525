@@ -3003,7 +3003,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                           "zh-hk": "巴西",
                           "zh-tw": "巴西",
                           zh: "巴西",
-                          de: ""Brasil",
+                          de: "Brasilien",
                           it: "Brasile",
                           pt: "Brasil",
                         },
