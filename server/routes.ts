@@ -163,18 +163,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, ...userWithoutPassword } = user;
       console.log(`Login successful for user: ${username}`);
       res.json(userWithoutPassword);
-
-      const user = await storage.getUserByUsername(username);
-
-      if (!user || user.password !== password) {
-        return res
-          .status(401)
-          .json({ message: "Invalid username or password" });
-      }
-
-      // Return user without password
-      const { password: _, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
     } catch (error) {
       res.status(500).json({ message: "Failed to login" });
     }
