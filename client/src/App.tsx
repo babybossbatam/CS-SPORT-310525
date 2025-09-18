@@ -9,8 +9,8 @@ import { queryClient } from "@/lib/queryClient";
 import BrandedLoading from "@/components/common/BrandedLoading";
 
 import React from 'react';
-import { Provider, useSelector, useDispatch } from "react-redux";
-import { store, RootState, userActions } from "@/lib/store";
+import { Provider, useSelector } from "react-redux";
+import { store, RootState } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -56,122 +56,47 @@ const AppWithLanguageRouting = () => {
 
   return (
     <Provider store={store}>
-      <AuthInitializer>
-        <LanguageProvider initialLanguage={urlLanguage}>
-          <CentralDataProvider>
-            <TooltipProvider>
-              <div className="App">
-                <Suspense fallback={<BrandedLoading />}>
-                  <AppRoutes />
-                </Suspense>
-                <Toaster />
-                <LanguageToast />
-              </div>
-            </TooltipProvider>
-          </CentralDataProvider>
-        </LanguageProvider>
-      </AuthInitializer>
+      <LanguageProvider initialLanguage={urlLanguage}>
+        <CentralDataProvider>
+          <TooltipProvider>
+            <div className="App">
+              <Suspense fallback={<BrandedLoading />}>
+                <AppRoutes />
+              </Suspense>
+              <Toaster />
+              <LanguageToast />
+            </div>
+          </TooltipProvider>
+        </CentralDataProvider>
+      </LanguageProvider>
     </Provider>
   );
-};
-
-// Auth initialization component to restore authentication state on app load
-const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
-  const dispatch = useDispatch();
-  const [isInitialized, setIsInitialized] = React.useState(false);
-
-  React.useEffect(() => {
-    const initializeAuth = () => {
-      try {
-        // Check localStorage for persisted user data
-        const savedUser = localStorage.getItem('cs_sport_user');
-        const savedPreferences = localStorage.getItem('cs_sport_preferences');
-        
-        if (savedUser) {
-          const userData = JSON.parse(savedUser);
-          console.log('🔄 [Auth] Restoring user from localStorage:', userData.username);
-          
-          // Restore user data
-          dispatch(userActions.setUser({
-            id: userData.id,
-            username: userData.username,
-            email: userData.email
-          }));
-          
-          // Restore preferences if available
-          if (savedPreferences) {
-            const preferencesData = JSON.parse(savedPreferences);
-            dispatch(userActions.setUserPreferences(preferencesData));
-          } else {
-            // Set default preferences
-            dispatch(userActions.setUserPreferences({
-              favoriteTeams: [],
-              favoriteLeagues: [],
-              favoriteMatches: [],
-              region: 'global'
-            }));
-          }
-          
-          // CRITICAL: Set authenticated state after restoring user data
-          dispatch(userActions.setAuthenticated(true));
-          
-          console.log('✅ [Auth] User authentication restored successfully');
-        } else {
-          console.log('🔐 [Auth] No saved user data found');
-          dispatch(userActions.setAuthenticated(false));
-        }
-      } catch (error) {
-        console.error('❌ [Auth] Failed to restore authentication:', error);
-        dispatch(userActions.setAuthenticated(false));
-      } finally {
-        dispatch(userActions.setLoading(false));
-        setIsInitialized(true);
-      }
-    };
-
-    initializeAuth();
-  }, [dispatch]);
-
-  if (!isInitialized) {
-    return <BrandedLoading />;
-  }
-
-  return <>{children}</>;
 };
 
 // Protected Route Component
 const ProtectedRoute = ({ component: Component, ...props }: any) => {
   const { user, isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-  const [location, navigate] = useLocation();
+  const [location] = useLocation();
   
   // Extract language from current path
   const pathParts = location.split('/').filter(part => part);
   const currentLang = pathParts[0] || 'en';
   
-  React.useEffect(() => {
-    // Only redirect when loading is complete and user is not authenticated
-    if (!isLoading && (!isAuthenticated || !user)) {
-      const loginPath = `/${currentLang}/login`;
-      console.log(`🔐 [Auth] User not authenticated, redirecting from ${location} to ${loginPath}`);
-      navigate(loginPath, { replace: true });
-    } else if (!isLoading && isAuthenticated && user) {
-      console.log(`✅ [Auth] User ${user.username} is authenticated for route ${location}`);
-    }
-  }, [isLoading, isAuthenticated, user, location, navigate, currentLang]);
-  
   // Show loading while checking authentication
   if (isLoading) {
-    console.log('🔄 [Auth] Loading authentication state...');
     return <BrandedLoading />;
   }
   
-  // If user is not authenticated, show loading (redirect is handled in useEffect)
+  // If user is not authenticated, redirect to login
   if (!isAuthenticated || !user) {
-    console.log('🔐 [Auth] Not authenticated, showing loading...');
-    return <BrandedLoading />;
+    const loginPath = `/${currentLang}/login`;
+    if (location !== loginPath) {
+      // Prevent redirect loops by using a more reliable redirect
+      window.location.replace(loginPath);
+      return null;
+    }
   }
   
-  console.log(`✅ [Auth] Rendering protected component for user: ${user.username}`);
   return <Component {...props} />;
 };
 
@@ -195,62 +120,18 @@ const AppRoutes = () => {
       <Route path="/:lang/league/:leagueId" component={(props: any) => <ProtectedRoute component={LeagueDetails} {...props} />} />
       <Route path="/:lang/my-scores" component={(props: any) => <ProtectedRoute component={MyScores} {...props} />} />
 
-      {/* Fallback routes without language (redirect to default language) */}
+      {/* Fallback routes without language (redirect to default language login) */}
       <Route path="/" component={() => {
-        const [, navigate] = useLocation();
-        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-        
-        React.useEffect(() => {
-          if (!isLoading) {
-            const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
-            navigate(redirectPath, { replace: true });
-          }
-        }, [navigate, isAuthenticated, isLoading]);
-        
-        return <BrandedLoading />;
+        window.location.href = "/en/login";
+        return null;
       }} />
-      
-      {/* Language-only routes (like /en) - redirect to appropriate page */}
-      <Route path="/:lang" component={(props: any) => {
-        const [, navigate] = useLocation();
-        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-        const lang = props.params.lang || 'en';
-        
-        React.useEffect(() => {
-          if (!isLoading) {
-            const redirectPath = isAuthenticated ? `/${lang}/football` : `/${lang}/login`;
-            navigate(redirectPath, { replace: true });
-          }
-        }, [navigate, isAuthenticated, isLoading, lang]);
-        
-        return <BrandedLoading />;
-      }} />
-      
       <Route path="/football" component={() => {
-        const [, navigate] = useLocation();
-        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-        
-        React.useEffect(() => {
-          if (!isLoading) {
-            const redirectPath = isAuthenticated ? "/en/football" : "/en/login";
-            navigate(redirectPath, { replace: true });
-          }
-        }, [navigate, isAuthenticated, isLoading]);
-        
-        return <BrandedLoading />;
+        window.location.href = "/en/login";
+        return null;
       }} />
       <Route path="/basketball" component={() => {
-        const [, navigate] = useLocation();
-        const { isAuthenticated, isLoading } = useSelector((state: RootState) => state.user);
-        
-        React.useEffect(() => {
-          if (!isLoading) {
-            const redirectPath = isAuthenticated ? "/en/basketball" : "/en/login";
-            navigate(redirectPath, { replace: true });
-          }
-        }, [navigate, isAuthenticated, isLoading]);
-        
-        return <BrandedLoading />;
+        window.location.href = "/en/login";
+        return null;
       }} />
 
       {/* 404 page */}

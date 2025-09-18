@@ -346,11 +346,7 @@ export class DatabaseStorage implements IStorage {
         favoriteTeams: preferences.favoriteTeams || [],
         favoriteLeagues: preferences.favoriteLeagues || [],
         favoriteMatches: preferences.favoriteMatches || [],
-        region: preferences.region || 'global',
-        notifications: preferences.notifications !== undefined ? preferences.notifications : true,
-        theme: preferences.theme || 'light',
-        language: preferences.language || 'en',
-        timezone: preferences.timezone || 'UTC'
+        region: preferences.region || 'global'
       };
 
       const result = await db.insert(userPreferences)
