@@ -48,8 +48,6 @@ if (!accountSid || !authToken || !phoneNumber) {
 }
 
 // Twilio environment check (removed sensitive logging)
-  nodeEnv: process.env.NODE_ENV
-});
 
 const twilioClient = accountSid && authToken ? twilio(accountSid, authToken) : null;
 
