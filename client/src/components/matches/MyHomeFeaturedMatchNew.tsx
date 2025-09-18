@@ -1760,7 +1760,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // Remove duplicates based on fixture ID
-        const uniqueFixtures = allFixtures.filter(
+        const allUniqueFixtures = allFixtures.filter(
           (fixture, index, self) =>
             index ===
             self.findIndex((f) => f.fixture.id === fixture.fixture.id),
@@ -1768,27 +1768,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         console.log(
           `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
-          uniqueFixtures.length,
+          allUniqueFixtures.length,
         );
 
         // Learn from fixtures data to improve translations
         try {
-          learnFromFixtures(uniqueFixtures);
+          learnFromFixtures(allUniqueFixtures);
           console.log(
-            `📚 [MyHomeFeaturedMatchNew] Learning from ${uniqueFixtures.length} fixtures for translation improvement`,
+            `📚 [MyHomeFeaturedMatchNew] Learning from ${allUniqueFixtures.length} fixtures for translation improvement`,
           );
 
           // Additional league-specific learning for comprehensive coverage
-          smartLeagueCountryTranslation.learnFromFixtures(uniqueFixtures);
+          smartLeagueCountryTranslation.learnFromFixtures(allUniqueFixtures);
           console.log(
-            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${uniqueFixtures.length} fixtures for better coverage`,
+            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${allUniqueFixtures.length} fixtures for better coverage`,
           );
         } catch (error) {
           console.warn("Error learning from fixtures:", error);
         }
 
         // Enhanced debug logging with league IDs
-        const fixtureDetails = uniqueFixtures.map((f) => ({
+        const fixtureDetails = allUniqueFixtures.map((f) => ({
           id: f.fixture.id,
           teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
           league: f.league.name,
@@ -1804,7 +1804,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
 
         // Special debug for Oberliga leagues
-        const oberligaMatches = uniqueFixtures.filter((f) =>
+        const oberligaMatches = allUniqueFixtures.filter((f) =>
           f.league.name?.toLowerCase().includes("oberliga"),
         );
 
@@ -1824,7 +1824,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // Special debug for Bayern Süd
-        const bayernSudMatches = uniqueFixtures.filter(
+        const bayernSudMatches = allUniqueFixtures.filter(
           (f) =>
             f.league.name?.toLowerCase().includes("bayern") &&
             f.league.name?.toLowerCase().includes("süd"),
@@ -1852,7 +1852,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const dateInfo of dates) {
           const isToday = dateInfo.date === todayDateString;
 
-          const fixturesForDay = uniqueFixtures
+          const fixturesForDay = allUniqueFixtures
             .filter((fixture) => {
               // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
               if (fixture.league.id === 848) {
@@ -2229,7 +2229,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
-        // Remove duplicates based on fixture ID
+        // Remove duplicates based on fixture ID for final processing
         const uniqueFixtures = allMatches.reduce((acc, dayData) => {
           dayData.matches.forEach((match) => {
             if (!acc.some((existingMatch) => existingMatch.fixture.id === match.fixture.id)) {
