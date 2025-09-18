@@ -47,16 +47,7 @@ if (!accountSid || !authToken || !phoneNumber) {
   phoneNumber = process.env.TWILIO_PHONE_NUMBER;
 }
 
-console.log('🔧 Twilio Environment Check:', {
-  hasAccountSid: !!accountSid,
-  hasAuthToken: !!authToken,
-  hasPhoneNumber: !!phoneNumber,
-  accountSidLength: accountSid ? accountSid.length : 0,
-  phoneNumber: phoneNumber || 'Not set',
-  // Debug: Show first 6 chars of SID for verification
-  accountSidPreview: accountSid ? `${accountSid.substring(0, 6)}...` : 'Missing',
-  authTokenPreview: authToken ? 'Present' : 'Missing',
-  allEnvKeys: Object.keys(process.env).filter(key => key.includes('TWILIO')),
+// Twilio environment check (removed sensitive logging)
   nodeEnv: process.env.NODE_ENV
 });
 

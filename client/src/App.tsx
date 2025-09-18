@@ -95,7 +95,7 @@ const ProtectedRoute = ({ component: Component, ...props }: any) => {
   }
   
   return <Component {...props} />;
-};</ProtectedRoute>
+};
 
 // Separate component for routes
 const AppRoutes = () => {
