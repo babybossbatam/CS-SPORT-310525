@@ -151,20 +151,24 @@ const ProtectedRoute = ({ component: Component, ...props }: any) => {
       const loginPath = `/${currentLang}/login`;
       console.log(`🔐 [Auth] User not authenticated, redirecting from ${location} to ${loginPath}`);
       navigate(loginPath, { replace: true });
+    } else if (!isLoading && isAuthenticated && user) {
+      console.log(`✅ [Auth] User ${user.username} is authenticated for route ${location}`);
     }
   }, [isLoading, isAuthenticated, user, location, navigate, currentLang]);
   
   // Show loading while checking authentication
   if (isLoading) {
+    console.log('🔄 [Auth] Loading authentication state...');
     return <BrandedLoading />;
   }
   
   // If user is not authenticated, show loading (redirect is handled in useEffect)
   if (!isAuthenticated || !user) {
+    console.log('🔐 [Auth] Not authenticated, showing loading...');
     return <BrandedLoading />;
   }
   
-  console.log(`✅ [Auth] User authenticated: ${user.username}, rendering component`);
+  console.log(`✅ [Auth] Rendering protected component for user: ${user.username}`);
   return <Component {...props} />;
 };
 

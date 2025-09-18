@@ -183,7 +183,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const response = await apiRequest("POST", "/api/auth/login", data);
       const userData = await response.json();
 
-      // Set user data in Redux store
+      console.log('🔐 [Auth] Login successful, setting user data:', userData.username);
+
+      // Set user data in Redux store first
       dispatch(
         userActions.setUser({
           id: userData.id,
@@ -191,9 +193,6 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           email: userData.email,
         }),
       );
-
-      // Set authenticated state immediately
-      dispatch(userActions.setAuthenticated(true));
 
       // Persist user data to localStorage
       localStorage.setItem('cs_sport_user', JSON.stringify({
@@ -237,6 +236,10 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         localStorage.setItem('cs_sport_preferences', JSON.stringify(defaultPreferences));
       }
 
+      // Set authenticated state and stop loading after everything is set up
+      dispatch(userActions.setAuthenticated(true));
+      dispatch(userActions.setLoading(false));
+
       toast({
         title: "Login Successful",
         description: `Welcome back, ${userData.username}!`,
@@ -247,8 +250,13 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate to home page after successful login
-      navigate(`/${currentLang}`);
+      console.log(`🔐 [Auth] Redirecting to /${currentLang} after successful login`);
+
+      // Small delay to ensure state is fully updated before navigation
+      setTimeout(() => {
+        navigate(`/${currentLang}`);
+      }, 100);
+
     } catch (error) {
       console.error("Login failed:", error);
       dispatch(userActions.setLoading(false));
