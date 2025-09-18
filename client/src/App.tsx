@@ -9,8 +9,8 @@ import { queryClient } from "@/lib/queryClient";
 import BrandedLoading from "@/components/common/BrandedLoading";
 
 import React from 'react';
-import { Provider, useSelector } from "react-redux";
-import { store, RootState } from "@/lib/store";
+import { Provider, useSelector, useDispatch } from "react-redux";
+import { store, RootState, userActions } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
