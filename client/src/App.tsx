@@ -112,6 +112,9 @@ const AuthInitializer = ({ children }: { children: React.ReactNode }) => {
             }));
           }
           
+          // CRITICAL: Set authenticated state after restoring user data
+          dispatch(userActions.setAuthenticated(true));
+          
           console.log('✅ [Auth] User authentication restored successfully');
         } else {
           console.log('🔐 [Auth] No saved user data found');
