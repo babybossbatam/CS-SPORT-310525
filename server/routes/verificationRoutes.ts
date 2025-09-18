@@ -703,3 +703,22 @@ export default router;
 
 // Server IP check endpoint for AccessYou whitelisting
 router.get('/server-ip', async (req, res) => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+
+    res.json({
+      serverIP: data.ip,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      message: 'This IP needs to be whitelisted in AccessYou for SMS API access'
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Failed to get server IP',
+      details: error.message || 'Unknown error'
+    });
+  }
+});
+
+export default router;
