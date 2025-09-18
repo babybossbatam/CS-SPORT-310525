@@ -82,7 +82,8 @@ const MyRightContent: React.FC = () => {
           />
         </div>
       )}
-    </div>nfo />
+
+        <MyInfo />
 
         {/* Popular Leagues and All League List sections */}
         <div className="grid grid-cols-2 gap-4 ">
