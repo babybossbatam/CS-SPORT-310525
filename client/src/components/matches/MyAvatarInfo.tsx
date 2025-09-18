@@ -74,7 +74,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       "ui-avatars.com",
       "default.png", 
       "placeholder",
-      "fallback"
+      "fallback",
+      "Athletes:default.png", // 365scores default
+      "player-default", // common default patterns
+      "avatar-placeholder"
     ];
     
     return !excludedPatterns.some(pattern => url.includes(pattern));
@@ -132,20 +135,24 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
               if (contentType && contentType.startsWith('image/')) {
                 // Direct image response - check if it's a real photo
                 const finalUrl = response.url;
+                console.log(`🔍 [MyAvatarInfo-${componentId}] Checking if real photo: ${finalUrl}`);
                 if (isRealPlayerPhoto(finalUrl)) {
                   console.log(`✅ [MyAvatarInfo-${componentId}] Found real image via name search: ${finalUrl}`);
                   imageCache.set(cacheKey, finalUrl);
                   return finalUrl;
                 } else {
-                  console.log(`🎨 [MyAvatarInfo-${componentId}] Name search returned generated avatar, using fallback`);
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] Name search returned generated/default avatar, skipping`);
                 }
               } else if (contentType && contentType.includes('json')) {
                 // JSON response with image URL
                 const data = await response.json();
+                console.log(`🔍 [MyAvatarInfo-${componentId}] JSON response data:`, data);
                 if (data.imageUrl && isRealPlayerPhoto(data.imageUrl)) {
                   console.log(`✅ [MyAvatarInfo-${componentId}] Found real JSON image via name search: ${data.imageUrl}`);
                   imageCache.set(cacheKey, data.imageUrl);
                   return data.imageUrl;
+                } else {
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] JSON response contains generated/default avatar, skipping`);
                 }
               }
             } else {
@@ -182,20 +189,24 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
               if (contentType && contentType.startsWith('image/')) {
                 // Direct image response - check if it's a real photo
                 const finalUrl = response.url;
+                console.log(`🔍 [MyAvatarInfo-${componentId}] Checking if real photo: ${finalUrl}`);
                 if (isRealPlayerPhoto(finalUrl)) {
                   console.log(`✅ [MyAvatarInfo-${componentId}] Found real image via ID search: ${finalUrl}`);
                   imageCache.set(cacheKey, finalUrl);
                   return finalUrl;
                 } else {
-                  console.log(`🎨 [MyAvatarInfo-${componentId}] ID search returned generated avatar, using fallback`);
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] ID search returned generated/default avatar, skipping`);
                 }
               } else if (contentType && contentType.includes('json')) {
                 // JSON response with image URL
                 const data = await response.json();
+                console.log(`🔍 [MyAvatarInfo-${componentId}] JSON response data:`, data);
                 if (data.imageUrl && isRealPlayerPhoto(data.imageUrl)) {
                   console.log(`✅ [MyAvatarInfo-${componentId}] Found real JSON image via ID search: ${data.imageUrl}`);
                   imageCache.set(cacheKey, data.imageUrl);
                   return data.imageUrl;
+                } else {
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] JSON response contains generated/default avatar, skipping`);
                 }
               }
             } else {
@@ -206,7 +217,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           }
         }
 
-        // Try cached system as final backup
+        // Try cached system as final backup (only if it returns real photos)
         try {
           const cachedImageUrl = await getPlayerImage(
             playerId,
@@ -214,12 +225,17 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             teamId,
           );
 
+          console.log(`🔍 [MyAvatarInfo-${componentId}] Cache system returned: ${cachedImageUrl}`);
           if (cachedImageUrl && isRealPlayerPhoto(cachedImageUrl)) {
             console.log(
               `✅ [MyAvatarInfo-${componentId}] Got real image from player cache: ${cachedImageUrl}`,
             );
             imageCache.set(cacheKey, cachedImageUrl);
             return cachedImageUrl;
+          } else {
+            console.log(
+              `🚫 [MyAvatarInfo-${componentId}] Cache system returned generated/default avatar, skipping`,
+            );
           }
         } catch (error) {
           console.log(
