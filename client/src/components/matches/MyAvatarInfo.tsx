@@ -41,7 +41,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     [playerId, playerName],
   );
 
-  const [imageUrl, setImageUrl] = useState<string>("/assets/matchdetaillogo/fallback_player.png");
+  const fallbackImageUrl = "/assets/matchdetaillogo/fallback_player.png";
+  const [imageUrl, setImageUrl] = useState<string>(fallbackImageUrl);
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -64,15 +65,29 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return "unknown";
   }, [playerId, playerName]);
 
+  // Helper function to check if URL is a real player photo (not a generated avatar)
+  const isRealPlayerPhoto = (url: string): boolean => {
+    if (!url || url === fallbackImageUrl) return false;
+    
+    // Exclude generated/fallback URLs
+    const excludedPatterns = [
+      "ui-avatars.com",
+      "default.png", 
+      "placeholder",
+      "fallback"
+    ];
+    
+    return !excludedPatterns.some(pattern => url.includes(pattern));
+  };
+
   // Optimized image loading with caching and deduplication
   const loadPlayerImage = async (): Promise<string> => {
-    const fallbackUrl = "/assets/matchdetaillogo/fallback_player.png";
-    
     // Check cache first
     if (imageCache.has(cacheKey)) {
       const cachedUrl = imageCache.get(cacheKey)!;
       console.log(`💾 [MyAvatarInfo-${componentId}] Cache hit: ${cachedUrl}`);
-      return cachedUrl;
+      // If cached URL is a generated avatar, treat as fallback
+      return isRealPlayerPhoto(cachedUrl) ? cachedUrl : fallbackImageUrl;
     }
 
     // Check if request is already in progress
@@ -80,7 +95,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       console.log(
         `⏳ [MyAvatarInfo-${componentId}] Request in progress, waiting...`,
       );
-      return await loadingRequests.get(cacheKey)!;
+      const result = await loadingRequests.get(cacheKey)!;
+      return isRealPlayerPhoto(result) ? result : fallbackImageUrl;
     }
 
     // Create new request
@@ -114,16 +130,20 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             if (response.ok) {
               const contentType = response.headers.get('content-type');
               if (contentType && contentType.startsWith('image/')) {
-                // Direct image response
+                // Direct image response - check if it's a real photo
                 const finalUrl = response.url;
-                console.log(`✅ [MyAvatarInfo-${componentId}] Found image via name search: ${finalUrl}`);
-                imageCache.set(cacheKey, finalUrl);
-                return finalUrl;
+                if (isRealPlayerPhoto(finalUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real image via name search: ${finalUrl}`);
+                  imageCache.set(cacheKey, finalUrl);
+                  return finalUrl;
+                } else {
+                  console.log(`🎨 [MyAvatarInfo-${componentId}] Name search returned generated avatar, using fallback`);
+                }
               } else if (contentType && contentType.includes('json')) {
                 // JSON response with image URL
                 const data = await response.json();
-                if (data.imageUrl && data.imageUrl !== fallbackUrl) {
-                  console.log(`✅ [MyAvatarInfo-${componentId}] Found JSON image via name search: ${data.imageUrl}`);
+                if (data.imageUrl && isRealPlayerPhoto(data.imageUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real JSON image via name search: ${data.imageUrl}`);
                   imageCache.set(cacheKey, data.imageUrl);
                   return data.imageUrl;
                 }
@@ -160,16 +180,20 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             if (response.ok) {
               const contentType = response.headers.get('content-type');
               if (contentType && contentType.startsWith('image/')) {
-                // Direct image response
+                // Direct image response - check if it's a real photo
                 const finalUrl = response.url;
-                console.log(`✅ [MyAvatarInfo-${componentId}] Found image via ID search: ${finalUrl}`);
-                imageCache.set(cacheKey, finalUrl);
-                return finalUrl;
+                if (isRealPlayerPhoto(finalUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real image via ID search: ${finalUrl}`);
+                  imageCache.set(cacheKey, finalUrl);
+                  return finalUrl;
+                } else {
+                  console.log(`🎨 [MyAvatarInfo-${componentId}] ID search returned generated avatar, using fallback`);
+                }
               } else if (contentType && contentType.includes('json')) {
                 // JSON response with image URL
                 const data = await response.json();
-                if (data.imageUrl && data.imageUrl !== fallbackUrl) {
-                  console.log(`✅ [MyAvatarInfo-${componentId}] Found JSON image via ID search: ${data.imageUrl}`);
+                if (data.imageUrl && isRealPlayerPhoto(data.imageUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real JSON image via ID search: ${data.imageUrl}`);
                   imageCache.set(cacheKey, data.imageUrl);
                   return data.imageUrl;
                 }
@@ -190,16 +214,9 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             teamId,
           );
 
-          if (
-            cachedImageUrl &&
-            cachedImageUrl !== "" &&
-            cachedImageUrl !== fallbackUrl &&
-            !cachedImageUrl.includes("ui-avatars.com") &&
-            !cachedImageUrl.includes("default.png") &&
-            !cachedImageUrl.includes("placeholder")
-          ) {
+          if (cachedImageUrl && isRealPlayerPhoto(cachedImageUrl)) {
             console.log(
-              `✅ [MyAvatarInfo-${componentId}] Got from player cache: ${cachedImageUrl}`,
+              `✅ [MyAvatarInfo-${componentId}] Got real image from player cache: ${cachedImageUrl}`,
             );
             imageCache.set(cacheKey, cachedImageUrl);
             return cachedImageUrl;
@@ -210,16 +227,16 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           );
         }
 
-        // All methods failed, use fallback but don't cache it permanently
+        // All methods failed, use our fallback image
         console.log(
-          `🎨 [MyAvatarInfo-${componentId}] Using fallback for: ${playerName} (ID: ${playerId})`,
+          `🎨 [MyAvatarInfo-${componentId}] All sources failed, using fallback image for: ${playerName} (ID: ${playerId})`,
         );
-        return fallbackUrl;
+        return fallbackImageUrl;
       } catch (error) {
         console.log(
           `❌ [MyAvatarInfo-${componentId}] Error loading image: ${(error as Error)?.message || error}`,
         );
-        return fallbackUrl;
+        return fallbackImageUrl;
       } finally {
         // Clean up loading request
         loadingRequests.delete(cacheKey);
@@ -236,7 +253,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     // Validate we have meaningful player data
     if ((!playerId || playerId <= 0) && (!playerName || !playerName.trim())) {
       console.log(`⚠️ [MyAvatarInfo-${componentId}] No valid player data, using fallback`);
-      setImageUrl("/assets/matchdetaillogo/fallback_player.png");
+      setImageUrl(fallbackImageUrl);
       setIsLoading(false);
       setIsVisible(true);
       return;
@@ -270,7 +287,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           console.log(
             `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
           );
-          setImageUrl("/assets/matchdetaillogo/fallback_player.png");
+          setImageUrl(fallbackImageUrl);
           setIsLoading(false);
         }
       }
@@ -307,7 +324,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   const handleClick = () => {
     if (onClick) {
       const actualImageUrl =
-        imageUrl !== "/assets/matchdetaillogo/fallback_player.png" ? imageUrl : undefined;
+        imageUrl !== fallbackImageUrl && isRealPlayerPhoto ? isRealPlayerPhoto(imageUrl) ? imageUrl : undefined : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
@@ -338,10 +355,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
             `🖼️ [MyAvatarInfo-${componentId}] Image error for URL: ${imageUrl}, using fallback`,
           );
           // Only set fallback if current URL is not already the fallback
-          if (imageUrl !== "/assets/matchdetaillogo/fallback_player.png") {
+          if (imageUrl !== fallbackImageUrl) {
             // Remove failed URL from cache
             imageCache.delete(cacheKey);
-            setImageUrl("/assets/matchdetaillogo/fallback_player.png");
+            setImageUrl(fallbackImageUrl);
           }
         }}
         onLoad={() => {
