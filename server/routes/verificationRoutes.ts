@@ -604,4 +604,24 @@ router.get('/env-check', (req, res) => {
   });
 });
 
+// Simple deployment IP check
+router.get('/deployment-ip', async (req, res) => {
+  try {
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+
+    res.json({
+      deploymentIP: data.ip,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get deployment IP' });
+  }
+});
+
 export default router;
+
+
+// Server IP check endpoint for AccessYou whitelisting
+router.get('/server-ip', async (req, res) => {
