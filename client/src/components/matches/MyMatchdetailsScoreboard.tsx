@@ -618,23 +618,21 @@ const MyMatchdetailsScoreboard = ({
           onClick={() => {
             console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked");
 
-            // Clear the selected match first
+            // Immediately close without delays to show components faster
+            if (onClose) {
+              onClose();
+            }
+
+            // Clear the selected match state after closing
             if (onMatchCardClick) {
               onMatchCardClick(null);
             }
 
-            // Remove selected-match CSS class from all match containers with a slight delay
-            setTimeout(() => {
-              const selectedMatches = document.querySelectorAll('.selected-match');
-              selectedMatches.forEach(match => {
-                match.classList.remove('selected-match');
-              });
-            }, 10);
-
-            // Then call the close callback
-            if (onClose) {
-              onClose();
-            }
+            // Clean up CSS classes without delay for immediate effect
+            const selectedMatches = document.querySelectorAll('.selected-match');
+            selectedMatches.forEach(match => {
+              match.classList.remove('selected-match');
+            });
           }}
           className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
           aria-label="Close"
