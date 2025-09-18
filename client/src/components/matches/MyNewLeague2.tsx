@@ -3152,28 +3152,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         743: "World",
                       };
 
-                      const originalCountry = league.country;
-                      if (originalCountry?.toLowerCase() === "world") {
-                        return "World";
-                      }
-
-                      const countryKey = originalCountry?.toLowerCase();
-                      const translation = countryKey && countryTranslations[countryKey];
-                      if (translation && translation[currentLanguage]) {
-                        return translation[currentLanguage];
-                      }
-
-                      const mappedCountry = countryKey && leagueCountryMap[league.id];
-                      if (mappedCountry) {
-                        if (mappedCountry === "World") return "World";
-                        const mappedTranslation = countryKey && countryTranslations[mappedCountry.toLowerCase()];
-                        if (mappedTranslation && mappedTranslation[currentLanguage]) {
-                          return mappedTranslation[currentLanguage];
-                        }
-                        return contextTranslateLeagueName(mappedCountry);
-                      }
-
-                      return contextTranslateLeagueName("Unknown Country");
+                      // Use the enhanced country translation function
+                      return translateEnhancedCountryName(originalCountry);
                     })()}
                   </span>
                 </div>
