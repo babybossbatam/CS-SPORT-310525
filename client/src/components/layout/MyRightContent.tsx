@@ -82,31 +82,6 @@ const MyRightContent: React.FC = () => {
           />
         </div>
       )}
-
-        <MyInfo />
-
-        {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 ">
-          <div className="space-y-4">
-            <PopularLeaguesList />
-            <PopularTeamsList />
-          </div>
-          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
-        </div>
-      </div>
-
-      {/* Match details overlay - shown when fixture is selected */}
-      {selectedFixture && (
-        <div className={cn(
-          "absolute inset-0 z-10 bg-white dark:bg-gray-900 transition-opacity duration-200",
-          selectedFixture ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}>
-          <MyMainLayoutRight
-            selectedFixture={selectedFixture}
-            onClose={handleCloseDetails}
-          />
-        </div>
-      )}
     </div>
   );
 };
