@@ -39,34 +39,50 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative">
+    <div className="h-full min-h-0 max-h-screen relative">
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
+          "h-full min-h-0 max-h-screen overflow-y-auto space-y-2 pb-2 absolute inset-0 transition-transform duration-300 ease-in-out",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
-          <MyHomeFeaturedMatchNew
-            selectedDate={selectedDate}
-            maxMatches={8}
-            onMatchCardClick={handleMatchCardClick}
-          />
+          <div className="max-h-[30vh] overflow-hidden">
+            <MyHomeFeaturedMatchNew
+              selectedDate={selectedDate}
+              maxMatches={6}
+              onMatchCardClick={handleMatchCardClick}
+            />
+          </div>
         )}
 
-        <HomeTopScorersList />
+        <div className="max-h-[15vh] overflow-hidden">
+          <HomeTopScorersList />
+        </div>
 
-        <LeagueStandingsFilter />
-        <MyInfo />
+        <div className="max-h-[12vh] overflow-hidden">
+          <LeagueStandingsFilter />
+        </div>
+        
+        <div className="max-h-[8vh] overflow-hidden">
+          <MyInfo />
+        </div>
+        
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 ">
-          <div className="space-y-4">
-            <PopularLeaguesList />
-            <PopularTeamsList />
+        <div className="grid grid-cols-2 gap-2 max-h-[35vh]">
+          <div className="space-y-2 overflow-y-auto">
+            <div className="max-h-[50%] overflow-hidden">
+              <PopularLeaguesList />
+            </div>
+            <div className="max-h-[50%] overflow-hidden">
+              <PopularTeamsList />
+            </div>
           </div>
-          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          <div className="overflow-y-auto">
+            <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          </div>
         </div>
       </div>
 
