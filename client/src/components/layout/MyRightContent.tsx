@@ -49,40 +49,25 @@ const MyRightContent: React.FC = () => {
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
-          <div className="max-h-[30vh] overflow-hidden">
-            <MyHomeFeaturedMatchNew
-              selectedDate={selectedDate}
-              maxMatches={6}
-              onMatchCardClick={handleMatchCardClick}
-            />
-          </div>
+        <MyHomeFeaturedMatchNew
+          selectedDate={selectedDate}
+          maxMatches={12}
+          onMatchCardClick={handleMatchCardClick}
+        />
         )}
 
-        <div className="max-h-[15vh] overflow-hidden">
-          <HomeTopScorersList />
-        </div>
+        <HomeTopScorersList />
 
-        <div className="max-h-[12vh] overflow-hidden">
-          <LeagueStandingsFilter />
-        </div>
-        
-        <div className="max-h-[8vh] overflow-hidden">
-          <MyInfo />
-        </div>
-        
+        <LeagueStandingsFilter />
+        <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-2 max-h-[35vh]">
-          <div className="space-y-2 overflow-y-auto">
-            <div className="max-h-[50%] overflow-hidden">
-              <PopularLeaguesList />
-            </div>
-            <div className="max-h-[50%] overflow-hidden">
-              <PopularTeamsList />
-            </div>
-          </div>
-          <div className="overflow-y-auto">
-            <MyAllLeague onMatchCardClick={handleMatchCardClick} />
-          </div>
+        <div className="grid grid-cols-2 gap-4 ">
+        <div className="space-y-4">
+          <PopularLeaguesList />
+          <PopularTeamsList />
+        </div>
+        <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          
         </div>
       </div>
 
