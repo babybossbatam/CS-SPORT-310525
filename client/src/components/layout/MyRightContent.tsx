@@ -48,7 +48,7 @@ const MyRightContent: React.FC = () => {
         )}
         style={{ 
           height: '100%',
-          maxHeight: 'calc(260vh - 4px)',
+          maxHeight: '100vh',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}
