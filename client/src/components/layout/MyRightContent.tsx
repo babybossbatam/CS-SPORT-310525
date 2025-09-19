@@ -39,7 +39,12 @@ const MyRightContent: React.FC = () => {
   return (
     <div className="h-full min-h-0 relative">
       {/* Main content - always rendered, keeps state active */}
-      <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 z-0">
+      <div 
+        className={cn(
+          "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
+          selectedFixture ? "z-0 transform translate-x-full opacity-0 pointer-events-none" : "z-10 transform translate-x-0 opacity-100"
+        )}
+      >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
           <MyHomeFeaturedMatchNew
@@ -63,15 +68,18 @@ const MyRightContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Match details overlay - shown when fixture is selected */}
-      {selectedFixture && (
-        <div className="absolute inset-0 z-10 bg-white dark:bg-gray-900">
-          <MyMainLayoutRight
-            selectedFixture={selectedFixture}
-            onClose={handleCloseDetails}
-          />
-        </div>
-      )}
+      {/* Match details overlay - always mounted, visibility controlled by CSS */}
+      <div 
+        className={cn(
+          "absolute inset-0 bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out",
+          selectedFixture ? "z-10 transform translate-x-0 opacity-100" : "z-0 transform translate-x-full opacity-0 pointer-events-none"
+        )}
+      >
+        <MyMainLayoutRight
+          selectedFixture={selectedFixture}
+          onClose={handleCloseDetails}
+        />
+      </div>
     </div>
   );
 };

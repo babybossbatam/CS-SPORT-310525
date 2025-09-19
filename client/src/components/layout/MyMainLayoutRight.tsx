@@ -28,6 +28,11 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
   const [activeTab, setActiveTab] = useState<string>("match");
   const { isMobile } = useDeviceInfo();
 
+  // Don't render anything if no fixture is selected
+  if (!selectedFixture) {
+    return null;
+  }
+
   // Debug logging to verify data reception from MyNewLeague2
   console.log(`🔍 [MyMainLayoutRight] Received selectedFixture:`, {
     fixtureId: selectedFixture?.fixture?.id,
