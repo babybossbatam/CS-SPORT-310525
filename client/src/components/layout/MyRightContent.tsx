@@ -39,16 +39,17 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative">
+    <div className="min-h-0 relative" style={{ height: 'auto', minHeight: '100vh' }}>
       {/* Main content - always rendered, keeps state active */}
       <div
         className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-4 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out ",
+          "min-h-0 space-y-4 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
         style={{
-          height: '100%',
-          overflowY: 'auto',
+          height: 'auto',
+          minHeight: '100%',
+          overflowY: 'visible',
           WebkitOverflowScrolling: 'touch'
         }}
       >
@@ -66,12 +67,12 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4 min-h-fit">
+          <div className="space-y-4 min-h-0">
             <PopularLeaguesList />
             <PopularTeamsList />
           </div>
-          <div className="flex-1">
+          <div className="min-h-0">
             <MyAllLeague onMatchCardClick={handleMatchCardClick} />
           </div>
         </div>
