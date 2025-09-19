@@ -38,12 +38,9 @@ const MyRightContent: React.FC = () => {
 
   return (
     <div className="h-full min-h-0 relative">
-      {/* Main content - always rendered, keeps state active at z-0 */}
+      {/* Main content - always rendered, keeps state active */}
       <div 
-        className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0",
-          selectedFixture ? "opacity-0 pointer-events-none z-0" : "opacity-100 z-10"
-        )}
+        className="h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 z-0"
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
@@ -57,7 +54,7 @@ const MyRightContent: React.FC = () => {
         <HomeTopScorersList />
 
         <LeagueStandingsFilter />
-        <MyInfo />
+
         {/* Popular Leagues and All League List sections */}
         <div className="grid grid-cols-2 gap-4 ">
           <div className="space-y-4">
@@ -67,12 +64,12 @@ const MyRightContent: React.FC = () => {
           <MyAllLeague onMatchCardClick={handleMatchCardClick} />
         </div>
 
-        
+        <MyInfo />
       </div>
 
-      {/* Match details overlay - shown when fixture is selected at z-20 */}
+      {/* Match details overlay - shown when fixture is selected */}
       {selectedFixture && (
-        <div className="absolute inset-0 z-20 bg-white dark:bg-gray-900">
+        <div className="absolute inset-0 z-10 bg-white dark:bg-gray-900">
           <MyMainLayoutRight
             selectedFixture={selectedFixture}
             onClose={handleCloseDetails}

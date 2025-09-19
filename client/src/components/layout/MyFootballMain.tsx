@@ -234,17 +234,25 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
             </div>
           </div>
 
-          {/* Right column (7 columns) - Always rendered with overlay system */}
+          {/* Right column (7 columns) - Hidden on mobile when fixture is selected */}
           {!isMobile && (
-            <div className="lg:col-span-7 space-y-4 relative">
-              <MyRightContent />
-              {selectedFixture && (
-                <MyMatchEvents
-                  homeTeam={selectedFixture?.teams?.home?.name}
-                  awayTeam={selectedFixture?.teams?.away?.name}
-                  matchStatus={selectedFixture?.fixture?.status?.short}
-                  match={selectedFixture}
-                />
+            <div className="lg:col-span-7 space-y-4">
+              {selectedFixture ? (
+                <>
+                  <MyMainLayoutRight
+                    selectedFixture={selectedFixture}
+                    onClose={handleCloseDetails}
+                  />
+
+                  <MyMatchEvents
+                    homeTeam={selectedFixture?.teams?.home?.name}
+                    awayTeam={selectedFixture?.teams?.away?.name}
+                    matchStatus={selectedFixture?.fixture?.status?.short}
+                    match={selectedFixture}
+                  />
+                </>
+              ) : (
+                <MyRightContent />
               )}
             </div>
           )}
@@ -254,7 +262,7 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
 
         {/* Mobile: Show fixture details in overlay when selected */}
         {isMobile && selectedFixture && (
-          <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
             <MyMainLayoutRight
               selectedFixture={selectedFixture}
               onClose={handleCloseDetails}
