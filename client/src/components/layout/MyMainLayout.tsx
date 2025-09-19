@@ -84,7 +84,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "py-4 mobile-main-layout overflow-y-auto overflow-x-auto",
+          "py-4 mobile-main-layout overflow-y-auto overflow-x-auto min-h-screen",
           isMobile ? "px-0" : "px-0",
         )}
         style={{
@@ -93,6 +93,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           marginTop: isMobile ? "100px" : "80px",
           width: isMobile ? "100vw" : "auto",
           maxWidth: isMobile ? "100vw" : "none",
+          minHeight: isMobile ? "calc(100vh - 100px)" : "calc(100vh - 80px)",
         }}
       >
         <div
