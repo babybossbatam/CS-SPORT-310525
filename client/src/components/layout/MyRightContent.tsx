@@ -60,7 +60,7 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative overflow-hidden" style={{ height: 'calc(100vh - 80px)', minHeight: '200px' }}>
+    <div className="h-full min-h-0 relative" style={{ height: 'calc(100vh - 80px)', minHeight: '200px' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
