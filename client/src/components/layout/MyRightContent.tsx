@@ -39,14 +39,14 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative" style={{ height: 'calc(100vh - 120px)', minHeight: '600px' }}>
+    <div className="h-full min-h-0 relative" style={{ height: 'calc(100vh - 60px)', minHeight: '700px' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
           "h-full min-h-0 overflow-y-auto space-y-2 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
-        style={{ height: '100%', maxHeight: 'calc(100vh - 120px)' }}
+        style={{ height: '100%', maxHeight: 'calc(100vh - 60px)' }}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
@@ -62,14 +62,14 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 min-h-0">
-        <div className="space-y-4 min-h-0">
-          <PopularLeaguesList />
-          <PopularTeamsList />
-        </div>
-        <div className="min-h-0">
-          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
-        </div>
+        <div className="grid grid-cols-2 gap-3 min-h-0">
+          <div className="space-y-3 min-h-0">
+            <PopularLeaguesList />
+            <PopularTeamsList />
+          </div>
+          <div className="min-h-0">
+            <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          </div>
         </div>
       </div>
 
