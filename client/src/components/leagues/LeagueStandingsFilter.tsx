@@ -25,7 +25,6 @@ import {
 } from "@/components/ui/table";
 import MyCircularFlag from "@/components/common/MyCircularFlag";
 import MyWorldTeamLogo from "@/components/common/MyWorldTeamLogo";
-import MyNewLeagueLogo from "@/components/common/MyNewLeagueLogo";
 import { teamColorMap } from "@/lib/colorExtractor";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
@@ -634,12 +633,18 @@ const LeagueStandingsFilter = () => {
           <SelectTrigger className=" border-0 mt-2">
             <SelectValue>
               <div className="flex items-center gap-2">
-                <MyNewLeagueLogo
-                  leagueId={parseInt(selectedLeague)}
-                  leagueName={selectedLeagueName}
-                  size="24px"
-                  className="object-contain"
-                  fallbackUrl="/assets/fallback-logo.svg"
+                <img
+                  src={
+                    popularLeagues.find(
+                      (l) => l && l.id && l.id.toString() === selectedLeague,
+                    )?.logo || "/assets/fallback-logo.svg"
+                  }
+                  alt={selectedLeagueName}
+                  className="h-6 w-6 object-contain"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src =
+                      "/assets/fallback-logo.svg";
+                  }}
                 />
                 {smartLeagueCountryTranslation.translateLeagueName(selectedLeagueName, currentLanguage)}
               </div>
@@ -659,12 +664,14 @@ const LeagueStandingsFilter = () => {
               .map((league) => (
                 <SelectItem key={league.id} value={league.id.toString()}>
                   <div className="flex items-center gap-2">
-                    <MyNewLeagueLogo
-                      leagueId={league.id}
-                      leagueName={league.name}
-                      size="20px"
-                      className="object-contain"
-                      fallbackUrl="/assets/fallback-logo.svg"
+                    <img
+                      src={league.logo || "/assets/fallback-logo.svg"}
+                      alt={league.name}
+                      className="h-5 w-5 object-contain"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          "/assets/fallback-logo.svg";
+                      }}
                     />
                     {smartLeagueCountryTranslation.translateLeagueName(league.name, currentLanguage)}
                   </div>
