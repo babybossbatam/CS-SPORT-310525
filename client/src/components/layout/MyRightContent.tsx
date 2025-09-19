@@ -47,7 +47,8 @@ const MyRightContent: React.FC = () => {
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
         style={{ 
-          maxHeight: '100vh',
+          height: '100%',
+          maxHeight: 'calc(100vh - 60px)',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}
@@ -76,8 +77,8 @@ const MyRightContent: React.FC = () => {
         
         {/* Extra bottom padding to ensure content isn't cut off */}
         <div className={cn(
-          "h-16",
-          isMobile && "h-24 pb-safe-bottom"
+          "h-20 pb-4",
+          isMobile && "h-32 pb-safe-bottom"
         )} />
       </div>
 
