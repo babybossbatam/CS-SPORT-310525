@@ -210,14 +210,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     [darkMode],
   );
 
-  // DECISION POINT: Use MyCircularFlag for national teams, LazyImage for club teams
+  // DECISION POINT: Use MyCircularFlag for national teams, direct club logo rendering for club teams
   // National teams should ALWAYS use MyCircularFlag regardless of useTeamLogo prop
 
   // CRITICAL DEBUG: Log the exact decision state
   console.log(`🔥 [MyWorldTeamLogo] CRITICAL DECISION for ${teamName}:`, {
     shouldUseCircularFlag,
     teamId,
-    logoUrl,
+    logoUrl: logoUrlForClub,
     leagueContext
   });
 
@@ -238,8 +238,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     );
   }
 
-  // For club teams, use LazyImage
-  console.log(`🏟️ [MyWorldTeamLogo] ❌ FALLBACK: Rendering LazyImage for club team: ${teamName} (shouldUseCircularFlag was ${shouldUseCircularFlag})`);
+  // For club teams, render club logo directly without using MyCircularFlag
+  console.log(`🏟️ [MyWorldTeamLogo] ✅ CONFIRMED: Rendering direct club logo for: ${teamName}`);
   return (
     <div
       className={`team-logo-container ${className}`}
@@ -250,18 +250,30 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         boxShadow: "none",
       }}
     >
-      <LazyImage
+      <img
         src={logoUrlForClub}
         alt={alt || teamName}
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        useTeamLogo={false} // Important: LazyImage should NOT do team logo detection
-        teamId={teamId}
-        teamName={teamName}
-        leagueContext={leagueContext}
-        priority="medium"
-        fallbackSrc={`/api/team-logo/square/${teamId}?size=32`}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          console.warn(`⚠️ [MyWorldTeamLogo] Club logo error for ${teamName}:`, target.src);
+          
+          // Try different fallback options for club teams
+          if (teamId && !target.src.includes(`/api/team-logo/square/${teamId}`)) {
+            const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
+            console.log(`🔄 [MyWorldTeamLogo] Trying fallback: ${fallbackUrl}`);
+            target.src = fallbackUrl;
+            return;
+          }
+          
+          // Final fallback
+          if (!target.src.includes("/assets/fallback-logo.svg")) {
+            console.log(`🚫 [MyWorldTeamLogo] Using final fallback for ${teamName}`);
+            target.src = "/assets/fallback-logo.svg";
+          }
+        }}
       />
     </div>
   );
