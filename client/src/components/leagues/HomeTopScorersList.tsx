@@ -33,11 +33,13 @@ const POPULAR_LEAGUES = [
     id: 39,
     name: "Premier League",
     logo: "https://media.api-sports.io/football/leagues/39.png",
+    priority: 1, // Highest priority for default selection
   },
   {
     id: 140,
     name: "La Liga",
     logo: "https://media.api-sports.io/football/leagues/140.png",
+    priority: 2,
   },
   {
     id: 135,
@@ -320,17 +322,31 @@ const HomeTopScorersList = () => {
 
       // Set initial selected league from available leagues with data
       if (!selectedLeague && leaguesWithData.length > 0) {
-        // Try to find World Cup Qualification South America first
-        const preferredLeague = leaguesWithData.find((l) => l.id === 34);
-        const initialLeague = preferredLeague
-          ? preferredLeague.id
-          : leaguesWithData[0].id;
+        // Priority order for default league selection
+        const leaguePriority = [39, 34, 140, 135, 78, 61]; // Premier League, WC Qualification SA, La Liga, Serie A, Bundesliga, Ligue 1
+        
+        let initialLeague = null;
+        
+        // Try to find leagues in priority order
+        for (const priorityLeagueId of leaguePriority) {
+          const foundLeague = leaguesWithData.find((l) => l.id === priorityLeagueId);
+          if (foundLeague) {
+            initialLeague = foundLeague.id;
+            break;
+          }
+        }
+        
+        // If no priority league found, use first available
+        if (!initialLeague) {
+          initialLeague = leaguesWithData[0].id;
+        }
 
         console.log(`🎯 [HomeTopScorers] Setting initial league:`, {
           initialLeagueId: initialLeague,
           initialLeagueName: leaguesWithData.find((l) => l.id === initialLeague)
             ?.name,
           availableLeaguesCount: leaguesWithData.length,
+          priorityUsed: leaguePriority.includes(initialLeague),
         });
 
         setSelectedLeague(initialLeague);
