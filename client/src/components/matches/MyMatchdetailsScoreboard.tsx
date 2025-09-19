@@ -616,7 +616,7 @@ const MyMatchdetailsScoreboard = ({
       {onClose && (
         <button
           onClick={() => {
-            console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked");
+            console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked - triggering slide animation only");
 
             // Remove selected-match CSS class from all match containers
             const selectedMatches = document.querySelectorAll('.selected-match');
@@ -624,7 +624,7 @@ const MyMatchdetailsScoreboard = ({
               match.classList.remove('selected-match');
             });
 
-            // Just call the close callback to trigger CSS transform back to main content
+            // Only trigger CSS transform animation - do NOT clear selectedFixture
             onClose();
           }}
           className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
