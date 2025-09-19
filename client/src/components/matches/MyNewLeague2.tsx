@@ -4,7 +4,6 @@ import React, {
   useMemo,
   useCallback,
   useRef,
-  startTransition,
 } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -1857,18 +1856,14 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     });
   }, []);
 
-  const handleMatchClick = useCallback((fixture: FixtureData | null) => {
+  const handleMatchClick = (fixture: FixtureData | null) => {
     try {
       if (fixture === null) {
         // Clear selection when null is passed (from close button)
         console.log("🎯 [MyNewLeague2] Clearing selected match");
-        
-        // Use startTransition for non-urgent state update
-        startTransition(() => {
-          setSelectedMatchId(null);
-        });
+        setSelectedMatchId(null);
 
-        // Call the callback immediately to start animation
+        // Also call the callback to notify parent component
         if (onMatchCardClick && typeof onMatchCardClick === "function") {
           onMatchCardClick(null);
         }
@@ -1898,7 +1893,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         isCurrentlySelected: selectedMatchId === matchId,
       });
 
-      // Call the callback first to start animation immediately
+      // Force re-selection by clearing first, then setting (allows re-render)
+      if (selectedMatchId === matchId) {
+        // If clicking the same match, clear first to trigger re-render
+        setSelectedMatchId(null);
+        // Use setTimeout to ensure the state update is processed
+        setTimeout(() => {
+          setSelectedMatchId(matchId);
+          console.log(
+            `🔄 [MyNewLeague2] Re-selected same match ${matchId} for re-highlighting`,
+          );
+        }, 10);
+      } else {
+        // Different match, select directly
+        setSelectedMatchId(matchId);
+        console.log(
+          `✅ [MyNewLeague2] Successfully selected new match ${matchId}`,
+        );
+      }
+
+      // Call the callback to pass match data to parent component
       if (onMatchCardClick && typeof onMatchCardClick === "function") {
         // Create a safe copy of fixture data
         const safeFixture = {
@@ -1959,38 +1973,13 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               }
             : undefined,
         };
-        
-        // Call parent callback immediately to start animation
         onMatchCardClick(safeFixture);
       }
-
-      // Update local state as non-urgent operation
-      if (selectedMatchId === matchId) {
-        // If clicking the same match, clear first to trigger re-render
-        startTransition(() => {
-          setSelectedMatchId(null);
-          setTimeout(() => {
-            setSelectedMatchId(matchId);
-            console.log(
-              `🔄 [MyNewLeague2] Re-selected same match ${matchId} for re-highlighting`,
-            );
-          }, 10);
-        });
-      } else {
-        // Different match, select directly
-        startTransition(() => {
-          setSelectedMatchId(matchId);
-          console.log(
-            `✅ [MyNewLeague2] Successfully selected new match ${matchId}`,
-          );
-        });
-      }
-      
     } catch (error) {
       console.error("🚨 [MyNewLeague2] Error in handleMatchClick:", error);
       return false;
     }
-  }, [selectedMatchId, onMatchCardClick]);
+  };
 
   const [halftimeFlashMatches, setHalftimeFlashMatches] = useState<Set<number>>(
     new Set(),
