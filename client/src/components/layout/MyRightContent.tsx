@@ -41,12 +41,12 @@ const MyRightContent: React.FC = () => {
   return (
     <div className="h-full min-h-0 relative">
       {/* Main content - always rendered, keeps state active */}
-      <div 
+      <div
         className={cn(
           "h-full min-h-0 overflow-y-auto space-y-4 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out ",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
-        style={{ 
+        style={{
           height: '100%',
           maxHeight: '100vh',
           overflowY: 'auto',
@@ -67,14 +67,16 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-4">
+        <div className="grid grid-cols-2 gap-4 min-h-0">
+          <div className="space-y-4 h-full overflow-visible">
             <PopularLeaguesList />
             <PopularTeamsList />
           </div>
-          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          <div className="h-full overflow-visible">
+            <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          </div>
         </div>
-        
+
         {/* Extra bottom padding to ensure content isn't cut off */}
         <div className={cn(
           "h-20 pb-4",
@@ -83,7 +85,7 @@ const MyRightContent: React.FC = () => {
       </div>
 
       {/* Match details overlay - always mounted, visibility controlled by CSS */}
-      <div 
+      <div
         className={cn(
           "absolute inset-0 bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out",
           selectedFixture ? "z-10 transform translate-x-0" : "z-0 transform translate-x-full pointer-events-none"
