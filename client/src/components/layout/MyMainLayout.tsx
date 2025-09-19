@@ -138,21 +138,28 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {(!isMobile || selectedFixture) && (
             <div
               className={cn(
-                "space-y-4 h-full",
+                "space-y-4 flex flex-col",
                 isMobile ? "col-span-1" : "lg:col-span-7",
                 isMobile && selectedFixture
                   ? "fixed inset-0 z-50 bg-white"
                   : "",
               )}
-              style={{ height: isMobile && selectedFixture ? '100vh' : '100%' }}
+              style={{ 
+                height: isMobile && selectedFixture ? '100vh' : 'calc(100vh - 80px)',
+                minHeight: isMobile && selectedFixture ? '100vh' : 'calc(100vh - 80px)'
+              }}
             >
               {selectedFixture ? (
-                <MyMainLayoutRight
-                  selectedFixture={selectedFixture}
-                  onClose={handleBackToMain}
-                />
+                <div className="flex-1 min-h-0">
+                  <MyMainLayoutRight
+                    selectedFixture={selectedFixture}
+                    onClose={handleBackToMain}
+                  />
+                </div>
               ) : (
-                <MyRightContent />
+                <div className="flex-1 min-h-0">
+                  <MyRightContent />
+                </div>
               )}
             </div>
           )}

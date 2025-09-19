@@ -16,11 +16,32 @@ import MyInfo from "@/components/info/MyInfo";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
+// Add scrollbar hiding styles
+const scrollbarHideStyles = `
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
+
+  // Inject scrollbar hiding styles
+  React.useEffect(() => {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = scrollbarHideStyles;
+    document.head.appendChild(styleElement);
+    return () => {
+      document.head.removeChild(styleElement);
+    };
+  }, []);
 
   const handleMatchCardClick = (fixture: any) => {
     console.log("🎯 [MyRightContent] Match selected:", {
@@ -39,14 +60,14 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative" style={{ height: 'calc(100vh - 80px)', minHeight: '200px' }}>
+    <div className="h-full min-h-0 relative overflow-hidden" style={{ height: 'calc(100vh - 80px)', minHeight: '200px' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-2 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
+          "h-full min-h-0 overflow-y-auto space-y-2 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out scrollbar-hide",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
-        style={{ height: '100%', maxHeight: 'calc(100vh - 60px)' }}
+        style={{ height: '100%', maxHeight: '100%' }}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
@@ -62,13 +83,19 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 min-h-0">
-          <div className="space-y-4 min-h-0">
-            <PopularLeaguesList />
-            <PopularTeamsList />
+        <div className="grid grid-cols-2 gap-4 min-h-0 mb-4">
+          <div className="space-y-4 min-h-0 flex flex-col">
+            <div className="flex-shrink-0">
+              <PopularLeaguesList />
+            </div>
+            <div className="flex-shrink-0">
+              <PopularTeamsList />
+            </div>
           </div>
-          <div className="min-h-0">
-            <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+          <div className="min-h-0 flex flex-col">
+            <div className="flex-1 min-h-0">
+              <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+            </div>
           </div>
         </div>
       </div>
