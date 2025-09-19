@@ -32,7 +32,9 @@ const MyRightContent: React.FC = () => {
   };
 
   const handleCloseDetails = () => {
-    console.log("🎯 [MyRightContent] Closing match details");
+    console.log("🎯 [MyRightContent] Closing match details - triggering slide animation");
+    // This triggers the CSS transform animation by changing the conditional class
+    // Main content slides back in (translateX(0)) and detail view slides out (translateX(100%))
     setSelectedFixture(null);
   };
 

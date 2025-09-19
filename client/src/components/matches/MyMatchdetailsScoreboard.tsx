@@ -617,20 +617,22 @@ const MyMatchdetailsScoreboard = ({
         <button
           onClick={() => {
             console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked - triggering slide animation only");
-
-            // Remove selected-match CSS class from all match containers
+            
+            // Clean up any visual selection states
             const selectedMatches = document.querySelectorAll('.selected-match');
             selectedMatches.forEach(match => {
               match.classList.remove('selected-match');
             });
 
-            // Only trigger CSS transform animation - do NOT clear selectedFixture
+            // ONLY trigger the CSS transform animation
+            // This will slide the detail view out and main content back in
+            // without clearing any state or re-rendering
             onClose();
           }}
-          className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-semibold w-8 h-8 flex items-center justify-center z-10 rounded-full hover:bg-gray-100 transition-colors duration-200"
           aria-label="Close"
         >
-          x
+          ×
         </button>
       )}
       <CardTitle className="text-md font-normal text-gray-900 dark:text-white text-center pt-2">
