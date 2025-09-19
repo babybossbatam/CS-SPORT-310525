@@ -1,0 +1,562 @@
+/* Import mobile optimizations */
+@import './styles/mobile-optimizations.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Prevent autofill from changing input background and text size */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: white !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+/* For other browsers */
+input:-moz-autofill {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+input:-ms-autofill {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+/* Additional autofill prevention for phone inputs specifically */
+input[type="tel"]:-webkit-autofill,
+input[type="tel"]:-webkit-autofill:hover,
+input[type="tel"]:-webkit-autofill:focus,
+input[type="tel"]:-webkit-autofill:active {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}
+
+/* Hide Replit development error overlay - comprehensive */
+[data-error-overlay],
+#error-overlay,
+.error-overlay,
+[class*="error-overlay"],
+[class*="ErrorOverlay"],
+[data-runtime-error],
+.runtime-error-overlay,
+[class*="runtime-error"],
+vite-error-overlay,
+#vite-plugin-runtime-error-modal,
+[data-vite-error],
+.vite-error-overlay {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  z-index: -9999 !important;
+  position: fixed !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Prevent flash of unstyled content */
+#root {
+  min-height: 100vh;
+  background-color: #fafaf9;
+  /* stone-50 */
+}
+
+/* Dark mode root background */
+.dark #root {
+  background-color: #000000 !important;
+  /* true black main page background */
+}
+
+/* Mobile-first layout to prevent desktop flash */
+.mobile-app-container {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Mobile device detection classes */
+.mobile-device .lg\:grid-cols-12 {
+  grid-template-columns: 1fr !important;
+}
+
+.mobile-device .lg\:col-span-5,
+.mobile-device .lg\:col-span-7 {
+  grid-column: span 1 / span 1 !important;
+}
+
+.mobile-body {
+  overflow-x: hidden !important;
+}
+
+/* Mobile layout active state */
+.mobile-layout-active {
+  margin-left: 8px !important;
+  margin-right: 8px !important;
+}
+
+.mobile-grid {
+  grid-template-columns: 1fr !important;
+}
+
+.mobile-left-col {
+  width: 100% !important;
+  grid-column: span 1 / span 1 !important;
+}
+
+/* Initial loading state */
+.initial-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #fafaf9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Fade out animation for loading */
+.loading-fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+/* Prevent scrollbars from reducing page width */
+html {
+  scrollbar-gutter: stable;
+  overflow-y: auto;
+}
+
+/* Modern browsers - overlay scrollbars */
+@supports (scrollbar-width: thin) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  }
+}
+
+/* Webkit browsers - overlay scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* Ensure consistent viewport width */
+body {
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Disable card hover effect when star buttons are being hovered */
+.group.disable-hover:hover {
+  background-color: white !important;
+}
+
+/* Disable card hover when button is hovered */
+.group.button-hovered:hover {
+  background-color: white !important;
+}
+
+.text-shadow {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes shine {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.animate-shine {
+  animation: shine 2s infinite;
+}
+
+@keyframes pulse-scale {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+.animate-pulse-scale {
+  animation: pulse-scale 1.5s infinite ease-in-out;
+}
+
+/* Country flags without border - logo only */
+.country-flag-ball {
+  position: relative;
+  aspect-ratio: 1;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.country-flag-ball img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50%;
+}
+
+/* Team logo sizing */
+.team-logo {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50%;
+}
+
+/* Flag circle container */
+.flag-circle {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.flag-circle img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50%;
+}
+
+/* Fix for dropdown causing main layout shift */
+[data-radix-select-content] {
+  position: fixed !important;
+  z-index: 9999 !important;
+  max-width: 400px !important;
+  transform-origin: var(--radix-select-content-transform-origin);
+  will-change: transform !important;
+  overflow: hidden !important;
+}
+
+/* Hide dropdown scroll arrows - comprehensive approach */
+[data-radix-select-scroll-up-button],
+[data-radix-select-scroll-down-button],
+[data-radix-scroll-area-scrollbar] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  width: 0 !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Hide any chevron elements in select content */
+[data-radix-select-content] svg[data-chevron],
+[data-radix-select-content] .lucide-chevron-up,
+[data-radix-select-content] .lucide-chevron-down {
+  display: none !important;
+}
+
+/* Ensure select trigger doesn't overflow */
+[data-radix-select-trigger] {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Prevent horizontal overflow on main content */
+main {
+  overflow-x: hidden;
+}
+
+/* Additional fixes for portal and viewport */
+[data-radix-select-portal] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  z-index: 9999 !important;
+}
+
+[data-radix-select-viewport] {
+  max-width: 400px !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* Remove general hover effects from select items */
+[data-radix-select-item] {
+  background-color: white !important;
+}
+
+[data-radix-select-item]:hover {
+  background-color: white !important;
+}
+
+/* Only apply hover to selected/focused items */
+[data-radix-select-item][data-state="checked"] {
+  background-color: #f5f5f5 !important;
+}
+
+[data-radix-select-item][data-state="checked"]:hover {
+  background-color: #e5e5e5 !important;
+}
+
+/* Hide horizontal scrollbars globally */
+* {
+  scrollbar-width: none !important;
+}
+
+*::-webkit-scrollbar:horizontal {
+  display: none !important;
+}
+
+/* Hide vertical scrollbars by default */
+*::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
+}
+
+/* Custom scrollbar for fixed layout containers */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 8px !important;
+  background: transparent !important;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+  background-color: #d1d5db !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-track-gray-100::-webkit-scrollbar-track {
+  background-color: #f3f4f6 !important;
+  border-radius: 4px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af !important;
+}
+
+/* Ensure the entire app container doesn't shift */
+#root {
+  overflow-x: hidden !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+  min-height: 100vh !important;
+}
+
+/* Main content area with normal scroll behavior */
+main {
+  overflow-x: hidden;
+}
+
+/* Footer positioning - normal flow */
+footer {
+  position: relative;
+}
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 60 4.8% 95.9%;
+  --secondary-foreground: 24 9.8% 10%;
+  --accent: 60 4.8% 95.9%;
+  --accent-foreground: 24 9.8% 10%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 98%;
+  --muted: 217 33% 17%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 217 33% 17%;
+  --popover-foreground: 0 0% 98%;
+  --card: 217 33% 17%;
+  --card-foreground: 0 0% 98%;
+  --border: 0 0% 15%;
+  --input: 0 0% 15%;
+  --primary: 207 90% 54%;
+  --primary-foreground: 211 100% 99%;
+  --secondary: 217 33% 17%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 217 33% 17%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+  --radius: 0.5rem;
+}
+
+/* Ensure body and html have black background in dark mode */
+.dark body,
+.dark html {
+  background-color: #000000 !important;
+}
+
+/* Force all background elements to be black in dark mode */
+.dark .bg-background,
+.dark .bg-stone-50 {
+  background-color: #000000 !important;
+}
+
+/* Dark mode card header styles */
+.dark [data-card-header],
+.dark .card-header {
+  background-color: #1f2937 !important;
+  /* gray-800 */
+  color: white !important;
+  border-bottom: 1px solid rgb(55 65 81) !important;
+  /* border-gray-700 */
+}
+
+/* Dark mode card content */
+.dark [data-card-content],
+.dark .card-content {
+  background-color: #1f2937 !important;
+  /* gray-800 */
+  color: white !important;
+}
+
+/* Dark mode comprehensive card styling for MyNewLeague2 */
+.dark .border,
+.dark .border-stone-200,
+.dark .border-gray-200 {
+  border-color: rgb(55 65 81) !important;
+  /* border-gray-700 */
+}
+
+.dark .bg-card,
+.dark .bg-white {
+  background-color: #1f2937 !important;
+  /* gray-800 */
+}
+
+.dark .text-card-foreground {
+  color: white !important;
+}
+
+/* Skeleton components in dark mode */
+.dark .bg-gray-100,
+.dark .bg-gray-50 {
+  background-color: #1f2937 !important;
+  /* gray-800 for consistency */
+}
+
+/* League card spacing consistency */
+.dark .league-card-spacing {
+  background-color: #1f2937 !important;
+  border-color: rgb(55 65 81) !important;
+}
+
+/* Additional card styling for comprehensive coverage */
+.dark .card,
+.dark [data-card] {
+  background-color: #1f2937 !important;
+  /* gray-800 */
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 5px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.3);
+  }
+
+  to {
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.8), 0 0 25px rgba(239, 68, 68, 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  body {
+    @apply antialiased bg-background text-foreground;
+    font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+  }
+}
+
+/* Font face declaration for immediate recognition */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+}
+
+/* Force immediate font usage */
+html {
+  font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Ensure font is used in body immediately */
+body::before {
+  content: '';
+  font-family: 'Inter', sans-serif;
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  visibility: hidden;
+}
