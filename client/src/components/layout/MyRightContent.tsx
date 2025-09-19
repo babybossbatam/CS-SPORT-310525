@@ -43,12 +43,12 @@ const MyRightContent: React.FC = () => {
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-4 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out scrollbar-hide",
+          "h-full min-h-0 overflow-y-auto space-y-4 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out ",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
         style={{ 
           height: '100%',
-          maxHeight: 'calc(100vh - 60px)',
+          maxHeight: 'calc(260vh - 4px)',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}
