@@ -1108,12 +1108,6 @@ const LeagueStandingsFilter = () => {
             ) : (
               // Single league table with enhanced Premier League display
               <div className="overflow-hidden border-t">
-                {/* Special Premier League Header */}
-                {selectedLeague === "39" && (
-                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 text-center text-sm font-medium">
-                    🏆 Premier League 2024/25 Season
-                  </div>
-                )}
                 <Table>
                   <TableHeader>
                     <TableRow className=" py-1 border-b border-gray-100">
