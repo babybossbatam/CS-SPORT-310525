@@ -109,19 +109,25 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           `🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`,
         );
 
-        // Try name-based search first (fastest if available)
+        // Try name-based search first (fastest if available) with timeout
         if (playerName && playerName.trim()) {
           try {
             const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName.trim())}`;
             console.log(`🔍 [MyAvatarInfo-${componentId}] Trying name search: ${nameSearchUrl}`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
             
             const response = await fetch(nameSearchUrl, {
               method: "GET",
               headers: {
                 'Accept': 'application/json, image/*',
                 'Cache-Control': 'no-cache'
-              }
+              },
+              signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
 
             console.log(`📡 [MyAvatarInfo-${componentId}] Name search response:`, {
               status: response.status,
@@ -163,19 +169,25 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           }
         }
 
-        // Try ID-based search as backup
+        // Try ID-based search as backup with timeout
         if (playerId && playerId > 0) {
           try {
             const idSearchUrl = `/api/player-photo/${playerId}`;
             console.log(`🔍 [MyAvatarInfo-${componentId}] Trying ID search: ${idSearchUrl}`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
             
             const response = await fetch(idSearchUrl, {
               method: "GET",
               headers: {
                 'Accept': 'application/json, image/*',
                 'Cache-Control': 'no-cache'
-              }
+              },
+              signal: controller.signal
             });
+            
+            clearTimeout(timeoutId);
 
             console.log(`📡 [MyAvatarInfo-${componentId}] ID search response:`, {
               status: response.status,
@@ -288,24 +300,21 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         return;
       }
 
-      // If not in cache, start loading immediately
-      setIsLoading(true);
+      // Show fallback immediately, then try to load real image in background
+      setImageUrl(fallbackImageUrl);
+      setIsLoading(false);
       setIsVisible(true);
 
       try {
         const url = await loadPlayerImage();
-        if (!isCancelled) {
+        if (!isCancelled && url !== fallbackImageUrl) {
           setImageUrl(url);
-          setIsLoading(false);
         }
       } catch (error) {
-        if (!isCancelled) {
-          console.log(
-            `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
-          );
-          setImageUrl(fallbackImageUrl);
-          setIsLoading(false);
-        }
+        console.log(
+          `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
+        );
+        // Fallback is already set, so no need to update
       }
     };
 
@@ -345,15 +354,7 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     }
   };
 
-  // Early return for loading state (only show loading if no cached image)
-  if (isLoading && !imageCache.has(cacheKey)) {
-    return (
-      <div
-        ref={containerRef}
-        className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-pulse ${className}`}
-      ></div>
-    );
-  }
+  // No loading state since we show fallback immediately
 
   return (
     <div
