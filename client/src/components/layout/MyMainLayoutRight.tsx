@@ -38,11 +38,25 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
 
   return (
     <div className={cn(
-      "h-full min-h-0 max-h-full overflow-y-auto",
+      "h-full min-h-0 max-h-full overflow-y-auto relative",
       isMobile 
         ? "w-full px-2 pb-20" // Mobile: proper scroll container
         : "pb-4" // Desktop: add bottom padding
     )}>
+      {/* Close button for overlay */}
+      {onClose && (
+        <button
+          onClick={() => {
+            console.log("🔴 [MyMainLayoutRight] Close button clicked");
+            onClose();
+          }}
+          className="absolute top-2 right-2 z-20 text-gray-500 hover:text-gray-700 text-xl font-semibold w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-800 rounded-full shadow-md"
+          aria-label="Close"
+        >
+          ×
+        </button>
+      )}
+
       <div className={cn(
         isMobile ? "mb-4" : "mb-6"
       )}>

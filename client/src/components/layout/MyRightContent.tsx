@@ -38,9 +38,12 @@ const MyRightContent: React.FC = () => {
 
   return (
     <div className="h-full min-h-0 relative">
-      {/* Main content - always rendered, keeps state active */}
+      {/* Main content - always rendered, keeps state active at z-0 */}
       <div 
-        className="h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 z-0"
+        className={cn(
+          "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 z-0",
+          selectedFixture ? "opacity-0 pointer-events-none" : "opacity-100"
+        )}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
@@ -67,9 +70,9 @@ const MyRightContent: React.FC = () => {
         
       </div>
 
-      {/* Match details overlay - shown when fixture is selected */}
+      {/* Match details overlay - shown when fixture is selected at z-10 */}
       {selectedFixture && (
-        <div className="absolute inset-0 z-10 bg-white dark:bg-gray-900">
+        <div className="absolute inset-0 z-10 bg-white dark:bg-gray-900 opacity-100">
           <MyMainLayoutRight
             selectedFixture={selectedFixture}
             onClose={handleCloseDetails}
