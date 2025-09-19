@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -34,18 +33,18 @@ const MyRightContent: React.FC = () => {
 
   const handleCloseDetails = () => {
     console.log("🎯 [MyRightContent] Closing match details - triggering slide animation");
+    // This triggers the CSS transform animation by changing the conditional class
+    // Main content slides back in (translateX(0)) and detail view slides out (translateX(100%))
     setSelectedFixture(null);
   };
 
   return (
-    <div className="h-full min-h-0 relative overflow-hidden">
-      {/* Main content - ALWAYS MOUNTED, just hidden/shown with transforms */}
+    <div className="h-full min-h-0 relative">
+      {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
           "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
-          selectedFixture 
-            ? "transform translate-x-[-100%] opacity-0 pointer-events-none" 
-            : "transform translate-x-0 opacity-100"
+          selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
       >
         {/* Featured Match Section - Hidden on mobile */}
@@ -71,16 +70,13 @@ const MyRightContent: React.FC = () => {
         </div>
       </div>
 
-      {/* Match details overlay - ALWAYS MOUNTED, visibility controlled by CSS */}
+      {/* Match details overlay - always mounted, visibility controlled by CSS */}
       <div 
         className={cn(
           "absolute inset-0 bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out",
-          selectedFixture 
-            ? "transform translate-x-0 opacity-100" 
-            : "transform translate-x-full opacity-0 pointer-events-none"
+          selectedFixture ? "z-10 transform translate-x-0" : "z-0 transform translate-x-full pointer-events-none"
         )}
       >
-        {/* Always render the detail view, but it will be hidden when selectedFixture is null */}
         <MyMainLayoutRight
           selectedFixture={selectedFixture}
           onClose={handleCloseDetails}
