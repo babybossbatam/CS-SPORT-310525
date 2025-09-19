@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef, startTransition } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
@@ -20,23 +20,66 @@ const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
   const { isMobile } = useDeviceInfo();
+  const animationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleMatchCardClick = (fixture: any) => {
+  const handleMatchCardClick = useCallback((fixture: any) => {
     console.log("🎯 [MyRightContent] Match selected:", {
       fixtureId: fixture?.fixture?.id,
       teams: `${fixture?.teams?.home?.name} vs ${fixture?.teams?.away?.name}`,
       league: fixture?.league?.name,
     });
-    setSelectedFixture(fixture);
-  };
 
-  const handleCloseDetails = () => {
+    // Clear any existing animation timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
+    // Start animation immediately
+    setIsAnimating(true);
+
+    // Use startTransition to mark state update as non-urgent
+    startTransition(() => {
+      setSelectedFixture(fixture);
+    });
+
+    // Reset animation state after animation completes
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 300); // Match CSS transition duration
+  }, []);
+
+  const handleCloseDetails = useCallback(() => {
     console.log("🎯 [MyRightContent] Closing match details - triggering slide animation");
-    // This triggers the CSS transform animation by changing the conditional class
-    // Main content slides back in (translateX(0)) and detail view slides out (translateX(100%))
-    setSelectedFixture(null);
-  };
+    
+    // Clear any existing animation timeout
+    if (animationTimeoutRef.current) {
+      clearTimeout(animationTimeoutRef.current);
+    }
+
+    // Start animation immediately
+    setIsAnimating(true);
+    
+    // Use startTransition to mark state update as non-urgent
+    startTransition(() => {
+      setSelectedFixture(null);
+    });
+
+    // Reset animation state after animation completes
+    animationTimeoutRef.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 300); // Match CSS transition duration
+  }, []);
+
+  // Cleanup animation timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <div className="h-full min-h-0 relative">
@@ -44,8 +87,16 @@ const MyRightContent: React.FC = () => {
       <div 
         className={cn(
           "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
-          selectedFixture ? "z-0 transform translate-x-full opacity-0 pointer-events-none" : "z-10 transform translate-x-0 opacity-100"
+          selectedFixture || isAnimating 
+            ? "z-0 transform translate-x-full opacity-0 pointer-events-none" 
+            : "z-10 transform translate-x-0 opacity-100"
         )}
+        style={{
+          // Force hardware acceleration
+          willChange: 'transform, opacity',
+          transform: selectedFixture || isAnimating ? 'translateX(100%)' : 'translateX(0)',
+          opacity: selectedFixture || isAnimating ? 0 : 1,
+        }}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
@@ -74,8 +125,16 @@ const MyRightContent: React.FC = () => {
       <div 
         className={cn(
           "absolute inset-0 bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out",
-          selectedFixture ? "z-10 transform translate-x-0 opacity-100" : "z-0 transform translate-x-full opacity-0 pointer-events-none"
+          selectedFixture || isAnimating 
+            ? "z-10 transform translate-x-0 opacity-100" 
+            : "z-0 transform translate-x-full opacity-0 pointer-events-none"
         )}
+        style={{
+          // Force hardware acceleration
+          willChange: 'transform, opacity',
+          transform: selectedFixture || isAnimating ? 'translateX(0)' : 'translateX(100%)',
+          opacity: selectedFixture || isAnimating ? 1 : 0,
+        }}
       >
         <MyMainLayoutRight
           selectedFixture={selectedFixture}
