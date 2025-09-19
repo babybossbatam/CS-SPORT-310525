@@ -133,25 +133,20 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
             </div>
           )}
 
-          {/* Right column (7 columns) - Show when match is selected on mobile, always show on desktop */}
-          {(!isMobile || selectedFixture) && (
-            <div
-              className={cn(
-                "space-y-4 ",
-                isMobile ? "col-span-1" : "lg:col-span-7",
-                isMobile && selectedFixture
-                  ? "fixed inset-0 z-50 bg-white"
-                  : "",
-              )}
-            >
-              {selectedFixture ? (
-                <MyMainLayoutRight
-                  selectedFixture={selectedFixture}
-                  onClose={handleBackToMain}
-                />
-              ) : (
-                <MyRightContent />
-              )}
+          {/* Right column (7 columns) - Always rendered with overlay system */}
+          {!isMobile && (
+            <div className="lg:col-span-7 space-y-4 relative">
+              <MyRightContent />
+            </div>
+          )}
+
+          {/* Mobile: Show fixture details in overlay when selected */}
+          {isMobile && selectedFixture && (
+            <div className="fixed inset-0 bg-white dark:bg-gray-900 z-50 overflow-y-auto">
+              <MyMainLayoutRight
+                selectedFixture={selectedFixture}
+                onClose={handleBackToMain}
+              />
             </div>
           )}
         </div>
