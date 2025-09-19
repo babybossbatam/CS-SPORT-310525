@@ -44,7 +44,7 @@ const MyRightContent: React.FC = () => {
       <div 
         className={cn(
           "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
-          selectedFixture ? "z-0 transform translate-x-full opacity-0 pointer-events-none" : "z-10 transform translate-x-0 opacity-100"
+          selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
       >
         {/* Featured Match Section - Hidden on mobile */}
@@ -74,7 +74,7 @@ const MyRightContent: React.FC = () => {
       <div 
         className={cn(
           "absolute inset-0 bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out",
-          selectedFixture ? "z-10 transform translate-x-0 opacity-100" : "z-0 transform translate-x-full opacity-0 pointer-events-none"
+          selectedFixture ? "z-10 transform translate-x-0" : "z-0 transform translate-x-full pointer-events-none"
         )}
       >
         <MyMainLayoutRight
