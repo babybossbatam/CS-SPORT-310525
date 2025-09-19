@@ -39,7 +39,7 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative" style={{ height: 'calc(100vh - 60px)', minHeight: '700px' }}>
+    <div className="h-full min-h-0 relative" style={{ height: 'calc(100vh - 80px)', minHeight: '200px' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
@@ -62,8 +62,8 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-3 min-h-0">
-          <div className="space-y-3 min-h-0">
+        <div className="grid grid-cols-2 gap-4 min-h-0">
+          <div className="space-y-4 min-h-0">
             <PopularLeaguesList />
             <PopularTeamsList />
           </div>
