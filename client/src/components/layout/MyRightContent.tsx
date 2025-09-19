@@ -43,9 +43,14 @@ const MyRightContent: React.FC = () => {
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
+          "h-full min-h-0 overflow-y-auto space-y-4 pb-8 absolute inset-0 transition-transform duration-300 ease-in-out scrollbar-hide",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
+        style={{ 
+          maxHeight: '100vh',
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
+        }}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
@@ -61,13 +66,19 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 ">
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-4">
             <PopularLeaguesList />
             <PopularTeamsList />
           </div>
           <MyAllLeague onMatchCardClick={handleMatchCardClick} />
         </div>
+        
+        {/* Extra bottom padding to ensure content isn't cut off */}
+        <div className={cn(
+          "h-16",
+          isMobile && "h-24 pb-safe-bottom"
+        )} />
       </div>
 
       {/* Match details overlay - always mounted, visibility controlled by CSS */}
