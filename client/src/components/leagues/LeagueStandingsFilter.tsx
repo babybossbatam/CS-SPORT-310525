@@ -57,11 +57,11 @@ interface Standing {
 // Helper function to check if this is a national team competition
 const isNationalTeamCompetition = (leagueName: string): boolean => {
   const leagueNameLower = leagueName.toLowerCase();
-  
+
   // Explicitly exclude ALL club competitions first
   const clubCompetitionKeywords = [
     "fifa club world cup",
-    "club world cup", 
+    "club world cup",
     "champions league",
     "europa league",
     "conference league",
@@ -84,22 +84,22 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
     "city fc",
     "athletic club"
   ];
-  
+
   // If it's a club competition, it's definitely NOT a national team competition
   const isClubCompetition = clubCompetitionKeywords.some((keyword) =>
     leagueNameLower.includes(keyword.toLowerCase())
   );
-  
+
   if (isClubCompetition) {
     console.log(`🏟️ [LeagueStandingsFilter] Club competition detected: ${leagueName} - using club logos`);
     return false;
   }
-  
+
   // Only then check for national team keywords
   const nationalTeamKeywords = [
     "world cup qualification",
     "wc qual",
-    "uefa wc qualification", 
+    "uefa wc qualification",
     "fifa world cup",
     "uefa nations",
     "euro championship",
@@ -111,11 +111,11 @@ const isNationalTeamCompetition = (leagueName: string): boolean => {
     "international",
     "nations league"
   ];
-  
+
   const isNationalCompetition = nationalTeamKeywords.some((keyword) =>
     leagueNameLower.includes(keyword.toLowerCase())
   );
-  
+
   console.log(`🌍 [LeagueStandingsFilter] National team competition check for ${leagueName}: ${isNationalCompetition}`);
   return isNationalCompetition;
 };
@@ -311,24 +311,20 @@ const LeagueStandingsFilter = () => {
           }
         });
 
-        // Set default selection to FIFA Club World Cup (ID 15) if available, otherwise fallback
-        if (processedLeagues.length > 0) {
-          const preferredLeague = processedLeagues.find(
-            (league) => league && league.id === 15 && league.name,
-          );
-          const fallbackLeague = processedLeagues.find(
-            (league) => league && league.id === 32 && league.name,
-          );
-          const defaultLeague =
-            preferredLeague ||
-            fallbackLeague ||
-            processedLeagues.find(
-              (league) => league && league.id && league.name,
-            );
-          if (defaultLeague) {
-            setSelectedLeague(defaultLeague.id.toString());
-            setSelectedLeagueName(defaultLeague.name);
-          }
+        // Set default selection to Premier League (ID 39)
+        const premierLeague = processedLeagues.find(
+          (league) => league && league.id === 39 && league.name,
+        );
+        const fallbackLeague = processedLeagues.find(
+          (league) => league && league.id === 15 && league.name,
+        ); // Fallback to FIFA Club World Cup
+        const defaultLeague = premierLeague || fallbackLeague || processedLeagues.find(
+          (league) => league && league.id && league.name,
+        );
+
+        if (defaultLeague) {
+          setSelectedLeague(defaultLeague.id.toString());
+          setSelectedLeagueName(defaultLeague.name);
         }
       } catch (error) {
         console.error("Failed to load league data:", error);
@@ -585,9 +581,9 @@ const LeagueStandingsFilter = () => {
           }
         });
 
-        // Set default to FIFA Club World Cup
-        setSelectedLeague("15");
-        setSelectedLeagueName("FIFA Club World Cup");
+        // Set default to Premier League
+        setSelectedLeague("39");
+        setSelectedLeagueName("Premier League");
       } finally {
         setLeaguesLoading(false);
       }
@@ -633,7 +629,7 @@ const LeagueStandingsFilter = () => {
         const mergedFixtures = {
           ...fixturesData,
           response: [...fixturesData.response, ...cachedTodayFixtures]
-            .filter((fixture, index, arr) => 
+            .filter((fixture, index, arr) =>
               index === arr.findIndex(f => f.fixture.id === fixture.fixture.id)
             ) // Remove duplicates
         };
@@ -851,7 +847,7 @@ const LeagueStandingsFilter = () => {
             }
           }}
         >
-          <SelectTrigger className=" w-full border-0 mt-2">
+          <SelectTrigger className=" border-0 mt-2">
             <SelectValue>
               <div className="flex items-center gap-2">
                 <img
@@ -1012,7 +1008,7 @@ const LeagueStandingsFilter = () => {
 
                                       // Get both upcoming and recent fixtures for better context
                                       const teamFixtures = fixtures.response.filter((fixture: any) => {
-                                        return fixture.teams.home.id === standing.team.id || 
+                                        return fixture.teams.home.id === standing.team.id ||
                                                fixture.teams.away.id === standing.team.id;
                                       });
 
@@ -1034,13 +1030,13 @@ const LeagueStandingsFilter = () => {
 
                                       // Determine if this team is home or away to get the correct opponent
                                       const isTeamHome = relevantMatch.teams.home.id === standing.team.id;
-                                      const opponentTeam = isTeamHome 
-                                        ? relevantMatch.teams.away 
+                                      const opponentTeam = isTeamHome
+                                        ? relevantMatch.teams.away
                                         : relevantMatch.teams.home;
 
                                       // For display purposes, always show the away team logo when possible
-                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id 
-                                        ? relevantMatch.teams.away 
+                                      const displayTeam = relevantMatch.teams.away.id !== standing.team.id
+                                        ? relevantMatch.teams.away
                                         : relevantMatch.teams.home;
 
                                       const nextMatchInfo = {
@@ -1096,7 +1092,7 @@ const LeagueStandingsFilter = () => {
                 {/* Link to view full group standings if more than 2 groups exist */}
                 {standings.league.standings.length > 2 && (
                   <div className="text-center mt-6 pt-4 border-t border-gray-100">
-                    <button 
+                    <button
                       onClick={() => window.location.href = `/league/${selectedLeague}/standings`}
                       className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium transition-colors duration-200"
                     >
@@ -1110,13 +1106,19 @@ const LeagueStandingsFilter = () => {
                 )}
               </div>
             ) : (
-              // Single league table
+              // Single league table with enhanced Premier League display
               <div className="overflow-hidden border-t">
+                {/* Special Premier League Header */}
+                {selectedLeague === "39" && (
+                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 text-center text-sm font-medium">
+                    🏆 Premier League 2024/25 Season
+                  </div>
+                )}
                 <Table>
                   <TableHeader>
                     <TableRow className=" py-1 border-b border-gray-100">
-                      <TableHead className="text-left text-xs font-regular text-gray-400  px-1 w-[40px]"></TableHead>
-                      <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px]"></TableHead>
+                      <TableHead className="text-left text-xs font-regular text-gray-400  px-1 w-[40px]">Pos</TableHead>
+                      <TableHead className="text-left text-xs font-regular text-gray-400 py-1 px-3 min-w-[180px]">Club</TableHead>
                       <TableHead className="text-center text-xs font-regular text-gray-400  px-2 w-[40px]">
                         P
                       </TableHead>
