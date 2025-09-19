@@ -16,9 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import MyWorldTeamLogo from '@/components/matches/MyWorldTeamLogo';
-import MyInfo from "@/components/info/MyInfo";
-import PopularLeagueStandings from "@/components/leagues/PopularLeagueStandings";
+
 
 interface MyMainLayoutRightProps {
   selectedFixture: any;
@@ -152,8 +150,6 @@ const MyMainLayoutRight: React.FC<MyMainLayoutRightProps> = ({ selectedFixture, 
         );
       })()}
 
-      <PopularLeagueStandings />
-      <MyInfo />
 
 </div>
   );

@@ -54,7 +54,7 @@ const MyRightContent: React.FC = () => {
         <HomeTopScorersList />
 
         <LeagueStandingsFilter />
-
+        <MyInfo />
         {/* Popular Leagues and All League List sections */}
         <div className="grid grid-cols-2 gap-4 ">
           <div className="space-y-4">
@@ -64,7 +64,7 @@ const MyRightContent: React.FC = () => {
           <MyAllLeague onMatchCardClick={handleMatchCardClick} />
         </div>
 
-        <MyInfo />
+        
       </div>
 
       {/* Match details overlay - shown when fixture is selected */}
