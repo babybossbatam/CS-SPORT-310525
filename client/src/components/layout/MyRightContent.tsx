@@ -48,7 +48,6 @@ const MyRightContent: React.FC = () => {
         )}
         style={{
           height: '100%',
-          maxHeight: '100vh',
           overflowY: 'auto',
           WebkitOverflowScrolling: 'touch'
         }}
@@ -67,12 +66,12 @@ const MyRightContent: React.FC = () => {
         <LeagueStandingsFilter />
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 min-h-0">
-          <div className="space-y-4 h-full overflow-visible">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
             <PopularLeaguesList />
             <PopularTeamsList />
           </div>
-          <div className="h-full overflow-visible">
+          <div className="flex-1">
             <MyAllLeague onMatchCardClick={handleMatchCardClick} />
           </div>
         </div>
