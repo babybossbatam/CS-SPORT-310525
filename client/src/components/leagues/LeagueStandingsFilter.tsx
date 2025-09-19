@@ -157,17 +157,22 @@ const LeagueStandingsFilter = () => {
         const currentLeagues = leagues.filter((league) => {
           const leagueName = league.name?.toLowerCase() || "";
           const country = league.country?.toLowerCase() || "";
+          const leagueId = league.id;
 
-          // Check if this is a World Cup qualification league - ALWAYS INCLUDE THESE
-          const isWCQualification =
-            leagueName.includes("world cup") ||
-            leagueName.includes("wc qual") ||
-            leagueName.includes("uefa wc qualification");
+          // Leagues known to have NO standings data - EXCLUDE THESE
+          const leaguesWithoutStandings = [
+            33, // World Cup Qualification - Oceania (no current standings)
+            37, // World Cup Qualification - Intercontinental Play-offs (playoff format, no standings)
+            480, // Olympic Football Tournament (tournament format varies)
+            875, 876, 877, 878, // Youth championships (inconsistent standings)
+            879, 880, 881, 882, 883, // Regional youth competitions
+            884, 885, 886, 887, 888, 889, 890, 891, 892, 893, 894, // More youth/women competitions
+            895, 896, 897, 898, 899, 900, 901, 902, 903, 904, 905, // Specialty competitions
+          ];
 
-          // If it's a World Cup qualification, always include it
-          if (isWCQualification) {
-            console.log(`🌍 WC Qualification league INCLUDED: ${league.name}`);
-            return true;
+          if (leaguesWithoutStandings.includes(leagueId)) {
+            console.log(`❌ Excluding league without standings: ${league.name} (ID: ${leagueId})`);
+            return false;
           }
 
           // Always exclude clearly historical tournaments that are not running now
@@ -187,14 +192,9 @@ const LeagueStandingsFilter = () => {
             (leagueName.includes("african cup of nations") &&
               currentYear !== 2025) ||
             (leagueName.includes("asian cup") && currentYear !== 2025) ||
-            // Old qualification rounds that are completed
-            (leagueName.includes("qualification") &&
-              !leagueName.includes("champions league") &&
-              !leagueName.includes("europa") &&
-              currentMonth > 11) ||
             // Women's leagues if specifically excluded
             leagueName.includes("women") ||
-            // Youth leagues
+            // Youth leagues - these rarely have proper standings
             leagueName.includes("u21") ||
             leagueName.includes("under 21") ||
             leagueName.includes("u19") ||
@@ -226,11 +226,9 @@ const LeagueStandingsFilter = () => {
             leagueName.includes("supercup") ||
             leagueName.includes("community shield") ||
             // Campeones Cup and similar one-off competitions
-            leagueName.includes("campeones cup") ||
-            // Group stage qualifiers (not full leagues)
-            leagueName.includes("group");
+            leagueName.includes("campeones cup");
 
-          // Keep current ongoing leagues - STRICT FILTERING
+          // Keep current ongoing leagues with confirmed standings data
           const isCurrentLeague =
             // Major European leagues (run most of the year) - EXACT MATCHES
             leagueName === "premier league" ||
@@ -243,14 +241,10 @@ const LeagueStandingsFilter = () => {
             leagueName === "uefa europa league" ||
             leagueName === "uefa europa conference league" ||
             leagueName === "uefa nations league" ||
-            // World Cup qualifications - SPECIFIC MATCHES
+            // World Cup qualifications with GROUP STAGES only
             leagueName === "world cup qualification - europe" ||
             leagueName === "world cup qualification - south america" ||
-            leagueName === "world cup qualification - africa" ||
-            leagueName === "world cup qualification - asia" ||
-            leagueName === "world cup qualification - oceania" ||
-            leagueName === "world cup qualification - intercontinental play-offs" ||
-            // Major tournaments
+            // Major tournaments with GROUP STAGES
             leagueName === "fifa world cup" ||
             leagueName === "euro championship" ||
             leagueName === "copa america" ||
@@ -261,13 +255,7 @@ const LeagueStandingsFilter = () => {
             leagueName === "egyptian premier league" ||
             leagueName === "mls" ||
             leagueName === "brasileiro série a" ||
-            leagueName === "liga profesional argentina" ||
-            // Major cup competitions - EXACT MATCHES ONLY
-            leagueName === "fa cup" ||
-            leagueName === "copa del rey" ||
-            leagueName === "coppa italia" ||
-            leagueName === "dfl-supercup" ||
-            leagueName === "coupe de france";
+            leagueName === "liga profesional argentina";
 
           return !isHistoricalTournament && !isLowTierLeague && isCurrentLeague;
         });
@@ -329,240 +317,35 @@ const LeagueStandingsFilter = () => {
       } catch (error) {
         console.error("Failed to load league data:", error);
 
-        // Enhanced fallback to popular leagues including ALL World Youth Leagues
+        // Enhanced fallback to leagues with confirmed standings data
         const fallbackLeagues = [
+          // Major European Competitions with confirmed standings
           { id: 2, name: "UEFA Champions League", logo: "", country: "Europe" },
           { id: 3, name: "UEFA Europa League", logo: "", country: "Europe" },
-          {
-            id: 848,
-            name: "UEFA Conference League",
-            logo: "",
-            country: "Europe",
-          },
+          { id: 848, name: "UEFA Conference League", logo: "", country: "Europe" },
           { id: 5, name: "UEFA Nations League", logo: "", country: "Europe" },
-          { id: 4, name: "Euro Championship", logo: "", country: "Europe" },
-          { id: 15, name: "FIFA World Cup", logo: "", country: "World" },
-          // World Cup Qualifications
-          {
-            id: 32,
-            name: "World Cup Qualification - Europe",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 33,
-            name: "World Cup Qualification - Oceania",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 34,
-            name: "World Cup Qualification - South America",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 35,
-            name: "Asian Cup - Qualification",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 36,
-            name: "Africa Cup of Nations - Qualification",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 37,
-            name: "World Cup Qualification - Intercontinental Play-offs",
-            logo: "",
-            country: "World",
-          },
-          // Youth and U-League Championships (32 World Country Leagues)
-          { id: 38, name: "UEFA U21 Championship", logo: "", country: "World" },
-          {
-            id: 480,
-            name: "Olympic Football Tournament",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 875,
-            name: "UEFA U19 Championship",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 876,
-            name: "UEFA U17 Championship",
-            logo: "",
-            country: "World",
-          },
-          { id: 877, name: "FIFA U20 World Cup", logo: "", country: "World" },
-          { id: 878, name: "FIFA U17 World Cup", logo: "", country: "World" },
-          {
-            id: 879,
-            name: "CONMEBOL Copa America U20",
-            logo: "",
-            country: "World",
-          },
-          { id: 880, name: "AFC U23 Championship", logo: "", country: "World" },
-          {
-            id: 881,
-            name: "CAF U23 Cup of Nations",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 882,
-            name: "CONCACAF U20 Championship",
-            logo: "",
-            country: "World",
-          },
-          { id: 883, name: "OFC U20 Championship", logo: "", country: "World" },
-          {
-            id: 884,
-            name: "FIFA U19 Women World Cup",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 885,
-            name: "FIFA U17 Women World Cup",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 886,
-            name: "UEFA Women U19 Championship",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 887,
-            name: "UEFA Women U17 Championship",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 888,
-            name: "CONMEBOL Copa America U17",
-            logo: "",
-            country: "World",
-          },
-          { id: 889, name: "AFC U19 Championship", logo: "", country: "World" },
-          { id: 890, name: "AFC U16 Championship", logo: "", country: "World" },
-          {
-            id: 891,
-            name: "CAF U20 Cup of Nations",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 892,
-            name: "CAF U17 Cup of Nations",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 893,
-            name: "CONCACAF U17 Championship",
-            logo: "",
-            country: "World",
-          },
-          { id: 894, name: "OFC U17 Championship", logo: "", country: "World" },
-          {
-            id: 895,
-            name: "FIFA Beach Soccer World Cup",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 896,
-            name: "FIFA Futsal World Cup",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 897,
-            name: "FIFA Club World Cup U20",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 898,
-            name: "World Youth Championship",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 899,
-            name: "International Friendlies U21",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 900,
-            name: "International Friendlies U19",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 901,
-            name: "International Friendlies U18",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 902,
-            name: "International Friendlies U17",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 903,
-            name: "International Friendlies U16",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 904,
-            name: "FIFA Youth Olympic Tournament",
-            logo: "",
-            country: "World",
-          },
-          {
-            id: 905,
-            name: "World University Games Football",
-            logo: "",
-            country: "World",
-          },
-          // Major Domestic Leagues
+          
+          // Major Domestic Leagues with confirmed standings
           { id: 39, name: "Premier League", logo: "", country: "England" },
           { id: 140, name: "La Liga", logo: "", country: "Spain" },
           { id: 135, name: "Serie A", logo: "", country: "Italy" },
           { id: 78, name: "Bundesliga", logo: "", country: "Germany" },
           { id: 61, name: "Ligue 1", logo: "", country: "France" },
-          {
-            id: 307,
-            name: "Saudi Pro League",
-            logo: "",
-            country: "Saudi Arabia",
-          },
-          {
-            id: 233,
-            name: "Egyptian Premier League",
-            logo: "",
-            country: "Egypt",
-          },
+          
+          // Other major leagues with standings
+          { id: 307, name: "Saudi Pro League", logo: "", country: "Saudi Arabia" },
+          { id: 233, name: "Egyptian Premier League", logo: "", country: "Egypt" },
+          { id: 71, name: "Premier League", logo: "", country: "Brazil" },
+          { id: 128, name: "Liga Profesional", logo: "", country: "Argentina" },
+          
+          // World Cup Qualifications with confirmed standings (only those with group stages)
+          { id: 32, name: "World Cup Qualification - Europe", logo: "", country: "World" },
+          { id: 34, name: "World Cup Qualification - South America", logo: "", country: "World" },
+          
+          // Major tournaments with group stages
+          { id: 4, name: "Euro Championship", logo: "", country: "Europe" },
           { id: 9, name: "Copa America", logo: "", country: "South America" },
-          {
-            id: 10,
-            name: "African Cup of Nations",
-            logo: "",
-            country: "Africa",
-          },
+          { id: 10, name: "African Cup of Nations", logo: "", country: "Africa" },
           { id: 11, name: "Asian Cup", logo: "", country: "Asia" },
         ];
 
