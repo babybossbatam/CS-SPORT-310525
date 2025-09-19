@@ -1226,23 +1226,27 @@ app.get('/api/teams/popular', async (req, res) => {
         const standings = await rapidApiService.getLeagueStandings(id, season);
         console.log(`Received standings data for league ${id} from RapidAPI`);
 
-        // Cache the standings data
-        try {
-          if (cachedStandings) {
-            await storage.updateCachedFixture(cacheKey, standings);
-          } else {
-            await storage.createCachedFixture({
-              fixtureId: cacheKey,
-              data: standings,
-              league: id.toString(),
-              date: new Date().toISOString().split("T")[0],
-            });
+        // Cache the standings data only if we have valid data
+        if (standings && standings.league && standings.league.standings) {
+          try {
+            if (cachedStandings) {
+              await storage.updateCachedFixture(cacheKey, standings);
+            } else {
+              await storage.createCachedFixture({
+                fixtureId: cacheKey,
+                data: standings,
+                league: id.toString(),
+                date: new Date().toISOString().split("T")[0],
+              });
+            }
+          } catch (cacheError) {
+            console.error(
+              `Error caching standings for league ${id}:`,
+              cacheError,
+            );
           }
-        } catch (cacheError) {
-          console.error(
-            `Error caching standings for league ${id}:`,
-            cacheError,
-          );
+        } else {
+          console.log(`🚫 No valid standings data to cache for league ${id}`);
         }
 
         res.json(standings);
