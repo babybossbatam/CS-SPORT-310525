@@ -39,13 +39,14 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 max-h-screen relative">
+    <div className="h-full min-h-0 relative" style={{ height: '100%' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
-          "h-full min-h-0 max-h-screen overflow-y-auto space-y-2 pb-2 absolute inset-0 transition-transform duration-300 ease-in-out",
+          "h-full min-h-0 overflow-y-auto space-y-2 pb-2 absolute inset-0 transition-transform duration-300 ease-in-out",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
+        style={{ height: '100%' }}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
