@@ -23,29 +23,27 @@ const MyRightContent: React.FC = () => {
   const { isMobile } = useDeviceInfo();
 
   const handleMatchCardClick = (fixture: any) => {
-    console.log('🎯 [MyRightContent] Match selected:', {
+    console.log("🎯 [MyRightContent] Match selected:", {
       fixtureId: fixture?.fixture?.id,
       teams: `${fixture?.teams?.home?.name} vs ${fixture?.teams?.away?.name}`,
-      league: fixture?.league?.name
+      league: fixture?.league?.name,
     });
     setSelectedFixture(fixture);
   };
 
   const handleCloseDetails = () => {
-    console.log('🎯 [MyRightContent] Closing match details');
+    console.log("🎯 [MyRightContent] Closing match details");
     setSelectedFixture(null);
   };
 
   return (
     <div className="h-full min-h-0 relative">
       {/* Main content - always rendered, keeps state active */}
-      <div 
-        className="h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 z-0"
-      >
+      <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 z-0">
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
-          <MyHomeFeaturedMatchNew 
-            selectedDate={selectedDate} 
+          <MyHomeFeaturedMatchNew
+            selectedDate={selectedDate}
             maxMatches={8}
             onMatchCardClick={handleMatchCardClick}
           />
@@ -54,7 +52,7 @@ const MyRightContent: React.FC = () => {
         <HomeTopScorersList />
 
         <LeagueStandingsFilter />
-
+        <MyInfo />
         {/* Popular Leagues and All League List sections */}
         <div className="grid grid-cols-2 gap-4 ">
           <div className="space-y-4">
@@ -63,8 +61,6 @@ const MyRightContent: React.FC = () => {
           </div>
           <MyAllLeague onMatchCardClick={handleMatchCardClick} />
         </div>
-
-        <MyInfo />
       </div>
 
       {/* Match details overlay - shown when fixture is selected */}
