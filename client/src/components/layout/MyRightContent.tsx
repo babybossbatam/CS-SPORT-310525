@@ -32,9 +32,10 @@ const MyRightContent: React.FC = () => {
   };
 
   const handleCloseDetails = () => {
-    console.log("🎯 [MyRightContent] Closing match details - triggering slide animation");
+    console.log("🎯 [MyRightContent] Closing match details - triggering slide animation only");
     // This triggers the CSS transform animation by changing the conditional class
     // Main content slides back in (translateX(0)) and detail view slides out (translateX(100%))
+    // Similar to standings cache, we only clear the UI state, not the underlying data cache
     setSelectedFixture(null);
   };
 

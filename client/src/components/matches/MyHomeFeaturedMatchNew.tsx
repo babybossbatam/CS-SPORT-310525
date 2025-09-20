@@ -2278,11 +2278,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
         setFixturesByLeague(leagueMap);
 
-        // Update state with the new matches
+        // Update state with the new matches using standings-like preservation logic
         setFeaturedMatches((prevMatches) => {
           // Compare match IDs for efficiency instead of full JSON stringify
           const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
-          const newIds = uniqueFixtures.flatMap(m => m.fixture.id).sort();
+          const newIds = uniqueFixtures.map(m => m.fixture.id).sort();
 
           if (prevIds.join(',') !== newIds.join(',')) {
             console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
@@ -2313,7 +2313,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             return allMatches;
           }
 
-          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, keeping existing state`);
+          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, preserving existing state like standings cache`);
           return prevMatches;
         });
       } catch (error) {
@@ -2924,7 +2924,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
         fixture.fixture.id,
       );
-      onMatchCardClick(fixture.fixture); // Pass the fixture object
+      onMatchCardClick(fixture); // Pass the entire fixture object like standings
     } else {
       navigate(`/match/${fixture.fixture.id}`);
     }
