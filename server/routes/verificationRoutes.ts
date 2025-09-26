@@ -23,19 +23,19 @@ const accessYouConfig = {
   baseUrl: 'https://smsapi.accessyou.com',
   apiKey: process.env.ACCESSYOU_API_KEY,
   accountNo: process.env.ACCESSYOU_ACCOUNT_NO,
-  
+
   // Basic SMS API (web login credentials)
   user: process.env.ACCESSYOU_USER,
   password: process.env.ACCESSYOU_PASSWORD,
-  
+
   // OTP API (separate credentials - different from web login)
   otpUser: process.env.ACCESSYOU_OTP_USER,
   otpPassword: process.env.ACCESSYOU_OTP_PASSWORD,
-  
+
   // Template configuration for OTP API
   templateId: process.env.ACCESSYOU_TEMPLATE_ID, // e.g., "12345"
   templateFormat: process.env.ACCESSYOU_TEMPLATE_FORMAT || '【CS-SPORT】验证码：#a#，请在10分钟内使用',
-  
+
   senderId: process.env.ACCESSYOU_SENDER_ID || 'CS-SPORT'
 };
 
@@ -72,51 +72,88 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
     }
 
-    // Format phone number (remove + prefix if present)
-    const formattedPhone = phoneNumber.replace('+', '');
+    // Format phone number (remove + prefix if present, ensure proper formatting)
+    let formattedPhone = phoneNumber.replace(/^\+/, '');
 
-    // Use OTP API with template (Part D of documentation)
+    // Ensure phone number starts with country code (add 86 for China if not present)
+    if (!formattedPhone.startsWith('86') && !formattedPhone.startsWith('1') && !formattedPhone.startsWith('852')) {
+      if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
+        // Chinese mobile number, add 86 prefix
+        formattedPhone = '86' + formattedPhone;
+      }
+    }
+
+    // Use AccessYou OTP API with template
     const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?` +
-      `user=${accessYouConfig.otpUser}&` +
-      `pwd=${accessYouConfig.otpPassword}&` +
+      `user=${encodeURIComponent(accessYouConfig.otpUser)}&` +
+      `pwd=${encodeURIComponent(accessYouConfig.otpPassword)}&` +
       `phone=${formattedPhone}&` +
       `template_id=${accessYouConfig.templateId}&` +
       `param1=${verificationCode}` +
-      (accessYouConfig.senderId ? `&from=${accessYouConfig.senderId}` : '');
+      (accessYouConfig.senderId ? `&from=${encodeURIComponent(accessYouConfig.senderId)}` : '');
 
     console.log('🔐 AccessYou OTP API request:', {
       phone: formattedPhone,
       templateId: accessYouConfig.templateId,
       code: verificationCode,
-      from: accessYouConfig.senderId
+      senderId: accessYouConfig.senderId,
+      user: accessYouConfig.otpUser
     });
 
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'CS-Sport-SMS-Service/1.0'
       }
     });
 
     const xmlText = await response.text();
+    console.log('📨 AccessYou OTP API response:', xmlText);
 
-    // Parse XML response for OTP API
+    // Parse XML response for OTP template API
     const statusMatch = xmlText.match(/<msg_status>(\d+)<\/msg_status>/);
     const msgIdMatch = xmlText.match(/<msg_id>([^<]+)<\/msg_id>/);
     const descMatch = xmlText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
 
-    if (statusMatch && statusMatch[1] === '100') {
-      const messageId = msgIdMatch ? msgIdMatch[1] : 'success';
-      console.log('✅ AccessYou OTP sent successfully:', messageId);
-      return { success: true, messageId };
+    if (statusMatch) {
+      const status = statusMatch[1];
+      if (status === '100') {
+        const messageId = msgIdMatch ? msgIdMatch[1] : 'template_success';
+        console.log('✅ AccessYou OTP template sent successfully:', messageId);
+        return { success: true, messageId };
+      } else {
+        const errorMessage = descMatch ? descMatch[1] : `OTP template API error status: ${status}`;
+        console.error('❌ AccessYou OTP template failed:', errorMessage);
+
+        // If template API fails, fallback to basic SMS API
+        console.log('🔄 Falling back to AccessYou basic SMS API...');
+        return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
+      }
     } else {
-      const errorMessage = descMatch ? descMatch[1] : `OTP API error status: ${statusMatch?.[1] || 'unknown'}`;
-      console.error('❌ AccessYou OTP failed:', errorMessage);
-      return { success: false, error: errorMessage };
+      // Handle non-XML response (might be plain text success)
+      const numericResponse = xmlText.trim();
+      if (/^\d+$/.test(numericResponse) && numericResponse !== '0') {
+        console.log('✅ AccessYou OTP sent (numeric response):', numericResponse);
+        return { success: true, messageId: numericResponse };
+      } else {
+        console.error('❌ AccessYou OTP unexpected response:', xmlText);
+        // Fallback to basic SMS API
+        console.log('🔄 Falling back to AccessYou basic SMS API...');
+        return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
+      }
     }
   } catch (error) {
     console.error('AccessYou OTP API error:', error);
-    return { success: false, error: error.message || 'OTP API service error' };
+
+    // If OTP API fails, try basic SMS API as fallback
+    console.log('🔄 OTP API failed, trying basic SMS API fallback...');
+    try {
+      return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
+    } catch (fallbackError) {
+      console.error('AccessYou fallback also failed:', fallbackError);
+      return { success: false, error: error.message || 'All SMS APIs failed' };
+    }
   }
 }
 
@@ -700,7 +737,7 @@ router.get('/server-ip', async (req, res) => {
       message: 'This IP needs to be whitelisted in AccessYou for SMS API access'
     });
   } catch (error) {
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Failed to get server IP',
       details: error.message || 'Unknown error'
     });
