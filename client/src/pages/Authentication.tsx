@@ -330,13 +330,22 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
+      console.log('📱 [SMS Response] Content-Type:', contentType);
+      
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
-        console.error('❌ Non-JSON response received:', text.substring(0, 200));
+        console.error('❌ Non-JSON response received:', {
+          status: response.status,
+          contentType,
+          textLength: text.length,
+          textPreview: text.substring(0, 200)
+        });
         
         // If we get HTML instead of JSON, it's likely a server error
         if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-          throw new Error('Server error occurred. Please try again in a few moments.');
+          throw new Error('Server error - received HTML instead of JSON response. Please try again.');
+        } else if (text.length > 10000) {
+          throw new Error('Server returned oversized response. Please try again.');
         } else {
           throw new Error('Server returned invalid response format');
         }

@@ -47,6 +47,29 @@ const accessYouConfig = {
 
 // Force refresh environment variables if they're missing
 if (!accountSid || !authToken || !phoneNumber) {
+
+// Debug endpoint to test response format
+router.post('/debug-response', (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    res.json({
+      success: true,
+      message: 'Debug response working correctly',
+      timestamp: new Date().toISOString(),
+      headers: {
+        'content-type': res.getHeader('content-type'),
+        'x-content-type-options': res.getHeader('x-content-type-options')
+      }
+    });
+  } catch (error) {
+    console.error('Debug endpoint error:', error);
+    res.status(500).json({ error: 'Debug endpoint failed' });
+  }
+});
+
+
   console.log('🔄 Attempting to refresh Twilio environment variables...');
   accountSid = process.env.TWILIO_ACCOUNT_SID;
   authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -319,15 +342,22 @@ router.post('/send-verification', async (req, res) => {
   // Ensure we always return JSON - this is critical
   res.setHeader('Content-Type', 'application/json');
 
+  // Prevent any HTML error pages
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
   // Add timeout to prevent hanging requests
   const timeout = setTimeout(() => {
     if (!res.headersSent) {
       console.error('❌ [SMS] Request timeout - sending timeout response');
-      res.status(408).json({
-        success: false,
-        error: 'Request timeout. Please try again.',
-        code: 'TIMEOUT'
-      });
+      try {
+        res.status(408).json({
+          success: false,
+          error: 'Request timeout. Please try again.',
+          code: 'TIMEOUT'
+        });
+      } catch (timeoutError) {
+        console.error('❌ [SMS] Error sending timeout response:', timeoutError);
+      }
     }
   }, 25000); // 25 second timeout
 
@@ -500,16 +530,28 @@ router.post('/send-verification', async (req, res) => {
       return;
     }
     
-    // Force JSON content type again in case it was changed
-    res.setHeader('Content-Type', 'application/json');
-    
-    res.status(500).json({
-      success: false,
-      error: 'SMS service temporarily unavailable. Please try again later.',
-      code: 'INTERNAL_ERROR',
-      details: process.env.NODE_ENV === 'development' ? (error.message || 'Unknown error occurred') : undefined,
-      timestamp: new Date().toISOString()
-    });
+    try {
+      // Force JSON content type again in case it was changed
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      
+      res.status(500).json({
+        success: false,
+        error: 'SMS service temporarily unavailable. Please try again later.',
+        code: 'INTERNAL_ERROR',
+        details: process.env.NODE_ENV === 'development' ? (error.message || 'Unknown error occurred') : undefined,
+        timestamp: new Date().toISOString(),
+        requestId: Date.now().toString()
+      });
+    } catch (responseError) {
+      console.error('❌ [SMS] Failed to send error response:', responseError);
+      // Last resort - try to send a minimal response
+      try {
+        res.end('{"success":false,"error":"Service unavailable"}');
+      } catch (finalError) {
+        console.error('❌ [SMS] Complete response failure:', finalError);
+      }
+    }
   }
 });
 
