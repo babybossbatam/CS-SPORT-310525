@@ -107,7 +107,7 @@ function generateVerificationCode(): string {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// Send SMS via AccessYou OTP API with template support
+// Send SMS via AccessYou OTP API using the correct endpoint
 async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     console.log('🔍 [AccessYou OTP] Starting OTP send process...');
@@ -120,13 +120,9 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       hasPassword: !!accessYouConfig.password
     });
 
-    if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword || !accessYouConfig.templateId) {
-      console.log('⚠️ AccessYou OTP API not fully configured, checking for basic API credentials');
-      console.log('⚠️ OTP credentials status:', {
-        otpUser: !accessYouConfig.otpUser ? 'MISSING' : 'SET',
-        otpPassword: !accessYouConfig.otpPassword ? 'MISSING' : 'SET', 
-        templateId: !accessYouConfig.templateId ? 'MISSING' : 'SET'
-      });
+    // Check if we have OTP API credentials first
+    if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword) {
+      console.log('⚠️ AccessYou OTP API credentials not configured, checking for basic API credentials');
       
       // Check if basic SMS API credentials are available
       if (accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password) {
@@ -154,9 +150,6 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       afterPlusRemoval: formattedPhone
     });
 
-    // AccessYou expects phone numbers in international format without +
-    // Examples: 85212345678 (HK), 8613812345678 (CN), 12125551234 (US)
-    
     // Validate phone number format
     if (formattedPhone.length < 10 || formattedPhone.length > 15) {
       console.error('❌ [AccessYou OTP] Invalid phone number length:', formattedPhone.length);
@@ -168,53 +161,96 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
     
     console.log('📱 [AccessYou OTP] Final formatted phone:', formattedPhone);
 
-    // Use AccessYou OTP API with template
-    const requestParams = {
+    // Try OTP API first (if template ID is available)
+    if (accessYouConfig.templateId) {
+      console.log('🔄 [AccessYou OTP] Using template-based OTP API');
+      
+      const templateParams = {
+        user: accessYouConfig.otpUser,
+        pwd: accessYouConfig.otpPassword,
+        phone: formattedPhone,
+        template_id: accessYouConfig.templateId,
+        param1: verificationCode
+      };
+      
+      if (accessYouConfig.senderId) {
+        templateParams.from = accessYouConfig.senderId;
+      }
+      
+      const templateQueryString = new URLSearchParams(templateParams).toString();
+      const templateApiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?${templateQueryString}`;
+
+      console.log('🌐 [AccessYou OTP] Making template API request to:', templateApiUrl.replace(/pwd=[^&]*/, 'pwd=***'));
+
+      const templateResponse = await fetch(templateApiUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'CS-Sport-SMS-Service/1.0',
+          'Accept': 'text/plain, application/xml, */*'
+        },
+        timeout: 30000
+      });
+
+      const templateResponseText = await templateResponse.text();
+      console.log('📨 [AccessYou OTP] Template API response:', templateResponseText);
+
+      // Parse template response
+      const statusMatch = templateResponseText.match(/<msg_status>(\d+)<\/msg_status>/);
+      const msgIdMatch = templateResponseText.match(/<msg_id>([^<]+)<\/msg_id>/);
+
+      if (statusMatch && statusMatch[1] === '100') {
+        const messageId = msgIdMatch ? msgIdMatch[1] : 'template_success';
+        console.log('✅ AccessYou OTP template sent successfully:', messageId);
+        return { success: true, messageId };
+      }
+    }
+
+    // Try direct OTP API (sendsms-otp.php) as primary or fallback
+    console.log('🔄 [AccessYou OTP] Using direct OTP API endpoint');
+    
+    const otpParams = {
+      accountno: accessYouConfig.accountNo || '',
       user: accessYouConfig.otpUser,
       pwd: accessYouConfig.otpPassword,
-      phone: formattedPhone,
-      template_id: accessYouConfig.templateId,
-      param1: verificationCode
+      tid: accessYouConfig.templateId || '',
+      a: verificationCode,
+      phone: formattedPhone
     };
     
-    // Add sender ID if provided
-    if (accessYouConfig.senderId) {
-      requestParams.from = accessYouConfig.senderId;
-    }
-    
-    const queryString = new URLSearchParams(requestParams).toString();
-    const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?${queryString}`;
+    const otpQueryString = new URLSearchParams(otpParams).toString();
+    const otpApiUrl = `https://otp.accessyou-api.com/sendsms-otp.php?${otpQueryString}`;
 
-    console.log('🔐 [AccessYou OTP] API request params:', {
+    console.log('🔐 [AccessYou OTP] Direct OTP API request params:', {
       phone: formattedPhone,
-      templateId: accessYouConfig.templateId,
+      templateId: accessYouConfig.templateId || 'N/A',
       code: verificationCode,
-      senderId: accessYouConfig.senderId,
       user: accessYouConfig.otpUser,
+      hasAccountNo: !!accessYouConfig.accountNo,
       hasPassword: !!accessYouConfig.otpPassword
     });
 
-    console.log('🌐 [AccessYou OTP] Making API request to:', apiUrl.replace(/pwd=[^&]*/, 'pwd=***'));
+    console.log('🌐 [AccessYou OTP] Making direct OTP API request to:', otpApiUrl.replace(/pwd=[^&]*/, 'pwd=***'));
 
-    const response = await fetch(apiUrl, {
+    const otpResponse = await fetch(otpApiUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'CS-Sport-SMS-Service/1.0',
         'Accept': 'text/plain, application/xml, */*'
       },
-      timeout: 30000 // Increased timeout for external API
+      timeout: 30000
     });
 
-    console.log('📡 [AccessYou OTP] Response status:', response.status, response.statusText);
-    console.log('📡 [AccessYou OTP] Response headers:', Object.fromEntries(response.headers.entries()));
+    console.log('📡 [AccessYou OTP] Response status:', otpResponse.status, otpResponse.statusText);
+    console.log('📡 [AccessYou OTP] Response headers:', Object.fromEntries(otpResponse.headers.entries()));
 
-    const responseText = await response.text();
-    console.log('📨 [AccessYou OTP] Raw API response:', responseText);
-    console.log('📨 [AccessYou OTP] Response length:', responseText.length);
+    const otpResponseText = await otpResponse.text();
+    console.log('📨 [AccessYou OTP] Direct OTP API response:', otpResponseText);
+    console.log('📨 [AccessYou OTP] Response length:', otpResponseText.length);
 
-    // Check for IP authentication errors first
-    if (responseText.includes('IP is forbidden') || responseText.includes('IP authentication') || response.status === 403) {
+    // Check for common error patterns
+    if (otpResponseText.includes('IP is forbidden') || otpResponseText.includes('IP authentication') || otpResponse.status === 403) {
       console.error('🚫 [AccessYou OTP] IP Authentication Error - Server IP not whitelisted');
       return { 
         success: false, 
@@ -222,27 +258,15 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       };
     }
 
-    // Check for authentication errors
-    if (responseText.includes('login failure') || responseText.includes('authentication failed') || responseText.includes('Invalid user')) {
+    if (otpResponseText.includes('login failure') || otpResponseText.includes('authentication failed') || otpResponseText.includes('Invalid user')) {
       console.error('🔑 [AccessYou OTP] Authentication failed - invalid credentials');
-      console.error('🔑 [AccessYou OTP] Check OTP user/password credentials');
       return { 
         success: false, 
         error: 'SMS service authentication failed. Please verify OTP API credentials.' 
       };
     }
 
-    // Check for template errors
-    if (responseText.includes('template not found') || responseText.includes('invalid template')) {
-      console.error('📝 [AccessYou OTP] Template error - check template ID');
-      return { 
-        success: false, 
-        error: 'SMS template configuration error. Please verify template ID.' 
-      };
-    }
-
-    // Check for insufficient balance
-    if (responseText.includes('insufficient') || responseText.includes('balance')) {
+    if (otpResponseText.includes('insufficient') || otpResponseText.includes('balance')) {
       console.error('💰 [AccessYou OTP] Insufficient balance');
       return { 
         success: false, 
@@ -250,33 +274,34 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       };
     }
 
-    // Parse XML response for OTP template API
-    const statusMatch = responseText.match(/<msg_status>(\d+)<\/msg_status>/);
-    const msgIdMatch = responseText.match(/<msg_id>([^<]+)<\/msg_id>/);
-    const descMatch = responseText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
+    // Parse response - could be XML or plain text
+    const xmlStatusMatch = otpResponseText.match(/<msg_status>(\d+)<\/msg_status>/);
+    const xmlMsgIdMatch = otpResponseText.match(/<msg_id>([^<]+)<\/msg_id>/);
 
-    if (statusMatch) {
-      const status = statusMatch[1];
+    if (xmlStatusMatch) {
+      const status = xmlStatusMatch[1];
       if (status === '100') {
-        const messageId = msgIdMatch ? msgIdMatch[1] : 'template_success';
-        console.log('✅ AccessYou OTP template sent successfully:', messageId);
+        const messageId = xmlMsgIdMatch ? xmlMsgIdMatch[1] : 'otp_success';
+        console.log('✅ AccessYou OTP sent successfully via XML response:', messageId);
         return { success: true, messageId };
       } else {
-        const errorMessage = descMatch ? descMatch[1] : `OTP template API error status: ${status}`;
-        console.error('❌ AccessYou OTP template failed:', errorMessage);
-
-        // If template API fails, fallback to basic SMS API
+        const xmlDescMatch = otpResponseText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
+        const errorMessage = xmlDescMatch ? xmlDescMatch[1] : `OTP API error status: ${status}`;
+        console.error('❌ AccessYou OTP failed:', errorMessage);
+        
+        // Fallback to basic SMS API
         console.log('🔄 Falling back to AccessYou basic SMS API...');
         return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
       }
     } else {
-      // Handle non-XML response (might be plain text success)
-      const numericResponse = responseText.trim();
+      // Handle plain text response (might be numeric message ID)
+      const numericResponse = otpResponseText.trim();
       if (/^\d+$/.test(numericResponse) && numericResponse !== '0') {
         console.log('✅ AccessYou OTP sent (numeric response):', numericResponse);
         return { success: true, messageId: numericResponse };
       } else {
-        console.error('❌ AccessYou OTP unexpected response:', responseText);
+        console.error('❌ AccessYou OTP unexpected response:', otpResponseText);
+        
         // Fallback to basic SMS API
         console.log('🔄 Falling back to AccessYou basic SMS API...');
         return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
