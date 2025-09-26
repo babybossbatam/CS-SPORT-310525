@@ -21,7 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import PrivacySettingsModal from "@/components/modals/PrivacySettingsModal";
 import { useToast } from "@/hooks/use-toast";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import React from "react";
 import { useDeviceInfo, useMobileViewport } from "@/hooks/use-mobile";
@@ -167,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         >
           <img
             src="/CSSPORT_1_updated.png"
-            alt="CS SPORT Logo"
+            alt="CSSport Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
               isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",

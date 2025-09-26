@@ -19,6 +19,7 @@ import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
+import ProtectedRoute from './components/common/ProtectedRoute';
 
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
@@ -77,39 +78,41 @@ const AppWithLanguageRouting = () => {
       const AppRoutes = () => {
         return (
           <Switch>
-            {/* Routes with language prefix */}
-            <Route path="/:lang" component={Home} />
-            <Route path="/:lang/" component={Home} />
-            <Route path="/:lang/football" component={Football} />
-            <Route path="/:lang/basketball" component={Basketball} />
-            <Route path="/:lang/tv" component={TV} />
-            <Route path="/:lang/horse-racing" component={HorseRacing} />
-            <Route path="/:lang/snooker" component={Snooker} />
-            <Route path="/:lang/esport" component={Esport} />
-            <Route path="/:lang/match/:matchId" component={MatchDetails} />
-            <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
-            <Route path="/:lang/my-scores" component={MyScores} />
+            {/* Public routes - Login/Authentication */}
             <Route path="/:lang/login" component={Authentication} />
+            
+            {/* Protected routes with language prefix */}
+            <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/:lang/football" component={() => <ProtectedRoute><Football /></ProtectedRoute>} />
+            <Route path="/:lang/basketball" component={() => <ProtectedRoute><Basketball /></ProtectedRoute>} />
+            <Route path="/:lang/tv" component={() => <ProtectedRoute><TV /></ProtectedRoute>} />
+            <Route path="/:lang/horse-racing" component={() => <ProtectedRoute><HorseRacing /></ProtectedRoute>} />
+            <Route path="/:lang/snooker" component={() => <ProtectedRoute><Snooker /></ProtectedRoute>} />
+            <Route path="/:lang/esport" component={() => <ProtectedRoute><Esport /></ProtectedRoute>} />
+            <Route path="/:lang/match/:matchId" component={() => <ProtectedRoute><MatchDetails /></ProtectedRoute>} />
+            <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
+            <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
 
-            {/* Fallback routes without language (redirect to default language) */}
+            {/* Fallback routes without language (redirect to login) */}
             <Route path="/" component={() => {
-              window.location.href = "/en";
-        return null;
-      }} />
-      <Route path="/football" component={() => {
-        window.location.href = "/en/football";
-        return null;
-      }} />
-      <Route path="/basketball" component={() => {
-        window.location.href = "/en/basketball";
-        return null;
-      }} />
+              window.location.href = "/en/login";
+              return null;
+            }} />
+            <Route path="/football" component={() => {
+              window.location.href = "/en/login";
+              return null;
+            }} />
+            <Route path="/basketball" component={() => {
+              window.location.href = "/en/login";
+              return null;
+            }} />
 
-      {/* 404 page */}
-      <Route component={NotFound} />
-    </Switch>
-  );
-};
+            {/* 404 page */}
+            <Route component={NotFound} />
+          </Switch>
+        );
+      };
 const Settings = lazy(() => import("@/pages/Settings"));
 const SearchResults = lazy(() => import("@/pages/SearchResults"));
 const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
@@ -145,6 +148,26 @@ const preloadData = () => {
 
 function App() {
   useEffect(() => {
+    // Check for persisted authentication state
+    const checkAuthState = () => {
+      const userData = localStorage.getItem('user');
+      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+      
+      if (userData && isAuthenticated) {
+        try {
+          const user = JSON.parse(userData);
+          // You might want to dispatch actions to restore user state here
+          console.log('User authentication restored from localStorage');
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('isAuthenticated');
+        }
+      }
+    };
+
+    checkAuthState();
+
     // Force mobile-first layout immediately
     const isMobileCheck = window.innerWidth < 768;
     if (isMobileCheck) {
