@@ -251,9 +251,9 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
     }
 
     // Parse XML response for OTP template API
-    const statusMatch = xmlText.match(/<msg_status>(\d+)<\/msg_status>/);
-    const msgIdMatch = xmlText.match(/<msg_id>([^<]+)<\/msg_id>/);
-    const descMatch = xmlText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
+    const statusMatch = responseText.match(/<msg_status>(\d+)<\/msg_status>/);
+    const msgIdMatch = responseText.match(/<msg_id>([^<]+)<\/msg_id>/);
+    const descMatch = responseText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
 
     if (statusMatch) {
       const status = statusMatch[1];
@@ -271,12 +271,12 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       }
     } else {
       // Handle non-XML response (might be plain text success)
-      const numericResponse = xmlText.trim();
+      const numericResponse = responseText.trim();
       if (/^\d+$/.test(numericResponse) && numericResponse !== '0') {
         console.log('✅ AccessYou OTP sent (numeric response):', numericResponse);
         return { success: true, messageId: numericResponse };
       } else {
-        console.error('❌ AccessYou OTP unexpected response:', xmlText);
+        console.error('❌ AccessYou OTP unexpected response:', responseText);
         // Fallback to basic SMS API
         console.log('🔄 Falling back to AccessYou basic SMS API...');
         return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
@@ -393,16 +393,15 @@ async function sendAccessYouBasicSMS(phoneNumber: string, message: string): Prom
 
 // Send verification code endpoint
 router.post('/send-verification', async (req, res) => {
-  // Set CORS headers first
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  
-  // Ensure we always return JSON - this is critical
-  res.setHeader('Content-Type', 'application/json');
-
-  // Prevent any HTML error pages
-  res.setHeader('X-Content-Type-Options', 'nosniff');
+  try {
+    // Set CORS headers first
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    
+    // Ensure we always return JSON - this is critical
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
 
   // Add timeout to prevent hanging requests
   const timeout = setTimeout(() => {
@@ -530,17 +529,18 @@ router.post('/send-verification', async (req, res) => {
     // Clear timeout since we're responding
     clearTimeout(timeout);
 
+    // Clear timeout since we're responding
+    clearTimeout(timeout);
+
     if (smsSuccess) {
       console.log(`✅ SMS verification successful for ${formattedNumber} via ${messageProvider}`);
       
-      if (!res.headersSent) {
-        res.json({
-          success: true,
-          message: 'Verification code sent successfully',
-          phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
-          provider: messageProvider
-        });
-      }
+      return res.status(200).json({
+        success: true,
+        message: 'Verification code sent successfully',
+        phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
+        provider: messageProvider
+      });
     } else {
       console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
       
@@ -555,27 +555,25 @@ router.post('/send-verification', async (req, res) => {
         userFriendlyError = 'SMS service quota exceeded. Please contact support.';
       }
 
-      if (!res.headersSent) {
-        res.status(503).json({
-          success: false,
-          error: userFriendlyError,
-          code: 'SMS_SERVICE_ERROR',
-          details: process.env.NODE_ENV === 'development' ? smsError : undefined,
-          providers: {
-            accessYou: {
-              configured: !!accessYouConfig.accountNo,
-              hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
-              hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
-            },
-            twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
+      return res.status(503).json({
+        success: false,
+        error: userFriendlyError,
+        code: 'SMS_SERVICE_ERROR',
+        details: process.env.NODE_ENV === 'development' ? smsError : undefined,
+        providers: {
+          accessYou: {
+            configured: !!accessYouConfig.accountNo,
+            hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
+            hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
           },
-          troubleshooting: {
-            checkServerIP: '/api/verification/server-ip',
-            testAccessYou: '/api/verification/test-accessyou',
-            testTwilio: '/api/verification/test-twilio'
-          }
-        });
-      }
+          twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
+        },
+        troubleshooting: {
+          checkServerIP: '/api/verification/server-ip',
+          testAccessYou: '/api/verification/test-accessyou',
+          testTwilio: '/api/verification/test-twilio'
+        }
+      });
     }
   } catch (error) {
     // Clear timeout
@@ -589,28 +587,18 @@ router.post('/send-verification', async (req, res) => {
       return;
     }
     
-    try {
-      // Force JSON content type again in case it was changed
-      res.setHeader('Content-Type', 'application/json');
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-      
-      res.status(500).json({
-        success: false,
-        error: 'SMS service temporarily unavailable. Please try again later.',
-        code: 'INTERNAL_ERROR',
-        details: process.env.NODE_ENV === 'development' ? (error.message || 'Unknown error occurred') : undefined,
-        timestamp: new Date().toISOString(),
-        requestId: Date.now().toString()
-      });
-    } catch (responseError) {
-      console.error('❌ [SMS] Failed to send error response:', responseError);
-      // Last resort - try to send a minimal response
-      try {
-        res.end('{"success":false,"error":"Service unavailable"}');
-      } catch (finalError) {
-        console.error('❌ [SMS] Complete response failure:', finalError);
-      }
-    }
+    // Force JSON content type again in case it was changed
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    
+    return res.status(500).json({
+      success: false,
+      error: 'SMS service temporarily unavailable. Please try again later.',
+      code: 'INTERNAL_ERROR',
+      details: process.env.NODE_ENV === 'development' ? (error.message || 'Unknown error occurred') : undefined,
+      timestamp: new Date().toISOString(),
+      requestId: Date.now().toString()
+    });
   }
 });
 
