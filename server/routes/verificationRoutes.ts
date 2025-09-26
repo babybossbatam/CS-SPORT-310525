@@ -5,11 +5,17 @@ import fetch from 'node-fetch';
 
 const router = Router();
 
+// Middleware to ensure all responses are JSON
+router.use((req, res, next) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  next();
+});
+
 // Handle CORS preflight requests
 router.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   res.sendStatus(200);
 });
 
@@ -303,11 +309,13 @@ async function sendAccessYouBasicSMS(phoneNumber: string, message: string): Prom
 
 // Send verification code endpoint
 router.post('/send-verification', async (req, res) => {
-  // Set CORS headers
+  // Set CORS headers first
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-  res.header('Content-Type', 'application/json');
+  
+  // Ensure we always return JSON
+  res.setHeader('Content-Type', 'application/json');
 
   try {
     const { phoneNumber, countryCode = '+852' } = req.body;
@@ -459,14 +467,20 @@ router.post('/send-verification', async (req, res) => {
     }
   } catch (error) {
     console.error('Error sending verification code:', error);
+    
     // Ensure we always return JSON, never HTML
     if (res.headersSent) {
       return;
     }
+    
+    // Force JSON content type again in case it was changed
+    res.setHeader('Content-Type', 'application/json');
+    
     res.status(500).json({
       success: false,
-      error: 'Internal server error',
-      details: error.message || 'Unknown error occurred'
+      error: 'SMS service temporarily unavailable. Please try again later.',
+      details: process.env.NODE_ENV === 'development' ? (error.message || 'Unknown error occurred') : undefined,
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -846,6 +860,16 @@ router.get('/env-check', (req, res) => {
     },
     phoneNumberValue: process.env.TWILIO_PHONE_NUMBER,
     timestamp: new Date().toISOString()
+  });
+});
+
+// Health check endpoint
+router.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'SMS Verification Service',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
   });
 });
 
