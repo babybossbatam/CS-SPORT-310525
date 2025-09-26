@@ -273,13 +273,31 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       return;
     }
 
-    // Validate phone number format
+    // Enhanced phone number validation
     const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
     const phoneNumberWithoutCode = phoneNumber.replace(selectedCountryCode, "");
-    if (phoneNumberWithoutCode.length !== (selectedCountry?.digits || 8)) {
+    
+    if (!phoneNumberWithoutCode || phoneNumberWithoutCode.length < 7) {
       toast({
         title: "Invalid Phone Number",
-        description: `Please enter a valid ${selectedCountry?.country} phone number`,
+        description: `Please enter a valid phone number`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // For Hong Kong and China, be more flexible with length validation
+    if (selectedCountryCode === "+852" && phoneNumberWithoutCode.length !== 8) {
+      toast({
+        title: "Invalid Hong Kong Phone Number",
+        description: "Hong Kong phone numbers should be 8 digits",
+        variant: "destructive",
+      });
+      return;
+    } else if (selectedCountryCode === "+86" && phoneNumberWithoutCode.length !== 11) {
+      toast({
+        title: "Invalid China Phone Number", 
+        description: "China phone numbers should be 11 digits",
         variant: "destructive",
       });
       return;
@@ -287,10 +305,21 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
     setIsSendingCode(true);
     try {
-      // Use the existing apiRequest function for consistency
-      const response = await apiRequest("POST", "/api/verification/send-verification", {
-        phoneNumber: phoneNumber,
+      console.log('📱 Sending SMS to:', phoneNumber);
+      
+      // Use fetch directly for better error handling
+      const response = await fetch("/api/verification/send-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          phoneNumber: phoneNumber,
+          countryCode: selectedCountryCode
+        }),
       });
+
+      console.log('📱 SMS Response status:', response.status);
 
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
@@ -301,13 +330,14 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       }
 
       const data = await response.json();
+      console.log('📱 SMS Response data:', data);
 
       if (response.ok && data.success) {
         setCodeSent(true);
         setCountdown(60); // 60 second countdown
         toast({
           title: "Verification Code Sent",
-          description: `SMS code sent to ${phoneNumber}. Please check your messages.`,
+          description: `SMS code sent to ${phoneNumber} via ${data.provider || 'SMS service'}. Please check your messages.`,
         });
 
         // Focus on verification code input
@@ -321,12 +351,16 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         throw new Error(data.error || "Failed to send verification code");
       }
     } catch (error) {
-      console.error("Failed to send verification code:", error);
+      console.error("❌ Failed to send verification code:", error);
 
       let errorMessage = 'Failed to send verification code';
       if (error instanceof Error) {
         if (error.message.includes('Server returned invalid response')) {
           errorMessage = 'Server error - please try again later';
+        } else if (error.message.includes('IP')) {
+          errorMessage = 'SMS service configuration error. Please contact support.';
+        } else if (error.message.includes('authentication')) {
+          errorMessage = 'SMS service authentication failed. Please try again.';
         } else {
           errorMessage = error.message;
         }
@@ -892,7 +926,15 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         />
                         <Button
                           type="button"
-                          onClick={sendVerificationCode}
+                          onClick={() => {
+                            console.log('🔘 SMS Button clicked');
+                            const phone = registerForm.getValues("phoneNumber");
+                            console.log('📱 Current phone value:', phone);
+                            console.log('🌍 Selected country code:', selectedCountryCode);
+                            console.log('⏰ Current countdown:', countdown);
+                            console.log('📤 Is sending:', isSendingCode);
+                            sendVerificationCode();
+                          }}
                           disabled={isSendingCode || countdown > 0}
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-large disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{ fontSize: "14px" }}

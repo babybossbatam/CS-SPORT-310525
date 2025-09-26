@@ -78,13 +78,24 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
     });
 
     if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword || !accessYouConfig.templateId) {
-      console.log('⚠️ AccessYou OTP API not configured, falling back to basic SMS API');
-      console.log('⚠️ Missing credentials:', {
+      console.log('⚠️ AccessYou OTP API not fully configured, checking for basic API credentials');
+      console.log('⚠️ OTP credentials status:', {
         otpUser: !accessYouConfig.otpUser ? 'MISSING' : 'SET',
-        otpPassword: !accessYouConfig.otpPassword ? 'MISSING' : 'SET',
+        otpPassword: !accessYouConfig.otpPassword ? 'MISSING' : 'SET', 
         templateId: !accessYouConfig.templateId ? 'MISSING' : 'SET'
       });
-      return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
+      
+      // Check if basic SMS API credentials are available
+      if (accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password) {
+        console.log('🔄 Falling back to AccessYou basic SMS API');
+        return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
+      } else {
+        console.error('❌ No AccessYou credentials available at all');
+        return { 
+          success: false, 
+          error: 'SMS service not configured. Please contact support.' 
+        };
+      }
     }
 
     // Format phone number (remove + prefix if present, ensure proper formatting)
@@ -299,20 +310,39 @@ router.post('/send-verification', async (req, res) => {
   res.header('Content-Type', 'application/json');
 
   try {
-    const { phoneNumber, countryCode = '+1' } = req.body;
+    const { phoneNumber, countryCode = '+852' } = req.body;
+
+    console.log('📱 [SMS Request] Received:', { phoneNumber, countryCode });
 
     if (!phoneNumber) {
-      return res.status(400).json({ error: 'Phone number is required' });
+      console.error('❌ [SMS Request] No phone number provided');
+      return res.status(400).json({ 
+        success: false,
+        error: 'Phone number is required' 
+      });
     }
 
     // Format phone number properly
     const formattedNumber = phoneNumber.startsWith('+') ? phoneNumber : `${countryCode}${phoneNumber}`;
 
-    console.log(`📱 Sending SMS to: ${formattedNumber}`);
+    console.log(`📱 [SMS Request] Formatted number: ${formattedNumber}`);
 
     // Generate verification code
     const code = generateVerificationCode();
     const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    console.log(`🔐 [SMS Request] Generated code: ${code}`);
+
+    // Check for existing code and rate limiting
+    const existingCode = verificationCodes.get(formattedNumber);
+    if (existingCode && new Date() < new Date(existingCode.expires.getTime() - 8 * 60 * 1000)) {
+      console.warn(`⏰ [SMS Request] Rate limited for ${formattedNumber}`);
+      return res.status(429).json({
+        success: false,
+        error: 'Please wait before requesting another code',
+        remainingTime: Math.ceil((existingCode.expires.getTime() - 8 * 60 * 1000 - Date.now()) / 1000)
+      });
+    }
 
     // Store the code with attempt tracking
     verificationCodes.set(formattedNumber, {
@@ -322,15 +352,16 @@ router.post('/send-verification', async (req, res) => {
       createdAt: new Date()
     });
 
-    // Basic rate limiting for sending codes
-    const existingCode = verificationCodes.get(formattedNumber);
-    if (existingCode && new Date() < new Date(existingCode.expires.getTime() - 8 * 60 * 1000)) {
-      return res.status(429).json({
-        success: false,
-        error: 'Please wait before requesting another code',
-        remainingTime: Math.ceil((existingCode.expires.getTime() - 8 * 60 * 1000 - Date.now()) / 1000)
-      });
-    }
+    console.log(`💾 [SMS Request] Code stored for ${formattedNumber}`);
+
+    // Log current AccessYou configuration
+    console.log('🔧 [AccessYou Config]:', {
+      hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
+      hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId),
+      accountNo: accessYouConfig.accountNo ? 'SET' : 'MISSING',
+      otpUser: accessYouConfig.otpUser ? 'SET' : 'MISSING',
+      templateId: accessYouConfig.templateId ? 'SET' : 'MISSING'
+    });
 
 
     let smsSuccess = false;
@@ -470,6 +501,14 @@ router.get('/test-accessyou', async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
 
     console.log('🔧 Testing AccessYou configuration...');
+    console.log('🔧 Environment variables loaded:', {
+      ACCESSYOU_OTP_USER: process.env.ACCESSYOU_OTP_USER ? 'SET' : 'MISSING',
+      ACCESSYOU_OTP_PASSWORD: process.env.ACCESSYOU_OTP_PASSWORD ? 'SET' : 'MISSING',
+      ACCESSYOU_TEMPLATE_ID: process.env.ACCESSYOU_TEMPLATE_ID ? 'SET' : 'MISSING',
+      ACCESSYOU_ACCOUNT_NO: process.env.ACCESSYOU_ACCOUNT_NO ? 'SET' : 'MISSING',
+      ACCESSYOU_USER: process.env.ACCESSYOU_USER ? 'SET' : 'MISSING',
+      ACCESSYOU_PASSWORD: process.env.ACCESSYOU_PASSWORD ? 'SET' : 'MISSING'
+    });
 
     const hasBasicCredentials = accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password;
     const hasOtpCredentials = accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId;
@@ -477,12 +516,12 @@ router.get('/test-accessyou', async (req, res) => {
     console.log('🔧 Credential check:', {
       hasBasicCredentials,
       hasOtpCredentials,
-      accountNo: accessYouConfig.accountNo ? 'SET' : 'MISSING',
-      user: accessYouConfig.user ? 'SET' : 'MISSING',
+      accountNo: accessYouConfig.accountNo ? `SET (${accessYouConfig.accountNo})` : 'MISSING',
+      user: accessYouConfig.user ? `SET (${accessYouConfig.user})` : 'MISSING',
       password: accessYouConfig.password ? 'SET' : 'MISSING',
-      otpUser: accessYouConfig.otpUser ? 'SET' : 'MISSING',
+      otpUser: accessYouConfig.otpUser ? `SET (${accessYouConfig.otpUser})` : 'MISSING',
       otpPassword: accessYouConfig.otpPassword ? 'SET' : 'MISSING',
-      templateId: accessYouConfig.templateId ? 'SET' : 'MISSING'
+      templateId: accessYouConfig.templateId ? `SET (${accessYouConfig.templateId})` : 'MISSING'
     });
 
     if (!hasBasicCredentials && !hasOtpCredentials) {
@@ -493,12 +532,20 @@ router.get('/test-accessyou', async (req, res) => {
           basic: {
             hasAccountNo: !!accessYouConfig.accountNo,
             hasUser: !!accessYouConfig.user,
-            hasPassword: !!accessYouConfig.password
+            hasPassword: !!accessYouConfig.password,
+            values: {
+              accountNo: accessYouConfig.accountNo || 'NOT SET',
+              user: accessYouConfig.user || 'NOT SET'
+            }
           },
           otp: {
             hasOtpUser: !!accessYouConfig.otpUser,
             hasOtpPassword: !!accessYouConfig.otpPassword,
-            hasTemplateId: !!accessYouConfig.templateId
+            hasTemplateId: !!accessYouConfig.templateId,
+            values: {
+              otpUser: accessYouConfig.otpUser || 'NOT SET',
+              templateId: accessYouConfig.templateId || 'NOT SET'
+            }
           },
           recommendation: hasOtpCredentials ? 'Using OTP API (recommended)' : 'Using Basic API (fallback)'
         }
