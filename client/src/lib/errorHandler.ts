@@ -725,7 +725,11 @@ export const safeJsonParse = async (response: Response) => {
 // Enhanced fetch wrapper for SMS verification specifically
 export const safeSmsRequest = async (url: string, options?: RequestInit) => {
   try {
+    console.log('📱 [SMS Request] Making request to:', url.replace(/\/\/.*@/, '//***@'));
+    
     const response = await fetch(url, options);
+    
+    console.log('📱 [SMS Request] Response status:', response.status, response.statusText);
     
     // Check content type before parsing
     const contentType = response.headers.get('content-type');
@@ -745,9 +749,31 @@ export const safeSmsRequest = async (url: string, options?: RequestInit) => {
     }
     
     const data = await response.json();
+    console.log('📱 [SMS Request] Response data:', { 
+      success: data.success, 
+      provider: data.provider,
+      hasError: !!data.error,
+      hasTroubleshooting: !!data.troubleshooting
+    });
     
     if (!response.ok) {
-      throw new Error(data.error || `SMS request failed with status ${response.status}`);
+      // Log troubleshooting info if available
+      if (data.troubleshooting) {
+        console.log('🔧 [SMS Troubleshooting] Available endpoints:', data.troubleshooting);
+      }
+      
+      // Provide more specific error messages
+      let errorMessage = data.error || `SMS request failed with status ${response.status}`;
+      
+      if (response.status === 503) {
+        errorMessage = data.error || 'SMS service temporarily unavailable. Please try again in a few minutes.';
+      } else if (response.status === 429) {
+        errorMessage = 'Too many SMS requests. Please wait before trying again.';
+      } else if (response.status === 400) {
+        errorMessage = data.error || 'Invalid phone number format. Please check and try again.';
+      }
+      
+      throw new Error(errorMessage);
     }
     
     return data;

@@ -67,19 +67,36 @@ function generateVerificationCode(): string {
 // Send SMS via AccessYou OTP API with template support
 async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
+    console.log('🔍 [AccessYou OTP] Starting OTP send process...');
+    console.log('🔍 [AccessYou OTP] Config check:', {
+      hasOtpUser: !!accessYouConfig.otpUser,
+      hasOtpPassword: !!accessYouConfig.otpPassword,
+      hasTemplateId: !!accessYouConfig.templateId,
+      hasAccountNo: !!accessYouConfig.accountNo,
+      hasUser: !!accessYouConfig.user,
+      hasPassword: !!accessYouConfig.password
+    });
+
     if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword || !accessYouConfig.templateId) {
       console.log('⚠️ AccessYou OTP API not configured, falling back to basic SMS API');
+      console.log('⚠️ Missing credentials:', {
+        otpUser: !accessYouConfig.otpUser ? 'MISSING' : 'SET',
+        otpPassword: !accessYouConfig.otpPassword ? 'MISSING' : 'SET',
+        templateId: !accessYouConfig.templateId ? 'MISSING' : 'SET'
+      });
       return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
     }
 
     // Format phone number (remove + prefix if present, ensure proper formatting)
     let formattedPhone = phoneNumber.replace(/^\+/, '');
+    console.log('📱 [AccessYou OTP] Original phone:', phoneNumber, '-> Formatted:', formattedPhone);
 
     // Ensure phone number starts with country code (add 86 for China if not present)
     if (!formattedPhone.startsWith('86') && !formattedPhone.startsWith('1') && !formattedPhone.startsWith('852')) {
       if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
         // Chinese mobile number, add 86 prefix
         formattedPhone = '86' + formattedPhone;
+        console.log('🇨🇳 [AccessYou OTP] Added China country code:', formattedPhone);
       }
     }
 
@@ -100,6 +117,8 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       user: accessYouConfig.otpUser
     });
 
+    console.log('🌐 [AccessYou OTP] Making API request to:', apiUrl.replace(/pwd=[^&]*/, 'pwd=***'));
+
     const response = await fetch(apiUrl, {
       method: 'GET',
       headers: {
@@ -108,8 +127,28 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       }
     });
 
+    console.log('📡 [AccessYou OTP] Response status:', response.status, response.statusText);
+
     const xmlText = await response.text();
-    console.log('📨 AccessYou OTP API response:', xmlText);
+    console.log('📨 [AccessYou OTP] Raw API response:', xmlText);
+
+    // Check for IP authentication errors first
+    if (xmlText.includes('IP is forbidden') || xmlText.includes('IP authentication') || response.status === 403) {
+      console.error('🚫 [AccessYou OTP] IP Authentication Error - Server IP not whitelisted');
+      return { 
+        success: false, 
+        error: 'SMS service configuration error - IP not whitelisted. Please contact support.' 
+      };
+    }
+
+    // Check for other authentication errors
+    if (xmlText.includes('login failure') || xmlText.includes('authentication failed')) {
+      console.error('🔑 [AccessYou OTP] Authentication failed - invalid credentials');
+      return { 
+        success: false, 
+        error: 'SMS service authentication failed. Please try again or contact support.' 
+      };
+    }
 
     // Parse XML response for OTP template API
     const statusMatch = xmlText.match(/<msg_status>(\d+)<\/msg_status>/);
@@ -356,13 +395,34 @@ router.post('/send-verification', async (req, res) => {
       });
     } else {
       console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
+      
+      // Determine specific error message based on the error
+      let userFriendlyError = 'SMS service temporarily unavailable. Please try again later.';
+      
+      if (smsError && smsError.includes('IP')) {
+        userFriendlyError = 'SMS service configuration issue. Please contact support.';
+      } else if (smsError && smsError.includes('authentication')) {
+        userFriendlyError = 'SMS service authentication failed. Please try again.';
+      } else if (smsError && smsError.includes('balance')) {
+        userFriendlyError = 'SMS service quota exceeded. Please contact support.';
+      }
+
       res.status(503).json({
         success: false,
-        error: 'SMS service unavailable. Please try again later.',
+        error: userFriendlyError,
         details: process.env.NODE_ENV === 'development' ? smsError : undefined,
         providers: {
-          accessYou: !!accessYouConfig.apiKey,
+          accessYou: {
+            configured: !!accessYouConfig.accountNo,
+            hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
+            hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
+          },
           twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
+        },
+        troubleshooting: {
+          checkServerIP: '/api/verification/server-ip',
+          testAccessYou: '/api/verification/test-accessyou',
+          testTwilio: '/api/verification/test-twilio'
         }
       });
     }
@@ -380,6 +440,29 @@ router.post('/send-verification', async (req, res) => {
   }
 });
 
+// Get server IP for AccessYou whitelisting
+router.get('/server-ip', async (req, res) => {
+  try {
+    console.log('🔍 [IP Check] Checking server IP...');
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    
+    res.json({
+      serverIP: data.ip,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      message: 'This IP needs to be whitelisted in AccessYou SMS service',
+      accessYouConfigured: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password)
+    });
+  } catch (error) {
+    console.error('❌ [IP Check] Failed to get server IP:', error);
+    res.status(500).json({
+      error: 'Failed to get server IP',
+      details: error.message || 'Unknown error'
+    });
+  }
+});
+
 // Test AccessYou endpoint
 router.get('/test-accessyou', async (req, res) => {
   try {
@@ -390,6 +473,17 @@ router.get('/test-accessyou', async (req, res) => {
 
     const hasBasicCredentials = accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password;
     const hasOtpCredentials = accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId;
+
+    console.log('🔧 Credential check:', {
+      hasBasicCredentials,
+      hasOtpCredentials,
+      accountNo: accessYouConfig.accountNo ? 'SET' : 'MISSING',
+      user: accessYouConfig.user ? 'SET' : 'MISSING',
+      password: accessYouConfig.password ? 'SET' : 'MISSING',
+      otpUser: accessYouConfig.otpUser ? 'SET' : 'MISSING',
+      otpPassword: accessYouConfig.otpPassword ? 'SET' : 'MISSING',
+      templateId: accessYouConfig.templateId ? 'SET' : 'MISSING'
+    });
 
     if (!hasBasicCredentials && !hasOtpCredentials) {
       return res.status(500).json({
