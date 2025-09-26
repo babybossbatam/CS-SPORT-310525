@@ -141,7 +141,8 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': 'CS-Sport-SMS-Service/1.0'
-      }
+      },
+      timeout: 15000 // 15 second timeout for external API
     });
 
     console.log('📡 [AccessYou OTP] Response status:', response.status, response.statusText);
@@ -247,7 +248,8 @@ async function sendAccessYouBasicSMS(phoneNumber: string, message: string): Prom
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-      }
+      },
+      timeout: 15000 // 15 second timeout for external API
     });
 
     // AccessYou returns XML response
@@ -314,8 +316,20 @@ router.post('/send-verification', async (req, res) => {
   res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   
-  // Ensure we always return JSON
+  // Ensure we always return JSON - this is critical
   res.setHeader('Content-Type', 'application/json');
+
+  // Add timeout to prevent hanging requests
+  const timeout = setTimeout(() => {
+    if (!res.headersSent) {
+      console.error('❌ [SMS] Request timeout - sending timeout response');
+      res.status(408).json({
+        success: false,
+        error: 'Request timeout. Please try again.',
+        code: 'TIMEOUT'
+      });
+    }
+  }, 25000); // 25 second timeout
 
   try {
     const { phoneNumber, countryCode = '+852' } = req.body;
@@ -424,14 +438,20 @@ router.post('/send-verification', async (req, res) => {
       messageProvider = 'Development Console';
     }
 
+    // Clear timeout since we're responding
+    clearTimeout(timeout);
+
     if (smsSuccess) {
       console.log(`✅ SMS verification successful for ${formattedNumber} via ${messageProvider}`);
-      res.json({
-        success: true,
-        message: 'Verification code sent successfully',
-        phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
-        provider: messageProvider
-      });
+      
+      if (!res.headersSent) {
+        res.json({
+          success: true,
+          message: 'Verification code sent successfully',
+          phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
+          provider: messageProvider
+        });
+      }
     } else {
       console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
       
@@ -446,30 +466,37 @@ router.post('/send-verification', async (req, res) => {
         userFriendlyError = 'SMS service quota exceeded. Please contact support.';
       }
 
-      res.status(503).json({
-        success: false,
-        error: userFriendlyError,
-        details: process.env.NODE_ENV === 'development' ? smsError : undefined,
-        providers: {
-          accessYou: {
-            configured: !!accessYouConfig.accountNo,
-            hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
-            hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
+      if (!res.headersSent) {
+        res.status(503).json({
+          success: false,
+          error: userFriendlyError,
+          code: 'SMS_SERVICE_ERROR',
+          details: process.env.NODE_ENV === 'development' ? smsError : undefined,
+          providers: {
+            accessYou: {
+              configured: !!accessYouConfig.accountNo,
+              hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
+              hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
+            },
+            twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
           },
-          twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
-        },
-        troubleshooting: {
-          checkServerIP: '/api/verification/server-ip',
-          testAccessYou: '/api/verification/test-accessyou',
-          testTwilio: '/api/verification/test-twilio'
-        }
-      });
+          troubleshooting: {
+            checkServerIP: '/api/verification/server-ip',
+            testAccessYou: '/api/verification/test-accessyou',
+            testTwilio: '/api/verification/test-twilio'
+          }
+        });
+      }
     }
   } catch (error) {
-    console.error('Error sending verification code:', error);
+    // Clear timeout
+    clearTimeout(timeout);
+    
+    console.error('❌ [SMS] Critical error sending verification code:', error);
     
     // Ensure we always return JSON, never HTML
     if (res.headersSent) {
+      console.warn('⚠️ [SMS] Headers already sent, cannot respond');
       return;
     }
     
@@ -479,6 +506,7 @@ router.post('/send-verification', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'SMS service temporarily unavailable. Please try again later.',
+      code: 'INTERNAL_ERROR',
       details: process.env.NODE_ENV === 'development' ? (error.message || 'Unknown error occurred') : undefined,
       timestamp: new Date().toISOString()
     });

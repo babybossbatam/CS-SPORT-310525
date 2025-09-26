@@ -307,7 +307,10 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
     try {
       console.log('📱 Sending SMS to:', phoneNumber);
       
-      // Use fetch directly for better error handling
+      // Use fetch with timeout for better error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const response = await fetch("/api/verification/send-verification", {
         method: "POST",
         headers: {
@@ -318,7 +321,10 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
           phoneNumber: phoneNumber,
           countryCode: selectedCountryCode
         }),
+        signal: controller.signal
       });
+      
+      clearTimeout(timeoutId);
 
       console.log('📱 SMS Response status:', response.status);
 
@@ -362,12 +368,18 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
       let errorMessage = 'Failed to send verification code';
       if (error instanceof Error) {
-        if (error.message.includes('Server returned invalid response')) {
+        if (error.name === 'AbortError') {
+          errorMessage = 'Request timeout - please try again';
+        } else if (error.message.includes('Server returned invalid response') || error.message.includes('HTML')) {
           errorMessage = 'Server error - please try again later';
         } else if (error.message.includes('IP')) {
           errorMessage = 'SMS service configuration error. Please contact support.';
         } else if (error.message.includes('authentication')) {
           errorMessage = 'SMS service authentication failed. Please try again.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Request timeout - please try again';
+        } else if (error.message.includes('fetch')) {
+          errorMessage = 'Network error - check your connection';
         } else {
           errorMessage = error.message;
         }
