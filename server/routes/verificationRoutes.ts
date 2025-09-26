@@ -65,8 +65,9 @@ if (!accountSid || !authToken || !phoneNumber) {
 // Debug endpoint to test response format
 router.post('/debug-response', (req, res) => {
   try {
-    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-cache');
     
     res.json({
       success: true,
@@ -79,8 +80,23 @@ router.post('/debug-response', (req, res) => {
     });
   } catch (error) {
     console.error('Debug endpoint error:', error);
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.status(500).json({ error: 'Debug endpoint failed' });
   }
+});
+
+// Simple test endpoint for JSON response validation
+router.get('/test-json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cache-Control', 'no-cache');
+  
+  res.json({
+    success: true,
+    message: 'JSON response test working',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 
@@ -418,15 +434,13 @@ async function sendAccessYouBasicSMS(phoneNumber: string, message: string): Prom
 
 // Send verification code endpoint
 router.post('/send-verification', async (req, res) => {
-  try {
-    // Set CORS headers first
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    
-    // Ensure we always return JSON - this is critical
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Set JSON response headers immediately - BEFORE any processing
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
   // Add timeout to prevent hanging requests
   const timeout = setTimeout(() => {
@@ -443,6 +457,8 @@ router.post('/send-verification', async (req, res) => {
       }
     }
   }, 25000); // 25 second timeout
+
+  try {
 
   try {
     const { phoneNumber, countryCode = '+852' } = req.body;
@@ -554,18 +570,20 @@ router.post('/send-verification', async (req, res) => {
     // Clear timeout since we're responding
     clearTimeout(timeout);
 
-    // Clear timeout since we're responding
-    clearTimeout(timeout);
-
     if (smsSuccess) {
       console.log(`✅ SMS verification successful for ${formattedNumber} via ${messageProvider}`);
       
-      return res.status(200).json({
-        success: true,
-        message: 'Verification code sent successfully',
-        phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
-        provider: messageProvider
-      });
+      // Force JSON response with explicit headers
+      if (!res.headersSent) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        return res.status(200).json({
+          success: true,
+          message: 'Verification code sent successfully',
+          phoneNumber: formattedNumber.replace(/(\+\d{1,3})\d+(\d{4})/, '$1****$2'), // Mask phone number
+          provider: messageProvider,
+          timestamp: new Date().toISOString()
+        });
+      }
     } else {
       console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
       
@@ -580,25 +598,30 @@ router.post('/send-verification', async (req, res) => {
         userFriendlyError = 'SMS service quota exceeded. Please contact support.';
       }
 
-      return res.status(503).json({
-        success: false,
-        error: userFriendlyError,
-        code: 'SMS_SERVICE_ERROR',
-        details: process.env.NODE_ENV === 'development' ? smsError : undefined,
-        providers: {
-          accessYou: {
-            configured: !!accessYouConfig.accountNo,
-            hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
-            hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
+      // Force JSON response for errors too
+      if (!res.headersSent) {
+        res.setHeader('Content-Type', 'application/json; charset=utf-8');
+        return res.status(503).json({
+          success: false,
+          error: userFriendlyError,
+          code: 'SMS_SERVICE_ERROR',
+          details: process.env.NODE_ENV === 'development' ? smsError : undefined,
+          timestamp: new Date().toISOString(),
+          providers: {
+            accessYou: {
+              configured: !!accessYouConfig.accountNo,
+              hasBasicCredentials: !!(accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password),
+              hasOtpCredentials: !!(accessYouConfig.otpUser && accessYouConfig.otpPassword && accessYouConfig.templateId)
+            },
+            twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
           },
-          twilio: !!twilioClient && !!process.env.TWILIO_PHONE_NUMBER
-        },
-        troubleshooting: {
-          checkServerIP: '/api/verification/server-ip',
-          testAccessYou: '/api/verification/test-accessyou',
-          testTwilio: '/api/verification/test-twilio'
-        }
-      });
+          troubleshooting: {
+            checkServerIP: '/api/verification/server-ip',
+            testAccessYou: '/api/verification/test-accessyou',
+            testTwilio: '/api/verification/test-twilio'
+          }
+        });
+      }
     }
   } catch (error) {
     // Clear timeout
@@ -612,9 +635,10 @@ router.post('/send-verification', async (req, res) => {
       return;
     }
     
-    // Force JSON content type again in case it was changed
-    res.setHeader('Content-Type', 'application/json');
+    // Force JSON content type with explicit charset
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Cache-Control', 'no-cache');
     
     return res.status(500).json({
       success: false,
