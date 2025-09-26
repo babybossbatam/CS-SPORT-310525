@@ -151,7 +151,6 @@ const userSlice = createSlice({
     },
     setAuthenticated: (state, action: PayloadAction<boolean>) => {
       state.isAuthenticated = action.payload;
-      state.isLoading = false;
     },
     setUser: (state, action: PayloadAction<{ id: number; username: string; email: string }>) => {
       state.id = action.payload.id;

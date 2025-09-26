@@ -107,7 +107,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     window.location.href = newPath;
 
     toast({
-      title: "Language Changed",
+      title: "Language Changed", 
       description: `Language switched to ${getLanguageDisplayName(languageCode)}`,
     });
   };
@@ -167,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         >
           <img
             src="/CSSPORT_1_updated.png"
-            alt="CSSPORT Logo"
+            alt="CS SPORT Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
               isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",
@@ -577,31 +577,6 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
                 </>
               )}
             </div>
-          )}
-        </div>
-        <div className="flex items-center space-x-4">
-          <LanguageSelector />
-
-          {/* Authentication Section */}
-          {isAuthenticated ? (
-            <div className="flex items-center space-x-3">
-              <span className="text-sm text-gray-600 dark:text-gray-300">
-                Welcome, {username}
-              </span>
-              <button
-                onClick={handleLogout}
-                className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleLogin}
-              className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-            >
-              Login
-            </button>
           )}
         </div>
       </div>
