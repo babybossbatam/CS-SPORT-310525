@@ -45,6 +45,20 @@ const accessYouConfig = {
   senderId: process.env.ACCESSYOU_SENDER_ID || 'CS-SPORT'
 };
 
+// Debug AccessYou configuration on startup
+console.log('🔧 [AccessYou Config Debug]:', {
+  baseUrl: accessYouConfig.baseUrl,
+  hasApiKey: !!accessYouConfig.apiKey,
+  hasAccountNo: !!accessYouConfig.accountNo,
+  hasBasicUser: !!accessYouConfig.user,
+  hasBasicPassword: !!accessYouConfig.password,
+  hasOtpUser: !!accessYouConfig.otpUser,
+  hasOtpPassword: !!accessYouConfig.otpPassword,
+  hasTemplateId: !!accessYouConfig.templateId,
+  templateId: accessYouConfig.templateId,
+  senderId: accessYouConfig.senderId
+});
+
 // Force refresh environment variables if they're missing
 if (!accountSid || !authToken || !phoneNumber) {
 
@@ -127,34 +141,57 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       }
     }
 
-    // Format phone number (remove + prefix if present, ensure proper formatting)
-    let formattedPhone = phoneNumber.replace(/^\+/, '');
-    console.log('📱 [AccessYou OTP] Original phone:', phoneNumber, '-> Formatted:', formattedPhone);
-
-    // Ensure phone number starts with country code (add 86 for China if not present)
-    if (!formattedPhone.startsWith('86') && !formattedPhone.startsWith('1') && !formattedPhone.startsWith('852')) {
-      if (formattedPhone.length === 11 && formattedPhone.startsWith('1')) {
-        // Chinese mobile number, add 86 prefix
-        formattedPhone = '86' + formattedPhone;
-        console.log('🇨🇳 [AccessYou OTP] Added China country code:', formattedPhone);
-      }
+    // Format phone number for AccessYou API
+    let formattedPhone = phoneNumber;
+    
+    // Remove + prefix if present
+    if (formattedPhone.startsWith('+')) {
+      formattedPhone = formattedPhone.substring(1);
     }
+    
+    console.log('📱 [AccessYou OTP] Phone formatting:', {
+      original: phoneNumber,
+      afterPlusRemoval: formattedPhone
+    });
+
+    // AccessYou expects phone numbers in international format without +
+    // Examples: 85212345678 (HK), 8613812345678 (CN), 12125551234 (US)
+    
+    // Validate phone number format
+    if (formattedPhone.length < 10 || formattedPhone.length > 15) {
+      console.error('❌ [AccessYou OTP] Invalid phone number length:', formattedPhone.length);
+      return { 
+        success: false, 
+        error: 'Invalid phone number format. Please check the number and try again.' 
+      };
+    }
+    
+    console.log('📱 [AccessYou OTP] Final formatted phone:', formattedPhone);
 
     // Use AccessYou OTP API with template
-    const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?` +
-      `user=${encodeURIComponent(accessYouConfig.otpUser)}&` +
-      `pwd=${encodeURIComponent(accessYouConfig.otpPassword)}&` +
-      `phone=${formattedPhone}&` +
-      `template_id=${accessYouConfig.templateId}&` +
-      `param1=${verificationCode}` +
-      (accessYouConfig.senderId ? `&from=${encodeURIComponent(accessYouConfig.senderId)}` : '');
+    const requestParams = {
+      user: accessYouConfig.otpUser,
+      pwd: accessYouConfig.otpPassword,
+      phone: formattedPhone,
+      template_id: accessYouConfig.templateId,
+      param1: verificationCode
+    };
+    
+    // Add sender ID if provided
+    if (accessYouConfig.senderId) {
+      requestParams.from = accessYouConfig.senderId;
+    }
+    
+    const queryString = new URLSearchParams(requestParams).toString();
+    const apiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?${queryString}`;
 
-    console.log('🔐 AccessYou OTP API request:', {
+    console.log('🔐 [AccessYou OTP] API request params:', {
       phone: formattedPhone,
       templateId: accessYouConfig.templateId,
       code: verificationCode,
       senderId: accessYouConfig.senderId,
-      user: accessYouConfig.otpUser
+      user: accessYouConfig.otpUser,
+      hasPassword: !!accessYouConfig.otpPassword
     });
 
     console.log('🌐 [AccessYou OTP] Making API request to:', apiUrl.replace(/pwd=[^&]*/, 'pwd=***'));
@@ -163,18 +200,21 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       method: 'GET',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'CS-Sport-SMS-Service/1.0'
+        'User-Agent': 'CS-Sport-SMS-Service/1.0',
+        'Accept': 'text/plain, application/xml, */*'
       },
-      timeout: 15000 // 15 second timeout for external API
+      timeout: 30000 // Increased timeout for external API
     });
 
     console.log('📡 [AccessYou OTP] Response status:', response.status, response.statusText);
+    console.log('📡 [AccessYou OTP] Response headers:', Object.fromEntries(response.headers.entries()));
 
-    const xmlText = await response.text();
-    console.log('📨 [AccessYou OTP] Raw API response:', xmlText);
+    const responseText = await response.text();
+    console.log('📨 [AccessYou OTP] Raw API response:', responseText);
+    console.log('📨 [AccessYou OTP] Response length:', responseText.length);
 
     // Check for IP authentication errors first
-    if (xmlText.includes('IP is forbidden') || xmlText.includes('IP authentication') || response.status === 403) {
+    if (responseText.includes('IP is forbidden') || responseText.includes('IP authentication') || response.status === 403) {
       console.error('🚫 [AccessYou OTP] IP Authentication Error - Server IP not whitelisted');
       return { 
         success: false, 
@@ -182,12 +222,31 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       };
     }
 
-    // Check for other authentication errors
-    if (xmlText.includes('login failure') || xmlText.includes('authentication failed')) {
+    // Check for authentication errors
+    if (responseText.includes('login failure') || responseText.includes('authentication failed') || responseText.includes('Invalid user')) {
       console.error('🔑 [AccessYou OTP] Authentication failed - invalid credentials');
+      console.error('🔑 [AccessYou OTP] Check OTP user/password credentials');
       return { 
         success: false, 
-        error: 'SMS service authentication failed. Please try again or contact support.' 
+        error: 'SMS service authentication failed. Please verify OTP API credentials.' 
+      };
+    }
+
+    // Check for template errors
+    if (responseText.includes('template not found') || responseText.includes('invalid template')) {
+      console.error('📝 [AccessYou OTP] Template error - check template ID');
+      return { 
+        success: false, 
+        error: 'SMS template configuration error. Please verify template ID.' 
+      };
+    }
+
+    // Check for insufficient balance
+    if (responseText.includes('insufficient') || responseText.includes('balance')) {
+      console.error('💰 [AccessYou OTP] Insufficient balance');
+      return { 
+        success: false, 
+        error: 'SMS service quota exceeded. Please contact support.' 
       };
     }
 
@@ -574,6 +633,128 @@ router.get('/server-ip', async (req, res) => {
     res.status(500).json({
       error: 'Failed to get server IP',
       details: error.message || 'Unknown error'
+    });
+  }
+});
+
+// Debug AccessYou configuration endpoint
+router.get('/debug-accessyou', async (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    console.log('🔧 [AccessYou Debug] Starting comprehensive configuration check...');
+
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      configuration: {
+        baseUrl: accessYouConfig.baseUrl,
+        hasApiKey: !!accessYouConfig.apiKey,
+        hasAccountNo: !!accessYouConfig.accountNo,
+        hasBasicUser: !!accessYouConfig.user,
+        hasBasicPassword: !!accessYouConfig.password,
+        hasOtpUser: !!accessYouConfig.otpUser,
+        hasOtpPassword: !!accessYouConfig.otpPassword,
+        hasTemplateId: !!accessYouConfig.templateId,
+        templateId: accessYouConfig.templateId || 'NOT SET',
+        senderId: accessYouConfig.senderId || 'DEFAULT'
+      },
+      environmentVariables: {
+        ACCESSYOU_API_KEY: process.env.ACCESSYOU_API_KEY ? 'SET' : 'MISSING',
+        ACCESSYOU_ACCOUNT_NO: process.env.ACCESSYOU_ACCOUNT_NO ? 'SET' : 'MISSING',
+        ACCESSYOU_USER: process.env.ACCESSYOU_USER ? 'SET' : 'MISSING',
+        ACCESSYOU_PASSWORD: process.env.ACCESSYOU_PASSWORD ? 'SET' : 'MISSING',
+        ACCESSYOU_OTP_USER: process.env.ACCESSYOU_OTP_USER ? 'SET' : 'MISSING',
+        ACCESSYOU_OTP_PASSWORD: process.env.ACCESSYOU_OTP_PASSWORD ? 'SET' : 'MISSING',
+        ACCESSYOU_TEMPLATE_ID: process.env.ACCESSYOU_TEMPLATE_ID ? 'SET' : 'MISSING',
+        ACCESSYOU_SENDER_ID: process.env.ACCESSYOU_SENDER_ID ? 'SET' : 'MISSING'
+      }
+    };
+
+    console.log('🔧 [AccessYou Debug] Configuration analysis:', debugInfo);
+
+    res.json({
+      success: true,
+      message: 'AccessYou configuration debug information',
+      data: debugInfo,
+      recommendations: {
+        missingCredentials: Object.entries(debugInfo.environmentVariables)
+          .filter(([key, value]) => value === 'MISSING')
+          .map(([key]) => key),
+        nextSteps: [
+          'Verify all environment variables are set in Replit Secrets',
+          'Check if OTP user/password are different from basic SMS credentials',
+          'Confirm template ID exists in AccessYou dashboard',
+          'Test with /api/verification/test-accessyou-connection endpoint'
+        ]
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ [AccessYou Debug] Error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Debug endpoint failed',
+      details: error.message
+    });
+  }
+});
+
+// Test AccessYou connection endpoint
+router.get('/test-accessyou-connection', async (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+
+    console.log('🔧 [AccessYou Test] Testing API connection...');
+
+    if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword) {
+      return res.status(500).json({
+        error: 'OTP credentials not configured',
+        details: 'ACCESSYOU_OTP_USER and ACCESSYOU_OTP_PASSWORD must be set',
+        hasOtpUser: !!accessYouConfig.otpUser,
+        hasOtpPassword: !!accessYouConfig.otpPassword
+      });
+    }
+
+    // Test with a simple API call (account info check)
+    const testUrl = `${accessYouConfig.baseUrl}/sms/check_accinfo.php?user=${accessYouConfig.otpUser}&pwd=${accessYouConfig.otpPassword}`;
+    
+    console.log('🌐 [AccessYou Test] Making test request...');
+    
+    const response = await fetch(testUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'CS-Sport-SMS-Service/1.0'
+      },
+      timeout: 15000
+    });
+
+    const responseText = await response.text();
+    
+    console.log('📡 [AccessYou Test] Response:', {
+      status: response.status,
+      text: responseText.substring(0, 200)
+    });
+
+    res.json({
+      success: response.ok,
+      status: response.status,
+      response: responseText,
+      analysis: {
+        isXML: responseText.includes('<?xml') || responseText.includes('<'),
+        hasAuthStatus: responseText.includes('auth_status'),
+        hasError: responseText.includes('error') || responseText.includes('failure'),
+        responseLength: responseText.length
+      }
+    });
+
+  } catch (error) {
+    console.error('❌ [AccessYou Test] Connection test failed:', error);
+    res.status(500).json({
+      error: 'Connection test failed',
+      details: error.message
     });
   }
 });
