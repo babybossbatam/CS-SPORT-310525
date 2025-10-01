@@ -68,7 +68,7 @@ router.post('/debug-response', (req, res) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-cache');
-    
+
     res.json({
       success: true,
       message: 'Debug response working correctly',
@@ -90,7 +90,7 @@ router.get('/test-json', (req, res) => {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Cache-Control', 'no-cache');
-  
+
   res.json({
     success: true,
     message: 'JSON response test working',
@@ -139,7 +139,7 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
     // Check if we have OTP API credentials first
     if (!accessYouConfig.otpUser || !accessYouConfig.otpPassword) {
       console.log('⚠️ AccessYou OTP API credentials not configured, checking for basic API credentials');
-      
+
       // Check if basic SMS API credentials are available
       if (accessYouConfig.accountNo && accessYouConfig.user && accessYouConfig.password) {
         console.log('🔄 Falling back to AccessYou basic SMS API');
@@ -155,12 +155,12 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
 
     // Format phone number for AccessYou API
     let formattedPhone = phoneNumber;
-    
+
     // Remove + prefix if present
     if (formattedPhone.startsWith('+')) {
       formattedPhone = formattedPhone.substring(1);
     }
-    
+
     console.log('📱 [AccessYou OTP] Phone formatting:', {
       original: phoneNumber,
       afterPlusRemoval: formattedPhone
@@ -174,13 +174,13 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
         error: 'Invalid phone number format. Please check the number and try again.' 
       };
     }
-    
+
     console.log('📱 [AccessYou OTP] Final formatted phone:', formattedPhone);
 
     // Try OTP API first (if template ID is available)
     if (accessYouConfig.templateId) {
       console.log('🔄 [AccessYou OTP] Using template-based OTP API');
-      
+
       const templateParams = {
         user: accessYouConfig.otpUser,
         pwd: accessYouConfig.otpPassword,
@@ -188,11 +188,11 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
         template_id: accessYouConfig.templateId,
         param1: verificationCode
       };
-      
+
       if (accessYouConfig.senderId) {
         templateParams.from = accessYouConfig.senderId;
       }
-      
+
       const templateQueryString = new URLSearchParams(templateParams).toString();
       const templateApiUrl = `${accessYouConfig.baseUrl}/sms/sendsms-template.php?${templateQueryString}`;
 
@@ -224,7 +224,7 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
 
     // Try direct OTP API (sendsms-otp.php) as primary or fallback
     console.log('🔄 [AccessYou OTP] Using direct OTP API endpoint');
-    
+
     const otpParams = {
       accountno: accessYouConfig.accountNo || '',
       user: accessYouConfig.otpUser,
@@ -233,7 +233,7 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
       a: verificationCode,
       phone: formattedPhone
     };
-    
+
     const otpQueryString = new URLSearchParams(otpParams).toString();
     const otpApiUrl = `https://otp.accessyou-api.com/sendsms-otp.php?${otpQueryString}`;
 
@@ -304,7 +304,7 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
         const xmlDescMatch = otpResponseText.match(/<msg_status_desc>([^<]+)<\/msg_status_desc>/);
         const errorMessage = xmlDescMatch ? xmlDescMatch[1] : `OTP API error status: ${status}`;
         console.error('❌ AccessYou OTP failed:', errorMessage);
-        
+
         // Fallback to basic SMS API
         console.log('🔄 Falling back to AccessYou basic SMS API...');
         return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
@@ -317,7 +317,7 @@ async function sendAccessYouOTP(phoneNumber: string, verificationCode: string): 
         return { success: true, messageId: numericResponse };
       } else {
         console.error('❌ AccessYou OTP unexpected response:', otpResponseText);
-        
+
         // Fallback to basic SMS API
         console.log('🔄 Falling back to AccessYou basic SMS API...');
         return await sendAccessYouBasicSMS(phoneNumber, `Your CS Sport verification code is: ${verificationCode}. Valid for 10 minutes.`);
@@ -570,7 +570,7 @@ router.post('/send-verification', async (req, res) => {
 
     if (smsSuccess) {
       console.log(`✅ SMS verification successful for ${formattedNumber} via ${messageProvider}`);
-      
+
       // Force JSON response with explicit headers
       if (!res.headersSent) {
         res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -584,10 +584,10 @@ router.post('/send-verification', async (req, res) => {
       }
     } else {
       console.error(`❌ SMS verification failed for ${formattedNumber}:`, smsError);
-      
+
       // Determine specific error message based on the error
       let userFriendlyError = 'SMS service temporarily unavailable. Please try again later.';
-      
+
       if (smsError && smsError.includes('IP')) {
         userFriendlyError = 'SMS service configuration issue. Please contact support.';
       } else if (smsError && smsError.includes('authentication')) {
@@ -624,20 +624,20 @@ router.post('/send-verification', async (req, res) => {
   } catch (error) {
     // Clear timeout
     clearTimeout(timeout);
-    
+
     console.error('❌ [SMS] Critical error sending verification code:', error);
-    
+
     // Ensure we always return JSON, never HTML
     if (res.headersSent) {
       console.warn('⚠️ [SMS] Headers already sent, cannot respond');
       return;
     }
-    
+
     // Force JSON content type with explicit charset
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Cache-Control', 'no-cache');
-    
+
     return res.status(500).json({
       success: false,
       error: 'SMS service temporarily unavailable. Please try again later.',
@@ -658,7 +658,7 @@ router.get('/server-ip', async (req, res) => {
     console.log('🔍 [IP Check] Checking server IP...');
     const response = await fetch('https://api.ipify.org?format=json');
     const data = await response.json();
-    
+
     res.json({
       serverIP: data.ip,
       timestamp: new Date().toISOString(),
@@ -758,9 +758,9 @@ router.get('/test-accessyou-connection', async (req, res) => {
 
     // Test with a simple API call (account info check)
     const testUrl = `${accessYouConfig.baseUrl}/sms/check_accinfo.php?user=${accessYouConfig.otpUser}&pwd=${accessYouConfig.otpPassword}`;
-    
+
     console.log('🌐 [AccessYou Test] Making test request...');
-    
+
     const response = await fetch(testUrl, {
       method: 'GET',
       headers: {
@@ -770,7 +770,7 @@ router.get('/test-accessyou-connection', async (req, res) => {
     });
 
     const responseText = await response.text();
-    
+
     console.log('📡 [AccessYou Test] Response:', {
       status: response.status,
       text: responseText.substring(0, 200)
