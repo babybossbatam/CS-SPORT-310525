@@ -459,8 +459,6 @@ router.post('/send-verification', async (req, res) => {
   }, 25000); // 25 second timeout
 
   try {
-
-  try {
     const { phoneNumber, countryCode = '+852' } = req.body;
 
     console.log('📱 [SMS Request] Received:', { phoneNumber, countryCode });
@@ -648,6 +646,9 @@ router.post('/send-verification', async (req, res) => {
       timestamp: new Date().toISOString(),
       requestId: Date.now().toString()
     });
+  } finally {
+    // Clear timeout if it hasn't been cleared already
+    clearTimeout(timeout);
   }
 });
 
