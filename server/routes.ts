@@ -10,7 +10,6 @@ import { supabaseService } from "./services/supabase";
 import {
   insertUserSchema,
   insertUserPreferencesSchema,
-  insertCachedFixturesSchema,
   insertCachedLeaguesSchema,
   insertNewsArticleSchema,
   CachedFixture,
@@ -558,41 +557,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
               fixture.league?.name?.toLowerCase().includes("fifa") ||
               fixture.league?.name?.toLowerCase().includes("uefa");
 
-            const existingFixture = await storage.getCachedFixture(fixtureId);
+            // Use createCachedFixture which now handles duplicates internally
+            await storage.createCachedFixture({
+              fixtureId: fixtureId,
+              data: fixture,
+              league: cacheKey,
+              date: date,
+            });
 
-            if (existingFixture) {
-              await storage.updateCachedFixture(fixtureId, fixture);
-              // Only log World competition updates for LIVE matches to reduce noise
-              if (
-                isWorldFixture &&
-                ["LIVE", "1H", "HT", "2H", "ET", "BT", "P"].includes(
-                  fixture.fixture?.status?.short,
-                )
-              ) {
-                console.log(
-                  `🌍 [Routes] Updated LIVE World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${fixture.fixture.status.short})`,
-                );
-              }
-            } else {
-              await storage.createCachedFixture({
-                fixtureId: fixtureId,
-                data: fixture,
-                league: cacheKey,
-                date: date,
-              });
-              // Only log new World fixtures on first cache, not every refresh
-              if (isWorldFixture) {
-                console.log(
-                  `🌍 [Routes] Cached new World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                );
-              }
+            // Only log new World fixtures on first cache, not every refresh
+            if (isWorldFixture) {
+              console.log(
+                `🌍 [Routes] Cached World competition fixture: ${fixture.league.name} - ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+              );
             }
           } catch (error) {
             const individualError = error as Error;
-            console.error(
-              `Error caching fixture ${fixture.fixture.id}:`,
-              individualError.message,
-            );
+            // Only log non-duplicate errors to reduce noise
+            if (individualError.message && !individualError.message.includes('duplicate key')) {
+              console.error(
+                `Error caching fixture ${fixture.fixture.id}:`,
+                individualError.message,
+              );
+            }
           }
         }
       } else if (!fetchedFreshData) {
