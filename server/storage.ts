@@ -466,8 +466,7 @@ export class DatabaseStorage implements IStorage {
       const existingFixture = await this.getCachedFixture(fixture.fixtureId);
       
       if (existingFixture) {
-        // Update existing fixture instead of creating new one
-        console.log(`📝 [DatabaseStorage] Fixture ${fixture.fixtureId} already exists, updating instead`);
+        // Update existing fixture instead of creating new one (reduced logging)
         const updated = await this.updateCachedFixture(fixture.fixtureId, fixture.data);
         if (updated) {
           return updated;
@@ -484,9 +483,8 @@ export class DatabaseStorage implements IStorage {
       if (!result[0]) throw new Error('Failed to cache fixture');
       return result[0];
     } catch (error) {
-      // If it's a duplicate key error, try to update instead
+      // If it's a duplicate key error, try to update instead (reduced logging)
       if (error.code === '23505') {
-        console.log(`🔄 [DatabaseStorage] Duplicate key detected for ${fixture.fixtureId}, attempting update`);
         try {
           const updated = await this.updateCachedFixture(fixture.fixtureId, fixture.data);
           if (updated) {
