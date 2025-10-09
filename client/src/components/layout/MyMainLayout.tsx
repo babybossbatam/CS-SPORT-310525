@@ -126,29 +126,37 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
               }}
             >
               {/* Render children if provided, otherwise show TodayMatchPageCard */}
-              {children ? (
-                <div>{children}</div>
-              ) : (
-                <div>
-                  {loading ? (
+              <div>
+                {loading ? (
+                  <Card className="h-[600px]">
+                    <CardContent className="p-4">
+                      <div className="space-y-4">
+                        {[...Array(8)].map((_, i) => (
+                          <Skeleton key={i} className="h-16 w-full" />
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Suspense fallback={
                     <Card className="h-[600px]">
                       <CardContent className="p-4">
                         <div className="space-y-4">
-                          {[...Array(8)].map((_, i) => (
+                          {[...Array(3)].map((_, i) => (
                             <Skeleton key={i} className="h-16 w-full" />
                           ))}
                         </div>
                       </CardContent>
                     </Card>
-                  ) : (
+                  }>
                     <TodayMatchPageCard
                       fixtures={filteredFixtures}
                       onMatchClick={handleMatchClick}
                       onMatchCardClick={handleMatchCardClick}
                     />
-                  )}
-                </div>
-              )}
+                  </Suspense>
+                )}
+              </div>
             </div>
           )}
 
