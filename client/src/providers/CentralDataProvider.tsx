@@ -30,10 +30,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   // Ensure selectedDate is a valid date string, otherwise default to today
   const validDate = selectedDate || new Date().toISOString().slice(0, 10);
 
-  // Request deduplication map to prevent concurrent requests for same data
+  // OPTIMIZED: Request deduplication with improved memory management
 const pendingRequests = new Map<string, Promise<FixtureResponse[]>>();
+const requestCooldowns = new Map<string, number>();
+const COOLDOWN_PERIOD = 30000; // 30 seconds between requests
 
-  // Single source of truth for date fixtures with request deduplication
+  // Single source of truth for date fixtures with intelligent deduplication
   const {
     data: dateFixtures = [],
     isLoading: isLoadingDate,
@@ -43,12 +45,23 @@ const pendingRequests = new Map<string, Promise<FixtureResponse[]>>();
     queryKey: ['central-date-fixtures', validDate],
     queryFn: async () => {
       const requestKey = `fixtures-${validDate}`;
+      const now = Date.now();
+      
+      // Check cooldown period to prevent excessive requests
+      const lastRequest = requestCooldowns.get(requestKey);
+      if (lastRequest && now - lastRequest < COOLDOWN_PERIOD) {
+        console.log(`🛑 [CentralDataProvider] Request on cooldown for ${validDate}, skipping...`);
+        return [];
+      }
       
       // Check if request is already pending
       if (pendingRequests.has(requestKey)) {
         console.log(`🔄 [CentralDataProvider] Request already pending for ${validDate}, waiting...`);
         return await pendingRequests.get(requestKey)!;
       }
+      
+      // Set cooldown
+      requestCooldowns.set(requestKey, now);
 
       // Create new request promise
       const requestPromise = (async () => {
@@ -125,7 +138,7 @@ const pendingRequests = new Map<string, Promise<FixtureResponse[]>>();
     enabled: !!validDate,
   });
 
-  // Single source of truth for live fixtures with optimized fetching
+  // OPTIMIZED: Live fixtures with much less aggressive fetching
   const {
     data: liveFixtures = [],
     isLoading: isLoadingLive,
@@ -135,6 +148,17 @@ const pendingRequests = new Map<string, Promise<FixtureResponse[]>>();
     queryKey: ['central-live-fixtures'],
     queryFn: async () => {
       const liveRequestKey = 'live-fixtures';
+      const now = Date.now();
+      
+      // Check cooldown for live requests too (30 seconds minimum)
+      const lastLiveRequest = requestCooldowns.get(liveRequestKey);
+      if (lastLiveRequest && now - lastLiveRequest < COOLDOWN_PERIOD) {
+        console.log(`🛑 [CentralDataProvider] Live request on cooldown, skipping...`);
+        const cached = queryClient.getQueryData(['central-live-fixtures']);
+        return Array.isArray(cached) ? cached : [];
+      }
+      
+      requestCooldowns.set(liveRequestKey, now);
       
       // Prevent concurrent live requests
       if (pendingRequests.has(liveRequestKey)) {
@@ -177,11 +201,12 @@ const pendingRequests = new Map<string, Promise<FixtureResponse[]>>();
       pendingRequests.set(liveRequestKey, requestPromise);
       return await requestPromise;
     },
-    staleTime: 180000, // 3 minutes for live data (increased)
+    staleTime: 300000, // 5 minutes for live data (further increased)
     gcTime: 10 * 60 * 1000,
-    refetchInterval: 600000, // Refetch every 10 minutes (much less aggressive)
+    refetchInterval: 900000, // Refetch every 15 minutes (much less aggressive)
     refetchOnWindowFocus: false,
     refetchOnMount: false,
+    refetchIntervalInBackground: false, // Don't refetch in background
     retry: 1, // Reduced retries
     retryDelay: 5000,
     throwOnError: false,

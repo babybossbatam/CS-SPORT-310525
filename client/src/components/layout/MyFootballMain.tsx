@@ -36,14 +36,17 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
   const { isMobile, isTablet, isPortrait } = useDeviceInfo();
   useMobileViewport();
 
-  // Apply smart time filtering to fixtures with memoization
+  // OPTIMIZED: Apply smart time filtering with reduced processing overhead
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
 
-    // Only log when fixture count changes significantly
-    const shouldLog = fixtures.length > 0 && (fixtures.length % 50 === 0 || fixtures.length < 10);
+    // Limit processing to prevent UI freeze - only process first 100 fixtures initially
+    const fixturesSubset = fixtures.length > 100 ? fixtures.slice(0, 100) : fixtures;
+    
+    // Reduced logging frequency
+    const shouldLog = fixtures.length > 50 && fixtures.length % 100 === 0;
     if (shouldLog) {
-      console.log(`🔍 [MyFootballMain] Processing ${fixtures.length} fixtures for ${selectedDate}`);
+      console.log(`🔍 [MyFootballMain] Processing ${fixturesSubset.length}/${fixtures.length} fixtures for ${selectedDate}`);
     }
 
     // Determine what type of date is selected

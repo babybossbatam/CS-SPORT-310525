@@ -47,17 +47,17 @@ const Football = () => {
   // Use the cached standings system instead of direct API calls
   const { data: leagueStandings } = usePopularLeagueStandings();
 
-  // Use direct state access to avoid identity function warnings
+  // Use direct state access to avoid identity function warnings - OPTIMIZED
   const popularLeaguesData = useSelector((state: RootState) => state.leagues.popularLeagues);
-  const fixturesByDate = useSelector((state: RootState) => state.fixtures.byDate);
   const allLeaguesData = useSelector((state: RootState) => state.leagues.list);
-  const selectedLeagues = useSelector((state: RootState) => state.leagues.popularLeagues);
-  const standingsByLeague = useSelector((state: RootState) => state.stats.topScorers);
-  const selectedCountries = useSelector((state: RootState) => state.user.preferences.region);
-
-  // Memoize array transformations to prevent unnecessary re-renders
-  const popularLeagues = useMemo(() => popularLeaguesData.slice(0, 5), [popularLeaguesData]);
-  const allLeagues = useMemo(() => allLeaguesData.filter(league => league && league.league), [allLeaguesData]);
+  
+  // Reduce initial data load - only get essential leagues
+  const popularLeagues = useMemo(() => popularLeaguesData.slice(0, 3), [popularLeaguesData]); // Reduced from 5 to 3
+  const allLeagues = useMemo(() => {
+    // Only process if we have data to avoid unnecessary calculations
+    if (allLeaguesData.length === 0) return [];
+    return allLeaguesData.filter(league => league?.league?.id).slice(0, 10); // Limit to 10 leagues initially
+  }, [allLeaguesData]);
 
   useEffect(() => {
     // Cleanup function to handle unmounting
@@ -74,34 +74,40 @@ const Football = () => {
     'europe': [2, 3, 848]     // Champions League (2), Europa League (3), Conference League (848)
   };
 
-  // Pre-fetch all these leagues to ensure they're available for country filtering
+  // OPTIMIZED: Lazy load leagues only when needed, not all at once
   useEffect(() => {
-    const preloadLeagueData = async () => {
+    const preloadEssentialLeagues = async () => {
       try {
-        // Fetch data for all the leagues used in country filters
-        const allLeagueIds = Object.values(countryLeagueMap).flat();
-
-        for (const leagueId of allLeagueIds) {
-          // Use React Query's caching through our wrapper
-          const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
-          const data = await response.json();
-
-          if (data && data.league && data.country) {
-            // Add to Redux store if not already there
-            if (!allLeagues.some(l => l.league.id === leagueId)) {
-              dispatch(leaguesActions.setLeagues([...allLeagues, data]));
+        // Only load the most essential leagues (Premier League, Champions League)
+        const essentialLeagues = [39, 2]; // Premier League, Champions League only
+        
+        for (const leagueId of essentialLeagues) {
+          if (!allLeagues.some(l => l.league?.id === leagueId)) {
+            try {
+              const response = await apiRequest('GET', `/api/leagues/${leagueId}`);
+              const data = await response.json();
+              if (data?.league?.id) {
+                dispatch(leaguesActions.setLeagues(prev => [...prev, data]));
+              }
+            } catch (error) {
+              console.warn(`Failed to load league ${leagueId}:`, error);
+              // Continue with next league instead of breaking
             }
           }
         }
       } catch (error) {
-        console.error('Error preloading league data:', error);
+        console.error('Error preloading essential leagues:', error);
       }
     };
 
+    // Only preload if we have no leagues at all
     if (allLeagues.length === 0) {
-      preloadLeagueData();
+      // Use requestIdleCallback to avoid blocking main thread
+      requestIdleCallback(() => {
+        preloadEssentialLeagues();
+      }, { timeout: 2000 });
     }
-  }, [dispatch, allLeagues, countryLeagueMap]);
+  }, [dispatch, allLeagues.length]); // Changed dependency to length only
 
   // Fetch all leagues with proper caching
   useEffect(() => {
@@ -163,29 +169,43 @@ const Football = () => {
     fetchLeagues();
   }, [dispatch, toast]); // Simplified dependencies
 
-  // Fetch upcoming fixtures for tomorrow to display in the scoreboard when no live matches
+  // OPTIMIZED: Lazy load upcoming fixtures only when needed
   useEffect(() => {
     const fetchUpcomingFixtures = async () => {
       try {
+        // Only fetch if we don't already have fixtures
+        if (fixtures.length > 0) return;
+        
         // Get tomorrow's date in YYYY-MM-DD format
         const tomorrow = addDays(new Date(), 1);
         const tomorrowFormatted = format(tomorrow, 'yyyy-MM-dd');
 
-        const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowFormatted}`);
-        const data = await response.json();
+        // Use a timeout to delay this non-critical request
+        setTimeout(async () => {
+          try {
+            const response = await apiRequest('GET', `/api/fixtures/date/${tomorrowFormatted}?limit=20`); // Limit results
+            const data = await response.json();
 
-        if (data && data.length > 0) {
-          dispatch(fixturesActions.setUpcomingFixtures(data));
-          setFixtures(data);
-        }
+            if (data && data.length > 0) {
+              dispatch(fixturesActions.setUpcomingFixtures(data.slice(0, 20))); // Limit to 20 fixtures
+              setFixtures(data.slice(0, 20));
+            }
+          } catch (error) {
+            console.warn('Failed to fetch upcoming fixtures:', error);
+            // Set empty array to prevent retry loops
+            setFixtures([]);
+          }
+        }, 3000); // Delay by 3 seconds to let page load first
       } catch (error) {
-        console.error('Error fetching upcoming fixtures:', error);
-        // No toast needed for this as it's not critical - we'll just fallback gracefully
+        console.error('Error setting up upcoming fixtures fetch:', error);
       }
     };
 
-    fetchUpcomingFixtures();
-  }, [dispatch]);
+    // Only fetch after initial render is complete
+    requestIdleCallback(() => {
+      fetchUpcomingFixtures();
+    }, { timeout: 5000 });
+  }, [dispatch]); // Removed fixtures dependency to prevent loops
 
   const leaguesLoading = useSelector((state: RootState) => state.leagues.loading);
   const fixturesLoading = useSelector((state: RootState) => state.fixtures.loading);
