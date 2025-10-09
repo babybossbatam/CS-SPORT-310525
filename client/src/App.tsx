@@ -148,111 +148,39 @@ const preloadData = () => {
 
 function App() {
   useEffect(() => {
-    // Minimal startup - only essential operations
+    // Ultra-minimal startup - only authentication check
+    const userData = localStorage.getItem('user');
+    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
     
-    // Check for persisted authentication state (lightweight)
-    const checkAuthState = () => {
-      const userData = localStorage.getItem('user');
-      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-      
-      if (userData && isAuthenticated) {
-        try {
-          const user = JSON.parse(userData);
-          console.log('User authentication restored from localStorage');
-        } catch (error) {
-          console.error('Failed to parse stored user data:', error);
-          localStorage.removeItem('user');
-          localStorage.removeItem('isAuthenticated');
-        }
+    if (userData && isAuthenticated) {
+      try {
+        JSON.parse(userData);
+        console.log('User authentication restored');
+      } catch (error) {
+        localStorage.removeItem('user');
+        localStorage.removeItem('isAuthenticated');
       }
-    };
-
-    checkAuthState();
-
-    // Essential mobile detection only
-    const isMobileCheck = window.innerWidth < 768;
-    if (isMobileCheck) {
-      document.documentElement.classList.add("mobile-device");
-      document.body.classList.add("mobile-body");
     }
 
-    // Setup error handlers
+    // Mobile detection only
+    if (window.innerWidth < 768) {
+      document.documentElement.classList.add("mobile-device");
+    }
+
+    // Setup error handlers (essential)
     setupGlobalErrorHandlers();
 
-    // Defer heavy operations to reduce startup load
-    setTimeout(() => {
-      // Setup cache refresh after initial load
-      const refreshInterval = setupCacheRefresh();
-      
-      // Clear logo caches in background
-      clearAllLogoCaches();
-      
-      // Start performance monitoring after initial render
-      console.log('🚀 Starting deferred performance monitoring...');
+    // Defer ALL heavy operations until after login
+    const deferredInit = () => {
+      setTimeout(() => {
+        clearAllLogoCaches();
+        console.log('🚀 Background initialization complete');
 
-    // Optimize performance for initial load
+    // Minimal preloading only when idle
     if (typeof window !== 'undefined') {
-      // Reduce initial bundle size impact
       requestIdleCallback(() => {
         preloadData();
-      }, { timeout: 2000 });
-      
-      // Optimize font loading strategy
-      const optimizeFontLoading = () => {
-        // Create multiple font display elements to trigger immediate usage
-        const triggerElements = [
-          document.createElement('span'),
-          document.createElement('div'),
-          document.createElement('p')
-        ];
-        
-        triggerElements.forEach((element, index) => {
-          element.style.fontFamily = 'Inter, sans-serif';
-          element.style.position = 'fixed';
-          element.style.top = '-100px';
-          element.style.left = '-100px';
-          element.style.fontSize = '12px';
-          element.style.visibility = 'hidden';
-          element.style.pointerEvents = 'none';
-          element.textContent = 'Inter font trigger';
-          element.setAttribute('aria-hidden', 'true');
-          
-          document.body.appendChild(element);
-          
-          // Remove after font is registered
-          setTimeout(() => {
-            if (document.body.contains(element)) {
-              document.body.removeChild(element);
-            }
-          }, 50 + (index * 10));
-        });
-      };
-
-      // Preload font with immediate usage
-      const fontPreload = document.createElement('link');
-      fontPreload.rel = 'preload';
-      fontPreload.href = '/fonts/Inter-Regular.woff2';
-      fontPreload.as = 'font';
-      fontPreload.type = 'font/woff2';
-      fontPreload.crossOrigin = 'anonymous';
-      
-      fontPreload.onload = () => {
-        // Immediate font usage
-        optimizeFontLoading();
-      };
-      
-      fontPreload.onerror = () => {
-        console.log('🔧 Font preload failed, using fallback');
-      };
-      
-      document.head.appendChild(fontPreload);
-      
-      // Also trigger font usage immediately for safety
-      requestAnimationFrame(() => {
-        optimizeFontLoading();
-      });
-    } else {
-      preloadData();
+      }, { timeout: 5000 });
     }
 
     return () => {

@@ -183,62 +183,37 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const response = await apiRequest("POST", "/api/auth/login", data);
       const userData = await response.json();
 
-      // Set user data in Redux store
-      dispatch(
-        userActions.setUser({
-          id: userData.id,
-          username: userData.username,
-          email: userData.email,
-        }),
-      );
-
-      // Set authenticated state immediately
+      // Set user data and authentication state immediately
+      dispatch(userActions.setUser({
+        id: userData.id,
+        username: userData.username,
+        email: userData.email,
+      }));
       dispatch(userActions.setAuthenticated(true));
+      dispatch(userActions.setUserPreferences({
+        favoriteTeams: [],
+        favoriteLeagues: [],
+        favoriteMatches: [],
+        region: "global",
+      }));
 
-      // Set minimal default preferences immediately (no API call)
-      dispatch(
-        userActions.setUserPreferences({
-          favoriteTeams: [],
-          favoriteLeagues: [],
-          favoriteMatches: [],
-          region: "global",
-        }),
-      );
-
+      // Show success message
       toast({
-        title: "Login Successful",
+        title: "Login Successful", 
         description: `Welcome back, ${userData.username}!`,
       });
 
-      // Extract current language from URL or default to 'en'
+      // Clear loading states immediately before navigation
+      setIsLoading(false);
+      dispatch(userActions.setLoading(false));
+
+      // Navigate immediately with current language
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
-
-      // Navigate immediately - no waiting for preferences
-      navigate(`/${currentLang}/football`);
-
-      // Load user preferences in background after navigation (non-blocking)
-      setTimeout(async () => {
-        try {
-          const prefsResponse = await apiRequest(
-            "GET",
-            `/api/user/${userData.id}/preferences`,
-          );
-          const prefsData = await prefsResponse.json();
-
-          dispatch(
-            userActions.setUserPreferences({
-              favoriteTeams: prefsData.favoriteTeams || [],
-              favoriteLeagues: prefsData.favoriteLeagues || [],
-              favoriteMatches: prefsData.favoriteMatches || [],
-              region: prefsData.region || "global",
-            }),
-          );
-        } catch (error) {
-          console.error("Failed to fetch user preferences in background:", error);
-        }
-      }, 100); // Delay to allow navigation to complete first
+      
+      // Use window.location for immediate navigation to prevent React Router delays
+      window.location.href = `/${currentLang}/football`;
 
     } catch (error) {
       console.error("Login failed:", error);
@@ -249,9 +224,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         description: "Invalid username or password",
         variant: "destructive",
       });
-    } finally {
       setIsLoading(false);
-      dispatch(userActions.setLoading(false)); // Ensure loading is cleared
     }
   };
 

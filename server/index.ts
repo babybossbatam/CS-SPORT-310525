@@ -46,19 +46,19 @@ const monitorMemory = () => {
 setInterval(monitorMemory, 30000);
 
 // Optimized EventEmitter limits to reduce memory overhead
-process.setMaxListeners(50);
+process.setMaxListeners(20);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
+EventEmitter.defaultMaxListeners = 20;
 
 // Set reasonable limits for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(50);
+  process.stdout.setMaxListeners(20);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(50);
+  process.stderr.setMaxListeners(20);
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(20);
+  process.stdin.setMaxListeners(10);
 }
 
 // Graceful shutdown handling

@@ -29,17 +29,36 @@ const apiClient = axios.create({
   },
 });
 
-// Reduced cache durations to prevent memory buildup
-const LIVE_DATA_CACHE_DURATION = 1 * 60 * 1000; // 1 minute for live data
-const TODAY_CACHE_DURATION = 3 * 60 * 1000; // 3 minutes for today
-const FUTURE_CACHE_DURATION = 2 * 60 * 60 * 1000; // 2 hours for future dates
-const PAST_CACHE_DURATION = 1 * 60 * 60 * 1000; // 1 hour for past dates
-const STATIC_DATA_CACHE_DURATION = 1 * 60 * 60 * 1000; // 1 hour for static data
+// Optimized cache durations for performance
+const LIVE_DATA_CACHE_DURATION = 30 * 1000; // 30 seconds for live data
+const TODAY_CACHE_DURATION = 2 * 60 * 1000; // 2 minutes for today
+const FUTURE_CACHE_DURATION = 1 * 60 * 60 * 1000; // 1 hour for future dates
+const PAST_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for past dates
+const STATIC_DATA_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for static data
 
-// Cache objects
+// Lightweight cache objects with size limits
 const fixturesCache = new Map<string, { data: any; timestamp: number }>();
 const leaguesCache = new Map<string, { data: any; timestamp: number }>();
 const playersCache = new Map<string, { data: any; timestamp: number }>();
+
+// Cache cleanup to prevent memory leaks
+const cleanupCache = (cache: Map<string, any>, maxSize: number = 100) => {
+  if (cache.size > maxSize) {
+    const entries = Array.from(cache.entries());
+    const sortedEntries = entries.sort((a, b) => b[1].timestamp - a[1].timestamp);
+    cache.clear();
+    sortedEntries.slice(0, maxSize / 2).forEach(([key, value]) => {
+      cache.set(key, value);
+    });
+  }
+};
+
+// Clean caches every 5 minutes
+setInterval(() => {
+  cleanupCache(fixturesCache, 50);
+  cleanupCache(leaguesCache, 30);
+  cleanupCache(playersCache, 40);
+}, 5 * 60 * 1000);
 
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
