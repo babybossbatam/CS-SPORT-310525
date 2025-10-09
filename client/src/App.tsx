@@ -1,3 +1,4 @@
+
 import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -74,53 +75,45 @@ const AppWithLanguageRouting = () => {
   );
 };
 
-      // Separate component for routes
-      const AppRoutes = () => {
-        return (
-          <Switch>
-            {/* Public routes - Login/Authentication */}
-            <Route path="/:lang/login" component={Authentication} />
-            
-            {/* Protected routes with language prefix */}
-            <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
-            <Route path="/:lang/football" component={() => <ProtectedRoute><Football /></ProtectedRoute>} />
-            <Route path="/:lang/basketball" component={() => <ProtectedRoute><Basketball /></ProtectedRoute>} />
-            <Route path="/:lang/tv" component={() => <ProtectedRoute><TV /></ProtectedRoute>} />
-            <Route path="/:lang/horse-racing" component={() => <ProtectedRoute><HorseRacing /></ProtectedRoute>} />
-            <Route path="/:lang/snooker" component={() => <ProtectedRoute><Snooker /></ProtectedRoute>} />
-            <Route path="/:lang/esport" component={() => <ProtectedRoute><Esport /></ProtectedRoute>} />
-            <Route path="/:lang/match/:matchId" component={() => <ProtectedRoute><MatchDetails /></ProtectedRoute>} />
-            <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
-            <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
+// Separate component for routes
+const AppRoutes = () => {
+  return (
+    <Switch>
+      {/* Public routes - Login/Authentication */}
+      <Route path="/:lang/login" component={Authentication} />
+      
+      {/* Protected routes with language prefix */}
+      <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
+      <Route path="/:lang/football" component={() => <ProtectedRoute><Football /></ProtectedRoute>} />
+      <Route path="/:lang/basketball" component={() => <ProtectedRoute><Basketball /></ProtectedRoute>} />
+      <Route path="/:lang/tv" component={() => <ProtectedRoute><TV /></ProtectedRoute>} />
+      <Route path="/:lang/horse-racing" component={() => <ProtectedRoute><HorseRacing /></ProtectedRoute>} />
+      <Route path="/:lang/snooker" component={() => <ProtectedRoute><Snooker /></ProtectedRoute>} />
+      <Route path="/:lang/esport" component={() => <ProtectedRoute><Esport /></ProtectedRoute>} />
+      <Route path="/:lang/match/:matchId" component={() => <ProtectedRoute><MatchDetails /></ProtectedRoute>} />
+      <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
+      <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
 
-            {/* Fallback routes without language (redirect to login) */}
-            <Route path="/" component={() => {
-              window.location.href = "/en/login";
-              return null;
-            }} />
-            <Route path="/football" component={() => {
-              window.location.href = "/en/login";
-              return null;
-            }} />
-            <Route path="/basketball" component={() => {
-              window.location.href = "/en/login";
-              return null;
-            }} />
+      {/* Fallback routes without language (redirect to login) */}
+      <Route path="/" component={() => {
+        window.location.href = "/en/login";
+        return null;
+      }} />
+      <Route path="/football" component={() => {
+        window.location.href = "/en/login";
+        return null;
+      }} />
+      <Route path="/basketball" component={() => {
+        window.location.href = "/en/login";
+        return null;
+      }} />
 
-            {/* 404 page */}
-            <Route component={NotFound} />
-          </Switch>
-        );
-      };
-const Settings = lazy(() => import("@/pages/Settings"));
-const SearchResults = lazy(() => import("@/pages/SearchResults"));
-const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
-const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
-const NewsPage = lazy(() => import("@/pages/NewsPage"));
-const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
-import Scores365Page from "./pages/Scores365Page";
-import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
+      {/* 404 page */}
+      <Route component={NotFound} />
+    </Switch>
+  );
+};
 
 // Mock functions for cache refresh and preloading (replace with actual implementation)
 const setupCacheRefresh = () => {
@@ -131,7 +124,7 @@ const setupCacheRefresh = () => {
   // }, 30 * 60 * 1000); // Every 30 minutes
 };
 
-const cleanupCacheRefresh = (intervalId) => {
+const cleanupCacheRefresh = (intervalId: any) => {
   // Implement cleanup logic, e.g., clearInterval
   if (intervalId) {
     clearInterval(intervalId);
@@ -141,10 +134,6 @@ const cleanupCacheRefresh = (intervalId) => {
 const preloadData = () => {
   // Implement logic to preload data for components
 };
-
-
-
-
 
 function App() {
   useEffect(() => {
