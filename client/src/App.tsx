@@ -237,29 +237,20 @@ function App() {
         '[data-error-overlay]',
         '#error-overlay',
         '.error-overlay',
-        '[class*="error-overlay"]',
-        '[class*="ErrorOverlay"]',
-        '[data-runtime-error]',
-        '.runtime-error-overlay',
-        '[class*="runtime-error"]',
-        'vite-error-overlay',
-        '#vite-plugin-runtime-error-modal',
-        '[data-vite-error]',
-        '.vite-error-overlay'
+        'vite-error-overlay'
       ];
 
       selectors.forEach(selector => {
         const elements = document.querySelectorAll(selector);
         elements.forEach(element => {
-          console.log('🗑️ Removing existing error overlay:', selector);
           element.remove();
         });
       });
     };
 
-    // Run immediately and then periodically
+    // Run once on mount, reduce frequency
     removeExistingOverlays();
-    const cleanupInterval = setInterval(removeExistingOverlays, 1000);
+    const cleanupInterval = setInterval(removeExistingOverlays, 5000); // Reduced frequency
 
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     window.addEventListener("error", handleError);

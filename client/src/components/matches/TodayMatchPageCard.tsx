@@ -193,13 +193,13 @@ export const TodayMatchPageCard = ({
       console.log(`Received ${data.length} shared live fixtures`);
       return data;
     },
-    staleTime: 60000, // Increased stale time
-    gcTime: 5 * 60 * 1000, // Increased garbage collection time
+    staleTime: 5 * 60 * 1000, // 5 minutes fresh
+    gcTime: 15 * 60 * 1000, // 15 minutes in memory
     enabled: liveFilterActive,
-    refetchOnWindowFocus: false, // Disable aggressive refetching
+    refetchOnWindowFocus: false,
     refetchOnMount: false,
-    refetchOnReconnect: true,
-    refetchInterval: liveFilterActive ? 60000 : false, // Reduce refresh frequency
+    refetchOnReconnect: false, // Disable to reduce network load
+    refetchInterval: false, // Disable auto-refresh completely
   });
 
   console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
