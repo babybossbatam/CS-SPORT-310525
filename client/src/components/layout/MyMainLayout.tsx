@@ -1,6 +1,3 @@
-
-import React, { useState, useMemo, Suspense, lazy } from "react";
-
 import React, { useState, useMemo, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -17,14 +14,10 @@ import { useDeviceInfo } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import Header from "@/components/layout/Header";
 
-// Lazy load heavy components with better fallbacks
+// Lazy load the TodayMatchPageCard component
 const TodayMatchPageCard = lazy(
   () => import("@/components/matches/TodayMatchPageCard"),
 );
-
-// Memoized components to prevent unnecessary re-renders
-const MemoizedHeader = React.memo(Header);
-const MemoizedMyRightContent = React.memo(MyRightContent);
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -45,43 +38,32 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
   
-  // Only log in development mode to reduce console noise
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
-  }
+  console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
-  // Optimized fixture filtering with early returns and reduced processing
+  // Simplified fixture filtering
   const filteredFixtures = useMemo(() => {
-    // Return empty array immediately if no fixtures to avoid heavy processing
-    if (!fixtures?.length) {
+    if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
+      console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
       return [];
     }
 
-    // Skip filtering if date is invalid
-    if (!selectedDate || selectedDate === 'undefined') {
-      return [];
-    }
+    console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
 
-    // Only process if we have a reasonable number of fixtures
-    if (fixtures.length > 1000) {
-      console.warn('🚨 [MyMainLayout] Too many fixtures, limiting processing');
-      return fixtures.slice(0, 100); // Limit to first 100 fixtures for performance
-    }
+    const filtered = fixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+        return false;
+      }
 
-    try {
-      const filtered = fixtures.filter((fixture) => {
-        if (!fixture?.fixture?.date) return false;
-        
-        // Use simpler date comparison
-        const fixtureDate = fixture.fixture.date.split("T")[0];
-        return fixtureDate === selectedDate;
-      });
+      // Extract UTC date from fixture date
+      const fixtureUTCDate = new Date(fixture.fixture.date);
+      const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
 
-      return filtered;
-    } catch (error) {
-      console.error('Error filtering fixtures:', error);
-      return [];
-    }
+      return fixtureDateString === selectedDate;
+    });
+
+    console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+    
+    return filtered;
   }, [fixtures, selectedDate]);
 
   const handleMatchClick = (matchId: number) => {
@@ -99,16 +81,18 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
   return (
     <>
-      <MemoizedHeader showTextOnMobile={true} />
+      <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "py-4 mobile-main-layout overflow-y-auto min-h-screen",
+          "py-4 mobile-main-layout overflow-y-auto overflow-x-auto min-h-screen",
           isMobile ? "px-0" : "px-0",
         )}
         style={{
           marginLeft: isMobile ? "0" : "150px",
           marginRight: isMobile ? "0" : "150px",
           marginTop: isMobile ? "100px" : "80px",
+          width: isMobile ? "100vw" : "auto",
+          maxWidth: isMobile ? "100vw" : "none",
           minHeight: isMobile ? "calc(100vh - 100px)" : "calc(100vh - 80px)",
         }}
       >
@@ -139,13 +123,13 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
               {children ? (
                 <div>{children}</div>
               ) : (
-                <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+                <div>
                   <TodayMatchPageCard
                     fixtures={filteredFixtures}
                     onMatchClick={handleMatchClick}
                     onMatchCardClick={handleMatchCardClick}
                   />
-                </Suspense>
+                </div>
               )}
             </div>
           )}
@@ -168,9 +152,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                   onClose={handleBackToMain}
                 />
               ) : (
-                <Suspense fallback={<Skeleton className="h-96 w-full" />}>
-                  <MemoizedMyRightContent />
-                </Suspense>
+                <MyRightContent />
               )}
             </div>
           )}

@@ -556,9 +556,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           setIsLoading(true);
         }
 
-        // Use optimized API service with intelligent caching
-        const { apiService } = await import('@/lib/optimizedApiService');
-
         const now = new Date();
         // ENHANCED cache refresh logic - prioritize live matches and status transitions
         const shouldRefresh =
