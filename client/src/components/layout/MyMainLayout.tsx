@@ -26,9 +26,8 @@ interface MyMainLayoutProps {
 }
 
 const MyMainLayout: React.FC<MyMainLayoutProps> = ({
-  fixtures,
+  fixtures = [],
   loading = false,
-  children,
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
@@ -37,8 +36,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
-  
+
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
+
+  // Placeholder for currentDate, timeFilterActive, setTimeFilterActive, showTop20, setShowTop20, liveFilterActive, setLiveFilterActive
+  // These should ideally be managed by a parent component or context if they are shared
+  const currentDate = selectedDate; // Assuming selectedDate is what's used for current date display
+  const [timeFilterActive, setTimeFilterActive] = useState(false);
+  const [showTop20, setShowTop20] = useState(false);
+  const [liveFilterActive, setLiveFilterActive] = useState(false);
 
   // Simplified fixture filtering
   const filteredFixtures = useMemo(() => {
@@ -62,7 +68,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     });
 
     console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
-    
+
     return filtered;
   }, [fixtures, selectedDate]);
 
@@ -124,11 +130,23 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
                 <div>{children}</div>
               ) : (
                 <div>
-                  <TodayMatchPageCard
-                    fixtures={filteredFixtures}
-                    onMatchClick={handleMatchClick}
-                    onMatchCardClick={handleMatchCardClick}
-                  />
+                  {loading ? (
+                    <Card className="h-[600px]">
+                      <CardContent className="p-4">
+                        <div className="space-y-4">
+                          {[...Array(8)].map((_, i) => (
+                            <Skeleton key={i} className="h-16 w-full" />
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    <TodayMatchPageCard
+                      fixtures={filteredFixtures}
+                      onMatchClick={handleMatchClick}
+                      onMatchCardClick={handleMatchCardClick}
+                    />
+                  )}
                 </div>
               )}
             </div>
