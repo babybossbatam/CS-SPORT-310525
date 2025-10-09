@@ -45,20 +45,20 @@ const monitorMemory = () => {
 // Check memory every 30 seconds
 setInterval(monitorMemory, 30000);
 
-// Set higher limits to prevent EventEmitter warnings
-process.setMaxListeners(8000);
+// Optimized EventEmitter limits to reduce memory overhead
+process.setMaxListeners(50);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 8000;
+EventEmitter.defaultMaxListeners = 50;
 
-// Set max listeners for common event emitters
+// Set reasonable limits for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(8000);
+  process.stdout.setMaxListeners(50);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(8000);
+  process.stderr.setMaxListeners(50);
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(500);
+  process.stdin.setMaxListeners(20);
 }
 
 // Graceful shutdown handling

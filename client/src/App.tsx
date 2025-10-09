@@ -148,7 +148,9 @@ const preloadData = () => {
 
 function App() {
   useEffect(() => {
-    // Check for persisted authentication state
+    // Minimal startup - only essential operations
+    
+    // Check for persisted authentication state (lightweight)
     const checkAuthState = () => {
       const userData = localStorage.getItem('user');
       const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
@@ -156,7 +158,6 @@ function App() {
       if (userData && isAuthenticated) {
         try {
           const user = JSON.parse(userData);
-          // You might want to dispatch actions to restore user state here
           console.log('User authentication restored from localStorage');
         } catch (error) {
           console.error('Failed to parse stored user data:', error);
@@ -168,21 +169,26 @@ function App() {
 
     checkAuthState();
 
-    // Force mobile-first layout immediately
+    // Essential mobile detection only
     const isMobileCheck = window.innerWidth < 768;
     if (isMobileCheck) {
       document.documentElement.classList.add("mobile-device");
       document.body.classList.add("mobile-body");
     }
 
+    // Setup error handlers
     setupGlobalErrorHandlers();
-    const refreshInterval = setupCacheRefresh();
 
-    // Clear all logo caches on app initialization
-    clearAllLogoCaches();
-
-    // Start performance monitoring
-    console.log('🚀 Starting performance monitoring...');
+    // Defer heavy operations to reduce startup load
+    setTimeout(() => {
+      // Setup cache refresh after initial load
+      const refreshInterval = setupCacheRefresh();
+      
+      // Clear logo caches in background
+      clearAllLogoCaches();
+      
+      // Start performance monitoring after initial render
+      console.log('🚀 Starting deferred performance monitoring...');
 
     // Optimize performance for initial load
     if (typeof window !== 'undefined') {

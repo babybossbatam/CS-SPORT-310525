@@ -37,45 +37,32 @@ export const useCachedQuery = <T>(
 
 // Smart cache manager
 export const CacheManager = {
-  // Get cached data with freshness check and localStorage fallback
+  // Lightweight cache check - reduced logging to improve performance
   getCachedData: <T>(queryKey: string[], maxAge: number = 30 * 60 * 1000): T | null => {
-    const cacheKey = queryKey.join('-');
     const data = queryClient.getQueryData<T>(queryKey);
     const state = queryClient.getQueryState(queryKey);
     
-    console.log(`🔍 [CacheManager] Checking cache for: ${cacheKey}`, {
-      hasData: !!data,
-      dataUpdatedAt: state?.dataUpdatedAt,
-      age: state?.dataUpdatedAt ? Date.now() - state.dataUpdatedAt : null,
-      maxAge,
-      isFresh: data && state?.dataUpdatedAt ? CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge) : false
-    });
-    
     if (data && state?.dataUpdatedAt && CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge)) {
-      console.log(`✅ [CacheManager] Cache hit for: ${cacheKey}`);
       return data;
     }
     
-    // Fallback to localStorage
+    // Simplified localStorage check - no heavy logging
     try {
+      const cacheKey = queryKey.join('-');
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
         const { data: localData, timestamp } = JSON.parse(cached);
         const age = Date.now() - timestamp;
-        console.log(`💾 [CacheManager] localStorage check for ${cacheKey}:`, { age, maxAge, valid: age < maxAge });
         
         if (age < maxAge) {
-          console.log(`📂 [CacheManager] localStorage hit for: ${cacheKey}`);
-          // Store back in React Query cache
           queryClient.setQueryData(queryKey, localData);
           return localData;
         }
       }
     } catch (error) {
-      console.error('Error reading from localStorage cache:', error);
+      // Silent fail for localStorage errors
     }
     
-    console.log(`❌ [CacheManager] Cache miss for: ${cacheKey}`);
     return null;
   },
 

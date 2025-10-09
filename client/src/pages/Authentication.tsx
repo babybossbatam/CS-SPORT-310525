@@ -195,34 +195,15 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       // Set authenticated state immediately
       dispatch(userActions.setAuthenticated(true));
 
-      // Get user preferences
-      try {
-        const prefsResponse = await apiRequest(
-          "GET",
-          `/api/user/${userData.id}/preferences`,
-        );
-        const prefsData = await prefsResponse.json();
-
-        dispatch(
-          userActions.setUserPreferences({
-            favoriteTeams: prefsData.favoriteTeams || [],
-            favoriteLeagues: prefsData.favoriteLeagues || [],
-            favoriteMatches: prefsData.favoriteMatches || [],
-            region: prefsData.region || "global",
-          }),
-        );
-      } catch (error) {
-        console.error("Failed to fetch user preferences:", error);
-        // Set default preferences even if fetch fails
-        dispatch(
-          userActions.setUserPreferences({
-            favoriteTeams: [],
-            favoriteLeagues: [],
-            favoriteMatches: [],
-            region: "global",
-          }),
-        );
-      }
+      // Set minimal default preferences immediately (no API call)
+      dispatch(
+        userActions.setUserPreferences({
+          favoriteTeams: [],
+          favoriteLeagues: [],
+          favoriteMatches: [],
+          region: "global",
+        }),
+      );
 
       toast({
         title: "Login Successful",
@@ -234,8 +215,31 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate immediately after state is set
+      // Navigate immediately - no waiting for preferences
       navigate(`/${currentLang}/football`);
+
+      // Load user preferences in background after navigation (non-blocking)
+      setTimeout(async () => {
+        try {
+          const prefsResponse = await apiRequest(
+            "GET",
+            `/api/user/${userData.id}/preferences`,
+          );
+          const prefsData = await prefsResponse.json();
+
+          dispatch(
+            userActions.setUserPreferences({
+              favoriteTeams: prefsData.favoriteTeams || [],
+              favoriteLeagues: prefsData.favoriteLeagues || [],
+              favoriteMatches: prefsData.favoriteMatches || [],
+              region: prefsData.region || "global",
+            }),
+          );
+        } catch (error) {
+          console.error("Failed to fetch user preferences in background:", error);
+        }
+      }, 100); // Delay to allow navigation to complete first
+
     } catch (error) {
       console.error("Login failed:", error);
       dispatch(userActions.setLoading(false));
@@ -247,6 +251,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       });
     } finally {
       setIsLoading(false);
+      dispatch(userActions.setLoading(false)); // Ensure loading is cleared
     }
   };
 
@@ -456,7 +461,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       // Set authenticated state immediately
       dispatch(userActions.setAuthenticated(true));
 
-      // Set default preferences
+      // Set default preferences immediately (no API call needed)
       dispatch(
         userActions.setUserPreferences({
           favoriteTeams: [],
@@ -476,8 +481,9 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate to home page immediately
+      // Navigate immediately - no blocking operations
       navigate(`/${currentLang}/football`);
+
     } catch (error) {
       console.error("Registration failed:", error);
       toast({
