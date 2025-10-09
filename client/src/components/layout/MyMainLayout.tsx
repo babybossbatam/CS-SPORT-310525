@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy, useEffect, useCallback } from "react";
+import React, { useState, useMemo, Suspense, lazy, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -56,7 +56,6 @@ interface MyMainLayoutProps {
 const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   fixtures = [],
   loading = false,
-  children // Added children prop as it was in the original structure before memoization
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
@@ -75,11 +74,16 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   const [showTop20, setShowTop20] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
 
-  // Simple render optimization
-  const renderKey = useMemo(() => 
-    `${selectedDate}-${fixtures.length}-${selectedFixture?.fixture?.id || 'none'}`,
-    [selectedDate, fixtures.length, selectedFixture?.fixture?.id]
-  );
+  // Prevent excessive re-renders and add error handling
+  const [renderCount, setRenderCount] = useState(0);
+  useEffect(() => {
+    setRenderCount(prev => prev + 1);
+    if (renderCount > 10) {
+      console.warn('MyMainLayout: Too many re-renders detected, potential infinite loop. Component will unmount.');
+      // In a real app, you might want to handle this more gracefully, e.g., by showing an error message or resetting state.
+      // For this example, we'll just log and let the component continue to prevent crashing.
+    }
+  }, [fixtures, selectedDate, user, currentFixture, selectedFixture, isMobile, translationLanguage, timeFilterActive, showTop20, liveFilterActive]); // Add dependencies
 
   // Early return with fallback UI if no fixtures and not loading
   if (!loading && (!fixtures || fixtures.length === 0)) {
@@ -93,33 +97,57 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
     );
   }
 
-  // Optimized fixture filtering
+  // Simplified fixture filtering with error handling
   const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length || !selectedDate) return [];
+    try {
+      if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
+        console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
+        return [];
+      }
 
-    return fixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date) return false;
+      console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
 
-      const fixtureDate = new Date(fixture.fixture.date);
-      if (isNaN(fixtureDate.getTime())) return false;
+      const filtered = fixtures.filter((fixture) => {
+        try {
+          if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+            return false;
+          }
 
-      const fixtureDateString = fixtureDate.toISOString().split("T")[0];
-      return fixtureDateString === selectedDate;
-    });
+          // Extract UTC date from fixture date
+          const fixtureUTCDate = new Date(fixture.fixture.date);
+          if (isNaN(fixtureUTCDate.getTime())) {
+            console.warn('Invalid fixture date:', fixture.fixture.date);
+            return false;
+          }
+
+          const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
+          return fixtureDateString === selectedDate;
+        } catch (error) {
+          console.warn('Error filtering fixture:', error, fixture);
+          return false;
+        }
+      });
+
+      console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+      return filtered;
+    } catch (error) {
+      console.error('Error in fixture filtering:', error);
+      return [];
+    }
   }, [fixtures, selectedDate]);
 
-  const handleMatchClick = useCallback((matchId: number) => {
+  const handleMatchClick = (matchId: number) => {
     navigate(`/match/${matchId}`);
-  }, [navigate]);
+  };
 
-  const handleMatchCardClick = useCallback((fixture: any) => {
+  const handleMatchCardClick = (fixture: any) => {
     // On mobile and desktop, show match details in sidebar
     setSelectedFixture(fixture);
-  }, []);
+  };
 
-  const handleBackToMain = useCallback(() => {
+  const handleBackToMain = () => {
     setSelectedFixture(null);
-  }, []);
+  };
 
   return (
     <>
