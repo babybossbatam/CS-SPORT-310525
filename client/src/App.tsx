@@ -168,60 +168,12 @@ function App() {
         preloadData();
       }, { timeout: 2000 });
       
-      // Optimize font loading strategy
-      const optimizeFontLoading = () => {
-        // Create multiple font display elements to trigger immediate usage
-        const triggerElements = [
-          document.createElement('span'),
-          document.createElement('div'),
-          document.createElement('p')
-        ];
-        
-        triggerElements.forEach((element, index) => {
-          element.style.fontFamily = 'Inter, sans-serif';
-          element.style.position = 'fixed';
-          element.style.top = '-100px';
-          element.style.left = '-100px';
-          element.style.fontSize = '12px';
-          element.style.visibility = 'hidden';
-          element.style.pointerEvents = 'none';
-          element.textContent = 'Inter font trigger';
-          element.setAttribute('aria-hidden', 'true');
-          
-          document.body.appendChild(element);
-          
-          // Remove after font is registered
-          setTimeout(() => {
-            if (document.body.contains(element)) {
-              document.body.removeChild(element);
-            }
-          }, 50 + (index * 10));
+      // Simplified font loading strategy
+      if (document.fonts && document.fonts.load) {
+        document.fonts.load('12px Inter').catch(() => {
+          console.log('🔧 Font preload failed, using fallback');
         });
-      };
-
-      // Preload font with immediate usage
-      const fontPreload = document.createElement('link');
-      fontPreload.rel = 'preload';
-      fontPreload.href = '/fonts/Inter-Regular.woff2';
-      fontPreload.as = 'font';
-      fontPreload.type = 'font/woff2';
-      fontPreload.crossOrigin = 'anonymous';
-      
-      fontPreload.onload = () => {
-        // Immediate font usage
-        optimizeFontLoading();
-      };
-      
-      fontPreload.onerror = () => {
-        console.log('🔧 Font preload failed, using fallback');
-      };
-      
-      document.head.appendChild(fontPreload);
-      
-      // Also trigger font usage immediately for safety
-      requestAnimationFrame(() => {
-        optimizeFontLoading();
-      });
+      }
     } else {
       preloadData();
     }

@@ -1,20 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
-import HomeTopScorersList from "@/components/leagues/HomeTopScorersList";
-import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter";
+// import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew"; // Lazy loaded
+// import HomeTopScorersList from "@/components/leagues/HomeTopScorersList"; // Lazy loaded
+// import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter"; // Lazy loaded
 import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
 import MyAllLeague from "@/components/matches/MyAllLeague";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
-import PopularTeamsList from "@/components/teams/PopularTeamsList";
+// import PopularTeamsList from "@/components/teams/PopularTeamsList"; // Lazy loaded
 import ScoreDetailsCard from "@/components/matches/ScoreDetailsCard";
 import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MyInfo from "@/components/info/MyInfo";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+
+// Lazy load heavy components
+const MyHomeFeaturedMatchNew = lazy(() => import("@/components/matches/MyHomeFeaturedMatchNew"));
+const HomeTopScorersList = lazy(() => import("@/components/leagues/HomeTopScorersList"));
+const LeagueStandingsFilter = lazy(() => import("@/components/leagues/LeagueStandingsFilter"));
+const PopularTeamsList = lazy(() => import("@/components/teams/PopularTeamsList"));
+
 
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
@@ -51,25 +58,37 @@ const MyRightContent: React.FC = () => {
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
-        <MyHomeFeaturedMatchNew
-          selectedDate={selectedDate}
-          maxMatches={12}
-          onMatchCardClick={handleMatchCardClick}
-        />
+        <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded-lg" />}>
+          <MyHomeFeaturedMatchNew
+            selectedDate={selectedDate}
+            maxMatches={6}
+            onMatchCardClick={handleMatchCardClick}
+          />
+        </Suspense>
         )}
 
-        <HomeTopScorersList />
+        <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
+          <HomeTopScorersList />
+        </Suspense>
 
-        <LeagueStandingsFilter />
+        <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
+          <LeagueStandingsFilter />
+        </Suspense>
         <MyInfo />
         {/* Popular Leagues and All League List sections */}
         <div className="grid grid-cols-2 gap-4 ">
         <div className="space-y-4">
-          <PopularLeaguesList />
-          <PopularTeamsList />
+          <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse rounded-lg" />}>
+            <PopularLeaguesList />
+          </Suspense>
+          <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse rounded-lg" />}>
+            <PopularTeamsList />
+          </Suspense>
         </div>
-        <MyAllLeague onMatchCardClick={handleMatchCardClick} />
-          
+        <Suspense fallback={<div className="h-40 bg-gray-100 animate-pulse rounded-lg" />}>
+          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+        </Suspense>
+
         </div>
       </div>
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
@@ -193,13 +193,13 @@ export const TodayMatchPageCard = ({
       console.log(`Received ${data.length} shared live fixtures`);
       return data;
     },
-    staleTime: 30000,
-    gcTime: 2 * 60 * 1000,
-    enabled: liveFilterActive, // Only fetch when live filter is active
-    refetchOnWindowFocus: true,
-    refetchOnMount: true,
+    staleTime: 60000, // Increased stale time
+    gcTime: 5 * 60 * 1000, // Increased garbage collection time
+    enabled: liveFilterActive,
+    refetchOnWindowFocus: false, // Disable aggressive refetching
+    refetchOnMount: false,
     refetchOnReconnect: true,
-    refetchInterval: 30000,
+    refetchInterval: liveFilterActive ? 60000 : false, // Reduce refresh frequency
   });
 
   console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
@@ -492,24 +492,30 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewLeague2
-            selectedDate={selectedDate}
-            timeFilterActive={false}
-            showTop10={false}
-            liveFilterActive={liveFilterActive}
-            onMatchCardClick={handleMatchCardClick}
-            onFixturesLoad={setSharedAllFixtures} // Pass callback to receive fixtures
-            useUTCOnly={true}
-          />
+          <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded-lg" />}>
+            <MyNewLeague2
+              selectedDate={selectedDate}
+              timeFilterActive={false}
+              showTop10={false}
+              liveFilterActive={liveFilterActive}
+              onMatchCardClick={handleMatchCardClick}
+              onFixturesLoad={setSharedAllFixtures}
+              useUTCOnly={true}
+            />
+          </Suspense>
 
-          <TodaysMatchesByCountryNew
-            selectedDate={selectedDate}
-            liveFilterActive={liveFilterActive}
-            timeFilterActive={timeFilterActive}
-            onMatchCardClick={handleMatchCardClick}
-          />
+          <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
+            <TodaysMatchesByCountryNew
+              selectedDate={selectedDate}
+              liveFilterActive={liveFilterActive}
+              timeFilterActive={timeFilterActive}
+              onMatchCardClick={handleMatchCardClick}
+            />
+          </Suspense>
           {isMobile && (
-            <MyRightContent />
+            <Suspense fallback={<div className="h-48 bg-gray-100 animate-pulse rounded-lg" />}>
+              <MyRightContent />
+            </Suspense>
           )}
         </>
       )

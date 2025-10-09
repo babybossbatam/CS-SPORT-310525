@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Header from "@/components/layout/Header";
 import SportsCategoryTabs from "@/components/layout/SportsCategoryTabs";
 import TournamentHeader from "@/components/layout/TournamentHeader";
@@ -35,7 +35,11 @@ const Home = () => {
       />
 
       <div className="flex-1 h-full" style={{ marginTop: "52px", marginBottom: "-34px" }}>
-        <MyMainLayout fixtures={[]} />
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        </div>}>
+          <MyMainLayout fixtures={[]} />
+        </Suspense>
       </div>
 
       <div className="mt-10">
