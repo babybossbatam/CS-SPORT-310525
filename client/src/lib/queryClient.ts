@@ -155,7 +155,8 @@ export const getQueryFn: <T>(options: {
       // Handle AbortError specifically
       if (error instanceof Error && (error.name === 'AbortError' || errorMessage.includes('signal is aborted'))) {
         console.log(`🛑 Query aborted for ${queryKey[0]}: ${errorMessage}`);
-        return null as any; // Return null for aborted queries
+        return null as any; // Return null for aborte// Skip retrying for canceled queries
+        return false;
       }
 
       if (
@@ -170,6 +171,7 @@ export const getQueryFn: <T>(options: {
       }
 
       console.error(`Query error for ${queryKey[0]}:`, error);
+      return false;
       throw error;
     }
   };

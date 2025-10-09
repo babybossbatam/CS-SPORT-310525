@@ -69,29 +69,17 @@ if (typeof process !== 'undefined' && process.setMaxListeners) {
 
 // Set higher limits immediately for browser environment
 if (typeof window !== 'undefined') {
-  // Aggressively set limits before any other code runs
-  const setLimitsImmediately = () => {
-    // Set for common EventEmitter locations
-    if ((window as any).EventEmitter) {
-      (window as any).EventEmitter.defaultMaxListeners = 8000;
-    }
-
-    if ((window as any).events && (window as any).events.EventEmitter) {
-      (window as any).events.EventEmitter.defaultMaxListeners = 8000;
-    }
-
-    // Target file watching specifically
-    const fileWatchTargets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileWatcher'];
-    fileWatchTargets.forEach(target => {
-      if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
-        (window as any)[target].setMaxListeners(8000);
+  // Set limits on any existing EventEmitter instances
+  Object.keys(window).forEach(key => {
+    const obj = (window as any)[key];
+    if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+      try {
+        obj.setMaxListeners(8000);
+      } catch (e) {
+        // Ignore errors
       }
-    });
-  };
-
-  setLimitsImmediately();
-  // Run again after a brief delay to catch any late-loading EventEmitters
-  setTimeout(setLimitsImmediately, 100);
+    }
+  });
 }
 
 // Set default max listeners for EventEmitter globally
@@ -135,8 +123,8 @@ if (typeof window !== 'undefined') {
   if (typeof process !== 'undefined' && process.emitWarning) {
     const originalProcessEmitWarning = process.emitWarning;
     process.emitWarning = function(warning, type, code, ctor) {
-      if (type === 'MaxListenersExceededWarning' && 
-          (warning.toString().includes('changes listeners') || 
+      if (type === 'MaxListenersExceededWarning' &&
+          (warning.toString().includes('changes listeners') ||
            warning.toString().includes('watchTextFile'))) {
         return; // Suppress Replit file watching warnings
       }
