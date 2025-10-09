@@ -27,28 +27,7 @@ const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
-  const [isVisible, setIsVisible] = useState(false);
   const { isMobile } = useDeviceInfo();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Intersection observer for lazy loading
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (containerRef.current) {
-      observer.observe(containerRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   const handleMatchCardClick = (fixture: any) => {
     console.log("🎯 [MyRightContent] Match selected:", {
@@ -68,7 +47,7 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div ref={containerRef} className="h-full min-h-0 relative" style={{ height: '100vh', minHeight: '100vh' }}>
+    <div className="h-full min-h-0 relative" style={{ height: '100vh', minHeight: '100vh' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
@@ -77,49 +56,40 @@ const MyRightContent: React.FC = () => {
         )}
         style={{ height: '100%', minHeight: '100%' }}
       >
-        {/* Only render components when visible */}
-        {isVisible ? (
-          <>
-            {/* Featured Match Section - Hidden on mobile */}
-            {!isMobile && (
-            <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded-lg" />}>
-              <MyHomeFeaturedMatchNew
-                selectedDate={selectedDate}
-                maxMatches={3}
-                onMatchCardClick={handleMatchCardClick}
-              />
-            </Suspense>
-            )}
-
-            <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
-              <HomeTopScorersList />
-            </Suspense>
-
-            <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
-              <LeagueStandingsFilter />
-            </Suspense>
-            <MyInfo />
-            {/* Popular Leagues and All League List sections */}
-            <div className="grid grid-cols-2 gap-4 ">
-            <div className="space-y-4">
-              <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse rounded-lg" />}>
-                <PopularLeaguesList />
-              </Suspense>
-              <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse rounded-lg" />}>
-                <PopularTeamsList />
-              </Suspense>
-            </div>
-            <Suspense fallback={<div className="h-40 bg-gray-100 animate-pulse rounded-lg" />}>
-              <MyAllLeague onMatchCardClick={handleMatchCardClick} />
-            </Suspense>
-
-            </div>
-          </>
-        ) : (
-          <div className="h-full flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          </div>
+        {/* Featured Match Section - Hidden on mobile */}
+        {!isMobile && (
+        <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded-lg" />}>
+          <MyHomeFeaturedMatchNew
+            selectedDate={selectedDate}
+            maxMatches={6}
+            onMatchCardClick={handleMatchCardClick}
+          />
+        </Suspense>
         )}
+
+        <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
+          <HomeTopScorersList />
+        </Suspense>
+
+        <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
+          <LeagueStandingsFilter />
+        </Suspense>
+        <MyInfo />
+        {/* Popular Leagues and All League List sections */}
+        <div className="grid grid-cols-2 gap-4 ">
+        <div className="space-y-4">
+          <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse rounded-lg" />}>
+            <PopularLeaguesList />
+          </Suspense>
+          <Suspense fallback={<div className="h-20 bg-gray-100 animate-pulse rounded-lg" />}>
+            <PopularTeamsList />
+          </Suspense>
+        </div>
+        <Suspense fallback={<div className="h-40 bg-gray-100 animate-pulse rounded-lg" />}>
+          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+        </Suspense>
+
+        </div>
       </div>
 
       {/* Match details overlay - always mounted, visibility controlled by CSS */}
