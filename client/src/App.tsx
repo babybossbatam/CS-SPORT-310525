@@ -80,7 +80,7 @@ const AppWithLanguageRouting = () => {
           <Switch>
             {/* Public routes - Login/Authentication */}
             <Route path="/:lang/login" component={Authentication} />
-            
+
             {/* Protected routes with language prefix */}
             <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
@@ -151,7 +151,7 @@ function App() {
     // Ultra-minimal startup - only authentication check
     const userData = localStorage.getItem('user');
     const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-    
+
     if (userData && isAuthenticated) {
       try {
         JSON.parse(userData);
@@ -183,8 +183,13 @@ function App() {
       }, { timeout: 5000 });
     }
 
+    };
+
+    deferredInit(); // Call the deferred initialization
+
+    // Cleanup function for the effect
     return () => {
-      cleanupCacheRefresh(refreshInterval);
+      // Cleanup logic can be added here if needed
     };
   }, []);
 
