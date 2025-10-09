@@ -188,73 +188,28 @@ export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
   }
 };
 
+// Cleanup function to remove excess listeners
 export const cleanupEventListeners = () => {
-  // Clean up any global event listeners if needed
   if (typeof window !== 'undefined') {
-    // Remove excessive event listeners from common objects
-    const commonElements = [window, document];
-
-    commonElements.forEach(element => {
-      if (element && typeof element.removeAllListeners === 'function') {
-        try {
-          element.removeAllListeners();
-        } catch (e) {
-          // Ignore cleanup errors
+    // Remove excess listeners on window object
+    const maxListeners = 50;
+    Object.keys(window).forEach(key => {
+      try {
+        const obj = (window as any)[key];
+        if (obj && typeof obj.setMaxListeners === 'function') {
+          obj.setMaxListeners(maxListeners);
         }
+        if (obj && typeof obj.removeAllListeners === 'function' && typeof obj.listenerCount === 'function') {
+          // Remove excess listeners if too many
+          if (obj.listenerCount() > maxListeners) {
+            console.log(`🧹 Cleaning up excess listeners on ${key}`);
+            obj.removeAllListeners();
+          }
+        }
+      } catch (e) {
+        // Ignore access errors
       }
     });
-
-    // Clean up Replit-specific listeners with enhanced detection
-    try {
-      // Remove stallwart-related listeners if they exist
-      if ((window as any).stallwart) {
-        (window as any).stallwart.removeAllListeners?.();
-      }
-
-      // Clean up file watching listeners
-      if ((window as any).replit && (window as any).replit.fs) {
-        const fs = (window as any).replit.fs;
-        if (fs.removeAllListeners) {
-          fs.removeAllListeners('fsError');
-          fs.removeAllListeners('changes');
-          fs.removeAllListeners('watchTextFile');
-          fs.removeAllListeners('fileSavedChanged');
-        }
-      }
-
-      // Clean up specific Replit file watching EventEmitters
-      const replitEventEmitters = [
-        '__replitFileWatcher',
-        '__replitTextFileWatcher',
-        '__replitChangesWatcher',
-        'watchTextFile'
-      ];
-
-      replitEventEmitters.forEach(emitterName => {
-        if ((window as any)[emitterName]) {
-          const emitter = (window as any)[emitterName];
-          if (typeof emitter.removeAllListeners === 'function') {
-            emitter.removeAllListeners();
-          }
-        }
-      });
-
-      // Remove excessive listeners from any Replit-related EventEmitters
-      Object.keys(window).forEach(key => {
-        const obj = (window as any)[key];
-        if (obj && typeof obj.removeAllListeners === 'function' && key.includes('replit')) {
-          try {
-            obj.removeAllListeners();
-          } catch (e) {
-            // Ignore individual cleanup errors
-          }
-        }
-      });
-
-    } catch (e) {
-      // Ignore Replit cleanup errors
-      console.log('🔧 EventEmitter cleanup completed');
-    }
   }
 };
 

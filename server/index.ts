@@ -46,9 +46,20 @@ const monitorMemory = () => {
 setInterval(monitorMemory, 30000);
 
 // Set reasonable limits to prevent memory leaks
-process.setMaxListeners(100);
+process.setMaxListeners(500);
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
+EventEmitter.defaultMaxListeners = 200;
+
+// Force garbage collection more frequently
+const forceGC = () => {
+  if (global.gc) {
+    global.gc();
+    console.log('🧹 Forced garbage collection completed');
+  }
+};
+
+// Run GC every 60 seconds
+setInterval(forceGC, 60000);
 
 // Set max listeners for common event emitters
 if (typeof process !== 'undefined' && process.stdout) {

@@ -21,6 +21,7 @@ import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
 import ProtectedRoute from './components/common/ProtectedRoute';
+import { cleanupEventListeners } from './lib/eventEmitterUtils';
 
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
@@ -238,8 +239,18 @@ function App() {
       preloadData();
     }
 
+    // Regular cleanup to prevent memory buildup
+    const cleanupInterval = setInterval(() => {
+      cleanupEventListeners();
+      // Force garbage collection if available
+      if (typeof window !== 'undefined' && (window as any).gc) {
+        (window as any).gc();
+      }
+    }, 30000); // Every 30 seconds
+
     return () => {
       cleanupCacheRefresh(refreshInterval);
+      clearInterval(cleanupInterval);
     };
   }, []);
 

@@ -353,6 +353,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
   const [liveMatchData, setLiveMatchData] = useState<Map<number, Partial<FeaturedMatch>>>(new Map());
 
+  // Add debouncing to prevent excessive API calls
+  const [isDebouncing, setIsDebouncing] = useState(false);
+
   const {
     translateTeamName,
     translateLeagueName,
@@ -364,6 +367,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const mountedRef = useRef(false);
   const selectiveUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null); // Ref for debounce timer
 
   // Function to manage selective updates for matches
   const manageSelectiveUpdates = useCallback(() => {

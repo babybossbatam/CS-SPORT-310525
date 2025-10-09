@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy, useEffect } from "react";
+import React, { useState, useMemo, Suspense, lazy, useEffect, useCallback } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -56,6 +56,7 @@ interface MyMainLayoutProps {
 const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   fixtures = [],
   loading = false,
+  children // Added children prop as it was in the original structure before memoization
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
@@ -98,27 +99,27 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
 
     return fixtures.filter((fixture) => {
       if (!fixture?.fixture?.date) return false;
-      
+
       const fixtureDate = new Date(fixture.fixture.date);
       if (isNaN(fixtureDate.getTime())) return false;
-      
+
       const fixtureDateString = fixtureDate.toISOString().split("T")[0];
       return fixtureDateString === selectedDate;
     });
   }, [fixtures, selectedDate]);
 
-  const handleMatchClick = (matchId: number) => {
+  const handleMatchClick = useCallback((matchId: number) => {
     navigate(`/match/${matchId}`);
-  };
+  }, [navigate]);
 
-  const handleMatchCardClick = (fixture: any) => {
+  const handleMatchCardClick = useCallback((fixture: any) => {
     // On mobile and desktop, show match details in sidebar
     setSelectedFixture(fixture);
-  };
+  }, []);
 
-  const handleBackToMain = () => {
+  const handleBackToMain = useCallback(() => {
     setSelectedFixture(null);
-  };
+  }, []);
 
   return (
     <>
