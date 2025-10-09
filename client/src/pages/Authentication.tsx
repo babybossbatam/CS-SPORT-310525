@@ -234,8 +234,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate immediately after state is set
-      navigate(`/${currentLang}/football`);
+      // Navigate to Home page after successful login
+      navigate(`/${currentLang}`);
     } catch (error) {
       console.error("Login failed:", error);
       dispatch(userActions.setLoading(false));
@@ -477,7 +477,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const currentLang = pathParts[0] || "en";
 
       // Navigate to home page immediately
-      navigate(`/${currentLang}/football`);
+      navigate(`/${currentLang}`);
     } catch (error) {
       console.error("Registration failed:", error);
       toast({
