@@ -17,15 +17,24 @@ const Home = () => {
   const { data: fixtures = [], isLoading, error } = useQuery({
     queryKey: ['home-fixtures', selectedDate],
     queryFn: async () => {
-      const response = await fetch(`/api/fixtures/date/${selectedDate}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch fixtures');
+      try {
+        const response = await fetch(`/api/fixtures/date/${selectedDate}`);
+        if (!response.ok) {
+          console.warn(`Failed to fetch fixtures for ${selectedDate}, status: ${response.status}`);
+          return []; // Return empty array instead of throwing
+        }
+        const data = await response.json();
+        return Array.isArray(data) ? data : [];
+      } catch (error) {
+        console.warn('Error fetching fixtures:', error);
+        return []; // Return empty array on error
       }
-      return response.json();
     },
     staleTime: 30000, // 30 seconds
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes (renamed from cacheTime)
     refetchInterval: 60000, // Refetch every minute for live updates
+    retry: 2, // Only retry twice
+    retryDelay: 1000, // Wait 1 second between retries
   });
 
   // Memoize the filtered fixtures to prevent unnecessary re-renders
@@ -49,8 +58,41 @@ const Home = () => {
       });
   }, [fixtures]);
 
+  // Add loading timeout protection
+  React.useEffect(() => {
+    if (isLoading) {
+      const timeout = setTimeout(() => {
+        console.warn('Loading timeout reached for home fixtures');
+      }, 10000); // 10 second timeout warning
+      
+      return () => clearTimeout(timeout);
+    }
+  }, [isLoading]);
+
   if (error) {
     console.error('Error loading home fixtures:', error);
+  }
+
+  // Show error state if there's an error
+  if (error && !isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <SportsCategoryTabs />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center p-8">
+            <h2 className="text-xl font-semibold mb-2">Unable to load matches</h2>
+            <p className="text-gray-600 mb-4">Please try refreshing the page</p>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Refresh Page
+            </button>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (

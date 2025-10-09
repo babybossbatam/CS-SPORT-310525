@@ -16,7 +16,7 @@ import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import LanguageToast from "./components/common/LanguageToast";
-import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
+// Removed conflicting BrowserRouter import
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';

@@ -46,30 +46,43 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [showTop20, setShowTop20] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
 
-  // Simplified fixture filtering
+  // Simplified fixture filtering with error handling
   const filteredFixtures = useMemo(() => {
-    if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
-      console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
-      return [];
-    }
-
-    console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
-
-    const filtered = fixtures.filter((fixture) => {
-      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
-        return false;
+    try {
+      if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
+        console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
+        return [];
       }
 
-      // Extract UTC date from fixture date
-      const fixtureUTCDate = new Date(fixture.fixture.date);
-      const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
+      console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
 
-      return fixtureDateString === selectedDate;
-    });
+      const filtered = fixtures.filter((fixture) => {
+        try {
+          if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+            return false;
+          }
 
-    console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+          // Extract UTC date from fixture date
+          const fixtureUTCDate = new Date(fixture.fixture.date);
+          if (isNaN(fixtureUTCDate.getTime())) {
+            console.warn('Invalid fixture date:', fixture.fixture.date);
+            return false;
+          }
+          
+          const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
+          return fixtureDateString === selectedDate;
+        } catch (error) {
+          console.warn('Error filtering fixture:', error, fixture);
+          return false;
+        }
+      });
 
-    return filtered;
+      console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+      return filtered;
+    } catch (error) {
+      console.error('Error in fixture filtering:', error);
+      return [];
+    }
   }, [fixtures, selectedDate]);
 
   const handleMatchClick = (matchId: number) => {

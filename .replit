@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Clean Dev Start"
+runButton = "Fixed Dev Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -106,6 +106,15 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server
 
 [[workflows.workflow]]
 name = "Clean Dev Start"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server/index.ts"
+
+[[workflows.workflow]]
+name = "Fixed Dev Server"
 author = 42256231
 mode = "sequential"
 
