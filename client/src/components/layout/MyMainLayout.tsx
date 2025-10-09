@@ -25,7 +25,7 @@ interface MyMainLayoutProps {
   children?: React.ReactNode;
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = ({
+const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   fixtures = [],
   loading = false,
 }) => {
@@ -199,6 +199,8 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       </div>
     </>
   );
-};
+});
+
+MyMainLayout.displayName = 'MyMainLayout';
 
 export default MyMainLayout;

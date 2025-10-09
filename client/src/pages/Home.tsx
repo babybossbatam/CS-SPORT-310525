@@ -13,28 +13,40 @@ import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
 const Home = () => {
   const [selectedDate, setSelectedDate] = useState(() => getCurrentUTCDateString());
 
-  // Fetch today's fixtures
+  // Fetch today's fixtures with optimized strategy
   const { data: fixtures = [], isLoading, error } = useQuery({
     queryKey: ['home-fixtures', selectedDate],
     queryFn: async () => {
       try {
-        const response = await fetch(`/api/fixtures/date/${selectedDate}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+        
+        const response = await fetch(`/api/fixtures/date/${selectedDate}`, {
+          signal: controller.signal,
+          headers: {
+            'Cache-Control': 'max-age=60', // Cache for 60 seconds
+          }
+        });
+        
+        clearTimeout(timeoutId);
+        
         if (!response.ok) {
           console.warn(`Failed to fetch fixtures for ${selectedDate}, status: ${response.status}`);
           return []; // Return empty array instead of throwing
         }
         const data = await response.json();
-        return Array.isArray(data) ? data : [];
+        return Array.isArray(data) ? data.slice(0, 30) : []; // Limit to 30 matches initially
       } catch (error) {
         console.warn('Error fetching fixtures:', error);
         return []; // Return empty array on error
       }
     },
-    staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes (renamed from cacheTime)
-    refetchInterval: 60000, // Refetch every minute for live updates
-    retry: 2, // Only retry twice
-    retryDelay: 1000, // Wait 1 second between retries
+    staleTime: 120000, // 2 minutes - increased from 30 seconds
+    gcTime: 600000, // 10 minutes
+    refetchInterval: false, // Disable automatic refetch
+    retry: 1, // Only retry once
+    retryDelay: 2000,
+    enabled: !!selectedDate, // Only run if selectedDate exists
   });
 
   // Memoize the filtered fixtures to prevent unnecessary re-renders

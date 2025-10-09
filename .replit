@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Fixed Dev Server"
+runButton = "Optimized Dev Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -121,6 +121,19 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server/index.ts"
+
+[[workflows.workflow]]
+name = "Optimized Dev Server"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "rm -rf node_modules/.cache"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=4096 --unhandled-rejections=warn' tsx --watch=false server/index.ts"
 
 [[ports]]
 localPort = 5000
