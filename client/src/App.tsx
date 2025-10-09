@@ -20,8 +20,6 @@ import LanguageToast from "./components/common/LanguageToast";
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
-import ProtectedRoute from './components/common/ProtectedRoute';
-
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
 const Football = lazy(() => import(/* webpackChunkName: "football" */ "@/pages/Football"));
@@ -34,7 +32,6 @@ const HorseRacing = lazy(() => import(/* webpackChunkName: "horse-racing" */ "@/
 const Snooker = lazy(() => import(/* webpackChunkName: "snooker" */ "@/pages/Snooker"));
 const Esport = lazy(() => import(/* webpackChunkName: "esport" */ "@/pages/Esport"));
 const MatchDetails = lazy(() => import(/* webpackChunkName: "match-details" */ "@/pages/MatchDetails"));
-const Authentication = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/Authentication"));
 const LeagueDetails = lazy(() => import(/* webpackChunkName: "league-details" */ "@/pages/LeagueDetails"));
 const MyScores = lazy(() => import(/* webpackChunkName: "my-scores" */ "@/pages/MyScores"));
 
@@ -79,33 +76,30 @@ const AppWithLanguageRouting = () => {
 const AppRoutes = () => {
   return (
     <Switch>
-      {/* Public routes - Login/Authentication */}
-      <Route path="/:lang/login" component={Authentication} />
-      
-      {/* Protected routes with language prefix */}
-      <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/:lang/football" component={() => <ProtectedRoute><Football /></ProtectedRoute>} />
-      <Route path="/:lang/basketball" component={() => <ProtectedRoute><Basketball /></ProtectedRoute>} />
-      <Route path="/:lang/tv" component={() => <ProtectedRoute><TV /></ProtectedRoute>} />
-      <Route path="/:lang/horse-racing" component={() => <ProtectedRoute><HorseRacing /></ProtectedRoute>} />
-      <Route path="/:lang/snooker" component={() => <ProtectedRoute><Snooker /></ProtectedRoute>} />
-      <Route path="/:lang/esport" component={() => <ProtectedRoute><Esport /></ProtectedRoute>} />
-      <Route path="/:lang/match/:matchId" component={() => <ProtectedRoute><MatchDetails /></ProtectedRoute>} />
-      <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
-      <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
+      {/* Public routes with language prefix */}
+      <Route path="/:lang" component={Home} />
+      <Route path="/:lang/" component={Home} />
+      <Route path="/:lang/football" component={Football} />
+      <Route path="/:lang/basketball" component={Basketball} />
+      <Route path="/:lang/tv" component={TV} />
+      <Route path="/:lang/horse-racing" component={HorseRacing} />
+      <Route path="/:lang/snooker" component={Snooker} />
+      <Route path="/:lang/esport" component={Esport} />
+      <Route path="/:lang/match/:matchId" component={MatchDetails} />
+      <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
+      <Route path="/:lang/my-scores" component={MyScores} />
 
-      {/* Fallback routes without language (redirect to login) */}
+      {/* Fallback routes without language (redirect to home) */}
       <Route path="/" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en";
         return null;
       }} />
       <Route path="/football" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en/football";
         return null;
       }} />
       <Route path="/basketball" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en/basketball";
         return null;
       }} />
 
@@ -137,25 +131,6 @@ const preloadData = () => {
 
 function App() {
   useEffect(() => {
-    // Check for persisted authentication state
-    const checkAuthState = () => {
-      const userData = localStorage.getItem('user');
-      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-      
-      if (userData && isAuthenticated) {
-        try {
-          const user = JSON.parse(userData);
-          // You might want to dispatch actions to restore user state here
-          console.log('User authentication restored from localStorage');
-        } catch (error) {
-          console.error('Failed to parse stored user data:', error);
-          localStorage.removeItem('user');
-          localStorage.removeItem('isAuthenticated');
-        }
-      }
-    };
-
-    checkAuthState();
 
     // Force mobile-first layout immediately
     const isMobileCheck = window.innerWidth < 768;
