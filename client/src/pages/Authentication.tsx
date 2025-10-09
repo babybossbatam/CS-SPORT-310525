@@ -183,38 +183,59 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const response = await apiRequest("POST", "/api/auth/login", data);
       const userData = await response.json();
 
-      // Set user data and authentication state immediately
-      dispatch(userActions.setUser({
-        id: userData.id,
-        username: userData.username,
-        email: userData.email,
-      }));
-      dispatch(userActions.setAuthenticated(true));
-      dispatch(userActions.setUserPreferences({
-        favoriteTeams: [],
-        favoriteLeagues: [],
-        favoriteMatches: [],
-        region: "global",
-      }));
+      // Set user data in Redux store
+      dispatch(
+        userActions.setUser({
+          id: userData.id,
+          username: userData.username,
+          email: userData.email,
+        }),
+      );
 
-      // Show success message
+      // Set authenticated state immediately
+      dispatch(userActions.setAuthenticated(true));
+
+      // Get user preferences
+      try {
+        const prefsResponse = await apiRequest(
+          "GET",
+          `/api/user/${userData.id}/preferences`,
+        );
+        const prefsData = await prefsResponse.json();
+
+        dispatch(
+          userActions.setUserPreferences({
+            favoriteTeams: prefsData.favoriteTeams || [],
+            favoriteLeagues: prefsData.favoriteLeagues || [],
+            favoriteMatches: prefsData.favoriteMatches || [],
+            region: prefsData.region || "global",
+          }),
+        );
+      } catch (error) {
+        console.error("Failed to fetch user preferences:", error);
+        // Set default preferences even if fetch fails
+        dispatch(
+          userActions.setUserPreferences({
+            favoriteTeams: [],
+            favoriteLeagues: [],
+            favoriteMatches: [],
+            region: "global",
+          }),
+        );
+      }
+
       toast({
-        title: "Login Successful", 
+        title: "Login Successful",
         description: `Welcome back, ${userData.username}!`,
       });
 
-      // Clear loading states immediately before navigation
-      setIsLoading(false);
-      dispatch(userActions.setLoading(false));
-
-      // Navigate immediately with current language
+      // Extract current language from URL or default to 'en'
       const currentPath = window.location.pathname;
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
-      
-      // Use window.location for immediate navigation to prevent React Router delays
-      window.location.href = `/${currentLang}`;
 
+      // Navigate immediately after state is set
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Login failed:", error);
       dispatch(userActions.setLoading(false));
@@ -224,6 +245,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         description: "Invalid username or password",
         variant: "destructive",
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -434,7 +456,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       // Set authenticated state immediately
       dispatch(userActions.setAuthenticated(true));
 
-      // Set default preferences immediately (no API call needed)
+      // Set default preferences
       dispatch(
         userActions.setUserPreferences({
           favoriteTeams: [],
@@ -454,9 +476,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate immediately - no blocking operations
-      navigate(`/${currentLang}`);
-
+      // Navigate to home page immediately
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Registration failed:", error);
       toast({

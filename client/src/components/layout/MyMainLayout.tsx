@@ -19,13 +19,13 @@ const TodayMatchPageCard = lazy(
   () => import("@/components/matches/TodayMatchPageCard"),
 );
 
-interface MyHomeMainLayoutProps {
+interface MyMainLayoutProps {
   fixtures: any[];
   loading?: boolean;
   children?: React.ReactNode;
 }
 
-const MyHomeMainLayout: React.FC<MyHomeMainLayoutProps> = ({
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   fixtures,
   loading = false,
   children,
@@ -162,4 +162,4 @@ const MyHomeMainLayout: React.FC<MyHomeMainLayoutProps> = ({
   );
 };
 
-export default MyHomeMainLayout;
+export default MyMainLayout;

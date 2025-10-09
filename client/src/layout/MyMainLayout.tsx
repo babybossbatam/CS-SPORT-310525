@@ -1,11 +1,10 @@
-
 import React, { useState, Suspense, lazy } from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 import BrandedLoading from '@/components/common/BrandedLoading';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import { NetworkStatus } from "@/components/common/NetworkStatus";
+import Header from '@/components/layout/Header'; // Assuming Header is imported
+import Footer from '@/components/layout/Footer'; // Assuming Footer is imported
+import { NetworkStatus } from "@/components/common/NetworkStatus"; // Added for network status
 
 // Immediate mobile detection to prevent layout flash
 const getIsMobileImmediate = () => {
@@ -13,7 +12,6 @@ const getIsMobileImmediate = () => {
   return window.innerWidth < 768;
 };
 
-// Football-specific imports
 import MyMatchTabCard from '@/components/matches/MyMatchTabCard';
 import MyLineupsTabsCard from '@/components/matches/MyLineupsTabsCard';
 import MyStatsTabCard from '@/components/matches/MyStatsTabCard';
@@ -29,7 +27,7 @@ interface MyMainLayoutProps {
   children?: React.ReactNode;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
-  selectedDate?: string;
+  selectedDate?: string; // Assuming selectedDate is passed as a prop
 }
 
 // Helper function to validate date format
@@ -87,7 +85,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       setInternalActiveTab(tab);
     }
   };
-  
   const isLive = selectedMatch?.fixture?.status?.short === 'LIVE' ||
                 selectedMatch?.fixture?.status?.short === 'HT' ||
                 selectedMatch?.fixture?.status?.short === '1H' ||
@@ -101,7 +98,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
 
   return (
     <div className={`w-full space-y-6 ${actualIsMobile ? 'mobile-layout px-2 mobile-layout-active' : ''}`}>
-      {/* Football-specific live action */}
+      {/* MyLiveAction component - show for live matches */}
       {isLive && (
         <MyLiveAction
           matchId={selectedMatchId}
@@ -112,7 +109,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         />
       )}
 
-      {/* Football-specific tab content */}
+      {/* Tab Content for Selected Match */}
       {selectedMatch && (
         <div className={`mt-6 ${actualIsMobile ? 'mobile-tab-content' : ''}`}>
           {currentActiveTab === "match" && (
@@ -137,7 +134,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         </div>
       )}
 
-      {/* Football-specific children content */}
+      {/* Any additional children content */}
       {children && (
         <div className={`mt-6 ${actualIsMobile ? 'mobile-children-content' : ''}`}>
           {children}
@@ -151,7 +148,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
         </Suspense>
       )}
 
-      {/* Network status indicator */}
+      {/* Render network status indicator */}
       <NetworkStatus />
     </div>
   );

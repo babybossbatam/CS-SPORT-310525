@@ -74,55 +74,72 @@ const AppWithLanguageRouting = () => {
   );
 };
 
-// Separate component for routes
-const AppRoutes = () => {
-  return (
-    <Switch>
-      {/* Public routes - Login/Authentication */}
-      <Route path="/:lang/login" component={Authentication} />
+      // Separate component for routes
+      const AppRoutes = () => {
+        return (
+          <Switch>
+            {/* Public routes - Login/Authentication */}
+            <Route path="/:lang/login" component={Authentication} />
+            
+            {/* Protected routes with language prefix */}
+            <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
+            <Route path="/:lang/football" component={() => <ProtectedRoute><Football /></ProtectedRoute>} />
+            <Route path="/:lang/basketball" component={() => <ProtectedRoute><Basketball /></ProtectedRoute>} />
+            <Route path="/:lang/tv" component={() => <ProtectedRoute><TV /></ProtectedRoute>} />
+            <Route path="/:lang/horse-racing" component={() => <ProtectedRoute><HorseRacing /></ProtectedRoute>} />
+            <Route path="/:lang/snooker" component={() => <ProtectedRoute><Snooker /></ProtectedRoute>} />
+            <Route path="/:lang/esport" component={() => <ProtectedRoute><Esport /></ProtectedRoute>} />
+            <Route path="/:lang/match/:matchId" component={() => <ProtectedRoute><MatchDetails /></ProtectedRoute>} />
+            <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
+            <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
 
-      {/* Protected routes with language prefix */}
-      <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
-      <Route path="/:lang/football" component={() => <ProtectedRoute><Football /></ProtectedRoute>} />
-      <Route path="/:lang/basketball" component={() => <ProtectedRoute><Basketball /></ProtectedRoute>} />
-      <Route path="/:lang/tv" component={() => <ProtectedRoute><TV /></ProtectedRoute>} />
-      <Route path="/:lang/horse-racing" component={() => <ProtectedRoute><HorseRacing /></ProtectedRoute>} />
-      <Route path="/:lang/snooker" component={() => <ProtectedRoute><Snooker /></ProtectedRoute>} />
-      <Route path="/:lang/esport" component={() => <ProtectedRoute><Esport /></ProtectedRoute>} />
-      <Route path="/:lang/match/:matchId" component={() => <ProtectedRoute><MatchDetails /></ProtectedRoute>} />
-      <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
-      <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
+            {/* Fallback routes without language (redirect to login) */}
+            <Route path="/" component={() => {
+              window.location.href = "/en/login";
+              return null;
+            }} />
+            <Route path="/football" component={() => {
+              window.location.href = "/en/login";
+              return null;
+            }} />
+            <Route path="/basketball" component={() => {
+              window.location.href = "/en/login";
+              return null;
+            }} />
 
-      {/* Fallback routes without language (redirect to home with language) */}
-      <Route path="/" component={() => {
-        // Check if user is authenticated
-        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-        if (isAuthenticated) {
-          window.location.href = "/en";
-        } else {
-          window.location.href = "/en/login";
-        }
-        return null;
-      }} />
-      <Route path="/football" component={() => {
-        window.location.href = "/en/football";
-        return null;
-      }} />
-      <Route path="/basketball" component={() => {
-        window.location.href = "/en/basketball";
-        return null;
-      }} />
+            {/* 404 page */}
+            <Route component={NotFound} />
+          </Switch>
+        );
+      };
+const Settings = lazy(() => import("@/pages/Settings"));
+const SearchResults = lazy(() => import("@/pages/SearchResults"));
+const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
+const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
+const NewsPage = lazy(() => import("@/pages/NewsPage"));
+const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
+import Scores365Page from "./pages/Scores365Page";
+import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
 
-      {/* 404 page */}
-      <Route component={NotFound} />
-    </Switch>
-  );
+// Mock functions for cache refresh and preloading (replace with actual implementation)
+const setupCacheRefresh = () => {
+  // Implement your cache refresh logic here, e.g., using setInterval
+  // Example:
+  // setInterval(() => {
+  //   // Call functions to refetch data for components
+  // }, 30 * 60 * 1000); // Every 30 minutes
 };
-// Cache management functions
+
+const cleanupCacheRefresh = (intervalId) => {
+  // Implement cleanup logic, e.g., clearInterval
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+};
+
 const preloadData = () => {
-  // Preload critical data for better performance
-  console.log('🚀 Preloading critical data...');
+  // Implement logic to preload data for components
 };
 
 
@@ -131,44 +148,110 @@ const preloadData = () => {
 
 function App() {
   useEffect(() => {
-    // Ultra-minimal startup - only authentication check
-    const userData = localStorage.getItem('user');
-    const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-
-    if (userData && isAuthenticated) {
-      try {
-        JSON.parse(userData);
-        console.log('User authentication restored');
-      } catch (error) {
-        localStorage.removeItem('user');
-        localStorage.removeItem('isAuthenticated');
-      }
-    }
-
-    // Mobile detection only
-    if (window.innerWidth < 768) {
-      document.documentElement.classList.add("mobile-device");
-    }
-
-    // Setup error handlers (essential)
-    setupGlobalErrorHandlers();
-
-    // Defer ALL heavy operations until after login
-    const deferredInit = () => {
-      setTimeout(() => {
-        clearAllLogoCaches();
-        console.log('🚀 Background initialization complete');
-
-        // Minimal preloading only when idle
-        if (typeof window !== 'undefined') {
-          requestIdleCallback(() => {
-            preloadData();
-          }, { timeout: 5000 });
+    // Check for persisted authentication state
+    const checkAuthState = () => {
+      const userData = localStorage.getItem('user');
+      const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+      
+      if (userData && isAuthenticated) {
+        try {
+          const user = JSON.parse(userData);
+          // You might want to dispatch actions to restore user state here
+          console.log('User authentication restored from localStorage');
+        } catch (error) {
+          console.error('Failed to parse stored user data:', error);
+          localStorage.removeItem('user');
+          localStorage.removeItem('isAuthenticated');
         }
-      }, 0);
+      }
     };
 
-    deferredInit();
+    checkAuthState();
+
+    // Force mobile-first layout immediately
+    const isMobileCheck = window.innerWidth < 768;
+    if (isMobileCheck) {
+      document.documentElement.classList.add("mobile-device");
+      document.body.classList.add("mobile-body");
+    }
+
+    setupGlobalErrorHandlers();
+    const refreshInterval = setupCacheRefresh();
+
+    // Clear all logo caches on app initialization
+    clearAllLogoCaches();
+
+    // Start performance monitoring
+    console.log('🚀 Starting performance monitoring...');
+
+    // Optimize performance for initial load
+    if (typeof window !== 'undefined') {
+      // Reduce initial bundle size impact
+      requestIdleCallback(() => {
+        preloadData();
+      }, { timeout: 2000 });
+      
+      // Optimize font loading strategy
+      const optimizeFontLoading = () => {
+        // Create multiple font display elements to trigger immediate usage
+        const triggerElements = [
+          document.createElement('span'),
+          document.createElement('div'),
+          document.createElement('p')
+        ];
+        
+        triggerElements.forEach((element, index) => {
+          element.style.fontFamily = 'Inter, sans-serif';
+          element.style.position = 'fixed';
+          element.style.top = '-100px';
+          element.style.left = '-100px';
+          element.style.fontSize = '12px';
+          element.style.visibility = 'hidden';
+          element.style.pointerEvents = 'none';
+          element.textContent = 'Inter font trigger';
+          element.setAttribute('aria-hidden', 'true');
+          
+          document.body.appendChild(element);
+          
+          // Remove after font is registered
+          setTimeout(() => {
+            if (document.body.contains(element)) {
+              document.body.removeChild(element);
+            }
+          }, 50 + (index * 10));
+        });
+      };
+
+      // Preload font with immediate usage
+      const fontPreload = document.createElement('link');
+      fontPreload.rel = 'preload';
+      fontPreload.href = '/fonts/Inter-Regular.woff2';
+      fontPreload.as = 'font';
+      fontPreload.type = 'font/woff2';
+      fontPreload.crossOrigin = 'anonymous';
+      
+      fontPreload.onload = () => {
+        // Immediate font usage
+        optimizeFontLoading();
+      };
+      
+      fontPreload.onerror = () => {
+        console.log('🔧 Font preload failed, using fallback');
+      };
+      
+      document.head.appendChild(fontPreload);
+      
+      // Also trigger font usage immediately for safety
+      requestAnimationFrame(() => {
+        optimizeFontLoading();
+      });
+    } else {
+      preloadData();
+    }
+
+    return () => {
+      cleanupCacheRefresh(refreshInterval);
+    };
   }, []);
 
   // Add additional error handling for dynamic imports and runtime errors

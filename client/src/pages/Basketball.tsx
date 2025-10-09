@@ -4,7 +4,7 @@ import { uiActions } from '@/lib/store';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import MyBasketballMainLayout from '@/components/layout/MyBasketballMainLayout';
+import MyBasketballMain from '@/components/layout/MyBasketballMain';
 import Footer from '@/components/layout/Footer';
 import NewsSection from '@/components/news/NewsSection';
 import { Dribbble } from 'lucide-react';
@@ -29,7 +29,7 @@ const Basketball = () => {
       />
       
       <div className="flex-1" style={{ marginTop: "52px" }}>
-        <MyBasketballMainLayout fixtures={[]} />
+        <MyBasketballMain fixtures={[]} />
       </div>
       
       <Footer />
