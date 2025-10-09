@@ -36,26 +36,15 @@ const MyFootballMain: React.FC<MyFootballMainProps> = ({ fixtures }) => {
   const { isMobile, isTablet, isPortrait } = useDeviceInfo();
   useMobileViewport();
 
-  // Apply smart time filtering to fixtures
+  // Apply smart time filtering to fixtures with memoization
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate) return [];
 
-    console.log(
-      `🔍 [MyFootballMain] Processing ${fixtures.length} fixtures for date: ${selectedDate}`,
-    );
-
-    console.log(`📋 [MyFootballMain] selectedDateFixtures filter contents:`, {
-      selectedDate,
-      totalFixtures: fixtures.length,
-      fixturesByDate: fixtures.slice(0, 3).map(f => ({
-        id: f.fixture?.id,
-        date: f.fixture?.date,
-        teams: `${f.teams?.home?.name} vs ${f.teams?.away?.name}`,
-        status: f.fixture?.status?.short,
-        league: f.league?.name
-      })),
-      sampleFixtures: fixtures.length > 3 ? `... and ${fixtures.length - 3} more` : 'showing all'
-    });
+    // Only log when fixture count changes significantly
+    const shouldLog = fixtures.length > 0 && (fixtures.length % 50 === 0 || fixtures.length < 10);
+    if (shouldLog) {
+      console.log(`🔍 [MyFootballMain] Processing ${fixtures.length} fixtures for ${selectedDate}`);
+    }
 
     // Determine what type of date is selected
     const today = new Date();
