@@ -13,66 +13,40 @@ import { getCurrentUTCDateString } from "@/lib/dateUtilsUpdated";
 const Home = () => {
   const [selectedDate, setSelectedDate] = useState(() => getCurrentUTCDateString());
 
-  // Fetch today's fixtures with optimized strategy and better error handling
+  // Fetch today's fixtures with optimized strategy
   const { data: fixtures = [], isLoading, error } = useQuery({
     queryKey: ['home-fixtures', selectedDate],
     queryFn: async () => {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000); // Reduced to 5 seconds
+        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
         
         const response = await fetch(`/api/fixtures/date/${selectedDate}`, {
           signal: controller.signal,
           headers: {
-            'Cache-Control': 'max-age=120', // Increased cache to 2 minutes
-            'Accept': 'application/json',
+            'Cache-Control': 'max-age=60', // Cache for 60 seconds
           }
         });
         
         clearTimeout(timeoutId);
         
         if (!response.ok) {
-          if (response.status === 429) {
-            // Rate limit hit, wait and return empty for now
-            console.warn('Rate limit hit, returning empty fixtures');
-            return [];
-          }
           console.warn(`Failed to fetch fixtures for ${selectedDate}, status: ${response.status}`);
-          return [];
+          return []; // Return empty array instead of throwing
         }
-        
         const data = await response.json();
-        const validFixtures = Array.isArray(data) ? data.filter(fixture => 
-          fixture && 
-          fixture.fixture && 
-          fixture.fixture.id &&
-          fixture.teams &&
-          fixture.teams.home &&
-          fixture.teams.away
-        ) : [];
-        
-        return validFixtures.slice(0, 25); // Reduced to 25 matches for better performance
+        return Array.isArray(data) ? data.slice(0, 30) : []; // Limit to 30 matches initially
       } catch (error) {
-        if (error.name === 'AbortError') {
-          console.warn('Request timeout for fixtures');
-        } else {
-          console.warn('Error fetching fixtures:', error);
-        }
-        return [];
+        console.warn('Error fetching fixtures:', error);
+        return []; // Return empty array on error
       }
     },
-    staleTime: 180000, // 3 minutes
-    gcTime: 300000, // 5 minutes
-    refetchInterval: false,
-    retry: (failureCount, error) => {
-      // Don't retry on abort errors or rate limits
-      if (error?.name === 'AbortError' || error?.message?.includes('429')) {
-        return false;
-      }
-      return failureCount < 2;
-    },
-    retryDelay: 3000,
-    enabled: !!selectedDate,
+    staleTime: 120000, // 2 minutes - increased from 30 seconds
+    gcTime: 600000, // 10 minutes
+    refetchInterval: false, // Disable automatic refetch
+    retry: 1, // Only retry once
+    retryDelay: 2000,
+    enabled: !!selectedDate, // Only run if selectedDate exists
   });
 
   // Memoize the filtered fixtures to prevent unnecessary re-renders
