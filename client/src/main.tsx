@@ -113,6 +113,20 @@ if (typeof window !== 'undefined') {
 
 // Enhanced EventEmitter management for Replit
 if (typeof window !== 'undefined') {
+  // Handle uncaught promise rejections
+  window.addEventListener('unhandledrejection', (event) => {
+    const error = event.reason;
+    if (error?.name === 'AbortError' || 
+        error?.message?.includes('timeout') ||
+        error?.message?.includes('background.js') ||
+        error?.message?.includes('workspace_iframe')) {
+      console.log('🔧 Suppressed expected error:', error?.message || error);
+      event.preventDefault();
+      return;
+    }
+    console.warn('Unhandled promise rejection:', error);
+  });
+
   // Suppress stallwart and fsError warnings
   const originalConsoleWarn = console.warn;
   console.warn = (...args) => {
@@ -124,7 +138,10 @@ if (typeof window !== 'undefined') {
       message.includes('failed ping') ||
       message.includes('changes listeners added') ||
       message.includes('watchTextFile') ||
-      message.includes('Possible EventEmitter memory leak')
+      message.includes('Possible EventEmitter memory leak') ||
+      message.includes('SyntaxError') ||
+      message.includes('background.js') ||
+      message.includes('workspace_iframe')
     ) {
       return; // Suppress these warnings
     }

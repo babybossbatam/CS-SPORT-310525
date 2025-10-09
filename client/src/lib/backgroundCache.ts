@@ -126,18 +126,22 @@ export const backgroundCache = new BackgroundCache();
 
 // Helper functions for common prefetch patterns
 export const prefetchMatchData = async (fixtureId: number) => {
-  const endpoints = [
-    `/api/fixtures/${fixtureId}`,
-    `/api/fixtures/${fixtureId}/lineups`,
-    `/api/fixtures/${fixtureId}/statistics`,
-    `/api/fixtures/${fixtureId}/events`
-  ];
+  try {
+    const endpoints = [
+      `/api/fixtures/${fixtureId}`,
+      `/api/fixtures/${fixtureId}/lineups`,
+      `/api/fixtures/${fixtureId}/statistics`,
+      `/api/fixtures/${fixtureId}/events`
+    ];
 
-  const promises = endpoints.map(endpoint => 
-    backgroundCache.prefetch(endpoint, 'normal')
-  );
+    const promises = endpoints.map(endpoint => 
+      backgroundCache.prefetch(endpoint, 'normal')
+    );
 
-  await Promise.allSettled(promises);
+    await Promise.allSettled(promises);
+  } catch (error) {
+    console.warn('Error prefetching match data:', error);
+  }
 };
 
 export const prefetchLeagueData = async (leagueId: number, season: number) => {

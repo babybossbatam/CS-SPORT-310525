@@ -193,6 +193,10 @@ function App() {
       event.reason?.message?.includes("unknown runtime error") ||
       event.reason?.message?.includes("sendError") ||
       event.reason?.message?.includes("Too many re-renders") ||
+      event.reason?.message?.includes("timeout") ||
+      event.reason?.message?.includes("AbortError") ||
+      event.reason?.message?.includes("background.js") ||
+      event.reason?.message?.includes("workspace_iframe") ||
       event.reason?.toString()?.includes("riker.replit.dev") ||
       event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
       (typeof event.reason === "string" &&

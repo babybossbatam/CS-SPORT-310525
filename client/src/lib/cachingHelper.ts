@@ -57,8 +57,12 @@ export const CacheManager = {
       // Trigger background refresh if stale
       if (age > maxAge) {
         setTimeout(() => {
-          console.log(`🔄 [CacheManager] Background refresh triggered for: ${cacheKey}`);
-          queryClient.invalidateQueries({ queryKey, refetchType: 'active' });
+          try {
+            console.log(`🔄 [CacheManager] Background refresh triggered for: ${cacheKey}`);
+            queryClient.invalidateQueries({ queryKey, refetchType: 'active' });
+          } catch (error) {
+            console.warn(`Failed to trigger background refresh for ${cacheKey}:`, error);
+          }
         }, 100);
       }
       
