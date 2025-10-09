@@ -151,16 +151,6 @@ const userSlice = createSlice({
     },
     setAuthenticated: (state, action: PayloadAction<boolean>) => {
       state.isAuthenticated = action.payload;
-      state.isLoading = false;
-
-      // Persist authentication state
-      if (action.payload) {
-        localStorage.setItem('isAuthenticated', 'true');
-      } else {
-        localStorage.removeItem('isAuthenticated');
-        localStorage.removeItem('user');
-        localStorage.removeItem('userPreferences');
-      }
     },
     setUser: (state, action: PayloadAction<{ id: number; username: string; email: string }>) => {
       state.id = action.payload.id;
@@ -168,15 +158,9 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.isAuthenticated = true;
       state.isLoading = false;
-
-      // Persist user data
-      localStorage.setItem('user', JSON.stringify(action.payload));
-      localStorage.setItem('isAuthenticated', 'true');
     },
     setUserPreferences: (state, action: PayloadAction<UserState['preferences']>) => {
       state.preferences = action.payload;
-      // Persist preferences
-      localStorage.setItem('userPreferences', JSON.stringify(action.payload));
     },
     addFavoriteTeam: (state, action: PayloadAction<string>) => {
       if (!state.preferences.favoriteTeams.includes(action.payload)) {
@@ -226,11 +210,6 @@ const userSlice = createSlice({
         favoriteMatches: [],
         region: 'global',
       };
-
-      // Clear persisted data
-      localStorage.removeItem('user');
-      localStorage.removeItem('isAuthenticated');
-      localStorage.removeItem('userPreferences');
     },
   },
 });
@@ -405,16 +384,8 @@ const uiSlice = createSlice({
     resetAccessibility: (state) => {
       state.accessibility = initialUIState.accessibility;
     },
-    // This was an undefined property in the original code. Assuming it should toggle 'sidebarCollapsed'.
-    // If 'sidebarCollapsed' is not a property of UIState, this might cause an error.
-    // For now, let's assume it's intended to toggle some sidebar state.
     toggleSidebar: (state) => {
-      // If 'sidebarCollapsed' is a state property, this is how you'd toggle it:
-      // state.sidebarCollapsed = !state.sidebarCollapsed;
-      // Since it's not defined, we'll leave it as is or add a placeholder if needed.
-      // For demonstration, let's add it to UIState and toggle it.
-      // If this causes issues, it means UIState needs to be defined with sidebarCollapsed.
-      // For now, assuming it's a typo or meant for a different context.
+      state.sidebarCollapsed = !state.sidebarCollapsed;
     },
     toggleDarkMode: (state) => {
       state.darkMode = !state.darkMode;

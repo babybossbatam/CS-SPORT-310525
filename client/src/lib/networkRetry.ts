@@ -54,11 +54,7 @@ export class NetworkRetryManager {
       errorStr.includes('err_internet_disconnected') ||
       errorStr.includes('websocket') ||
       errorStr.includes('timeout') ||
-      errorStr.includes('net::err_') ||
-      error.name === 'NetworkError' ||
-      error.message?.includes('fetch') ||
-      error.message?.includes('network') ||
-      error.code === 'NETWORK_ERROR'
+      errorStr.includes('net::err_')
     );
   }
 

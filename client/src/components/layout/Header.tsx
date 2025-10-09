@@ -21,7 +21,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import PrivacySettingsModal from "@/components/modals/PrivacySettingsModal";
 import { useToast } from "@/hooks/use-toast";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState, userActions } from "@/lib/store";
 import React from "react";
 import { useDeviceInfo, useMobileViewport } from "@/hooks/use-mobile";
@@ -51,9 +51,10 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
   const { isMobile, isTablet, isPortrait } = useDeviceInfo();
   useMobileViewport();
 
-  const { username } = useSelector(
-    (state: RootState) => state.user,
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.user.isAuthenticated,
   );
+  const username = useSelector((state: RootState) => state.user.username);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +64,15 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
     setSearchOpen(false);
     navigateWithLanguage(`/search?q=${encodeURIComponent(searchQuery)}`);
     setSearchQuery("");
+  };
+
+  const handleLogout = () => {
+    dispatch(userActions.logout());
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out of your account.",
+    });
+    navigateWithLanguage("/");
   };
 
   const getCountryNameFromLanguage = (lang: string): string => {
@@ -157,7 +167,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
         >
           <img
             src="/CSSPORT_1_updated.png"
-            alt="CSSport Logo"
+            alt="CS SPORT Logo"
             className={cn(
               "w-auto mr-2 transition-all duration-200 hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
               isMobile ? "h-8 max-h-8" : "h-full max-h-[57px]",
@@ -202,7 +212,9 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               "flex items-center text-white hover:text-amber-400 transition-colors duration-200 cursor-pointer",
               isMobile ? "text-xs" : "text-sm",
             )}
-            onClick={() => navigateWithLanguage("/")}
+            onClick={() =>
+              isAuthenticated ? navigateWithLanguage("/my-scores") : navigateWithLanguage("/login")
+            }
           >
             <Star
               className={cn(
@@ -211,7 +223,7 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
               )}
             />
             <span className={cn(isMobile ? "text-xs" : "")}>
-              Home
+              {t("myScores")}
             </span>
           </div>
 
@@ -496,10 +508,76 @@ const Header: React.FC<HeaderProps> = ({ showTextOnMobile = false }) => {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Welcome message or branding */}
-          <div className="flex items-center space-x-2 text-white text-sm">
-            <span className="text-amber-400">Welcome to CS Sport</span>
-          </div>
+          {isAuthenticated && (
+            <div
+              className={cn(
+                "flex items-center font-semibold text-white transition-colors duration-200 cursor-pointer",
+                isMobile ? "text-xs ml-2" : "text-sm ml-4",
+              )}
+            >
+              {isMobile ? (
+                // Mobile: Show avatar circle with initials
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-8 h-8 bg-gradient-to-br from-amber-300 via-yellow-500 to-orange-500 rounded-full flex items-center justify-center text-black text-xs font-bold transition-all duration-200 hover:scale-105"
+                    title={
+                      username
+                        ? username.charAt(0).toUpperCase() + username.slice(1)
+                        : ""
+                    }
+                  >
+                    {username ? username.charAt(0).toUpperCase() : "U"}
+                  </div>
+                  <span
+                    className={`cursor-pointer transition-colors duration-200 ${
+                      activeHover === "logout"
+                        ? "text-amber-300"
+                        : "hover:text-amber-300"
+                    }`}
+                    onClick={handleLogout}
+                    onMouseEnter={() => setActiveHover("logout")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    Logout
+                  </span>
+                </div>
+              ) : (
+                // Desktop: Show full username
+                <>
+                  <span
+                    className={`transition-colors duration-200 ${
+                      activeHover === "username"
+                        ? "text-amber-400"
+                        : activeHover === "logout"
+                          ? "text-white"
+                          : "hover:text-amber-400"
+                    }`}
+                    onMouseEnter={() => setActiveHover("username")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    {username
+                      ? username.charAt(0).toUpperCase() + username.slice(1)
+                      : ""}
+                  </span>
+                  <span>, </span>
+                  <span
+                    className={`cursor-pointer transition-colors duration-200 ${
+                      activeHover === "logout"
+                        ? "text-amber-300"
+                        : activeHover === "username"
+                          ? "text-white"
+                          : "hover:text-amber-300"
+                    }`}
+                    onClick={handleLogout}
+                    onMouseEnter={() => setActiveHover("logout")}
+                    onMouseLeave={() => setActiveHover(null)}
+                  >
+                    Logout
+                  </span>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

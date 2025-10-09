@@ -1,4 +1,3 @@
-
 import React, { useState, Suspense, lazy } from 'react';
 import MyLiveAction from '@/components/matches/MyLiveAction';
 import { useDeviceInfo } from '@/hooks/use-mobile';
@@ -22,7 +21,7 @@ import MyHeadtoheadTabsCard from '@/components/matches/MyHeadtoheadTabsCard';
 // Lazy load MobileBottomNav component
 const MobileBottomNav = lazy(() => import('@/components/layout/MobileBottomNav'));
 
-interface MatchDetailLayoutProps {
+interface MyMainLayoutProps {
   selectedMatchId?: number;
   selectedMatch?: any;
   children?: React.ReactNode;
@@ -56,7 +55,7 @@ const isValidDate = (dateString: string): boolean => {
          isReasonableYear;
 };
 
-const MatchDetailLayout: React.FC<MatchDetailLayoutProps> = ({
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   selectedMatchId,
   selectedMatch,
   children,
@@ -66,7 +65,7 @@ const MatchDetailLayout: React.FC<MatchDetailLayoutProps> = ({
 }) => {
   // Validate selectedDate prop - only warn for clearly invalid formats
   if (selectedDate && selectedDate !== 'today' && selectedDate && !/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
-    console.warn(`🚨 [MatchDetailLayout] Invalid selectedDate format: ${selectedDate}`);
+    console.warn(`🚨 [MyMainLayout] Invalid selectedDate format: ${selectedDate}`);
   }
 
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
@@ -155,4 +154,4 @@ const MatchDetailLayout: React.FC<MatchDetailLayoutProps> = ({
   );
 };
 
-export default MatchDetailLayout;
+export default MyMainLayout;

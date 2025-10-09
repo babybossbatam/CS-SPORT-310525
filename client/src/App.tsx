@@ -1,4 +1,3 @@
-
 import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,10 +15,11 @@ import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import LanguageToast from "./components/common/LanguageToast";
-// Removed conflicting BrowserRouter import
+import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
+
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
 const Football = lazy(() => import(/* webpackChunkName: "football" */ "@/pages/Football"));
@@ -32,6 +32,7 @@ const HorseRacing = lazy(() => import(/* webpackChunkName: "horse-racing" */ "@/
 const Snooker = lazy(() => import(/* webpackChunkName: "snooker" */ "@/pages/Snooker"));
 const Esport = lazy(() => import(/* webpackChunkName: "esport" */ "@/pages/Esport"));
 const MatchDetails = lazy(() => import(/* webpackChunkName: "match-details" */ "@/pages/MatchDetails"));
+const Authentication = lazy(() => import(/* webpackChunkName: "auth" */ "@/pages/Authentication"));
 const LeagueDetails = lazy(() => import(/* webpackChunkName: "league-details" */ "@/pages/LeagueDetails"));
 const MyScores = lazy(() => import(/* webpackChunkName: "my-scores" */ "@/pages/MyScores"));
 
@@ -72,26 +73,27 @@ const AppWithLanguageRouting = () => {
   );
 };
 
-// Separate component for routes
-const AppRoutes = () => {
-  return (
-    <Switch>
-      {/* Public routes with language prefix */}
-      <Route path="/:lang" component={Home} />
-      <Route path="/:lang/" component={Home} />
-      <Route path="/:lang/football" component={Football} />
-      <Route path="/:lang/basketball" component={Basketball} />
-      <Route path="/:lang/tv" component={TV} />
-      <Route path="/:lang/horse-racing" component={HorseRacing} />
-      <Route path="/:lang/snooker" component={Snooker} />
-      <Route path="/:lang/esport" component={Esport} />
-      <Route path="/:lang/match/:matchId" component={MatchDetails} />
-      <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
-      <Route path="/:lang/my-scores" component={MyScores} />
+      // Separate component for routes
+      const AppRoutes = () => {
+        return (
+          <Switch>
+            {/* Routes with language prefix */}
+            <Route path="/:lang" component={Home} />
+            <Route path="/:lang/" component={Home} />
+            <Route path="/:lang/football" component={Football} />
+            <Route path="/:lang/basketball" component={Basketball} />
+            <Route path="/:lang/tv" component={TV} />
+            <Route path="/:lang/horse-racing" component={HorseRacing} />
+            <Route path="/:lang/snooker" component={Snooker} />
+            <Route path="/:lang/esport" component={Esport} />
+            <Route path="/:lang/match/:matchId" component={MatchDetails} />
+            <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
+            <Route path="/:lang/my-scores" component={MyScores} />
+            <Route path="/:lang/login" component={Authentication} />
 
-      {/* Fallback routes without language (redirect to home) */}
-      <Route path="/" component={() => {
-        window.location.href = "/en";
+            {/* Fallback routes without language (redirect to default language) */}
+            <Route path="/" component={() => {
+              window.location.href = "/en";
         return null;
       }} />
       <Route path="/football" component={() => {
@@ -108,6 +110,14 @@ const AppRoutes = () => {
     </Switch>
   );
 };
+const Settings = lazy(() => import("@/pages/Settings"));
+const SearchResults = lazy(() => import("@/pages/SearchResults"));
+const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
+const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
+const NewsPage = lazy(() => import("@/pages/NewsPage"));
+const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
+import Scores365Page from "./pages/Scores365Page";
+import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
 
 // Mock functions for cache refresh and preloading (replace with actual implementation)
 const setupCacheRefresh = () => {
@@ -118,7 +128,7 @@ const setupCacheRefresh = () => {
   // }, 30 * 60 * 1000); // Every 30 minutes
 };
 
-const cleanupCacheRefresh = (intervalId: any) => {
+const cleanupCacheRefresh = (intervalId) => {
   // Implement cleanup logic, e.g., clearInterval
   if (intervalId) {
     clearInterval(intervalId);
@@ -129,9 +139,12 @@ const preloadData = () => {
   // Implement logic to preload data for components
 };
 
+
+
+
+
 function App() {
   useEffect(() => {
-
     // Force mobile-first layout immediately
     const isMobileCheck = window.innerWidth < 768;
     if (isMobileCheck) {

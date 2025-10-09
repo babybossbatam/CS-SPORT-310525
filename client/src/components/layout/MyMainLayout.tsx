@@ -25,9 +25,10 @@ interface MyMainLayoutProps {
   children?: React.ReactNode;
 }
 
-const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
-  fixtures = [],
+const MyMainLayout: React.FC<MyMainLayoutProps> = ({
+  fixtures,
   loading = false,
+  children,
 }) => {
   const user = useSelector((state: RootState) => state.user);
   const { currentFixture } = useSelector((state: RootState) => state.fixtures);
@@ -36,53 +37,33 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
-
+  
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
-  // Placeholder for currentDate, timeFilterActive, setTimeFilterActive, showTop20, setShowTop20, liveFilterActive, setLiveFilterActive
-  // These should ideally be managed by a parent component or context if they are shared
-  const currentDate = selectedDate; // Assuming selectedDate is what's used for current date display
-  const [timeFilterActive, setTimeFilterActive] = useState(false);
-  const [showTop20, setShowTop20] = useState(false);
-  const [liveFilterActive, setLiveFilterActive] = useState(false);
-
-  // Simplified fixture filtering with error handling
+  // Simplified fixture filtering
   const filteredFixtures = useMemo(() => {
-    try {
-      if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
-        console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
-        return [];
-      }
-
-      console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
-
-      const filtered = fixtures.filter((fixture) => {
-        try {
-          if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
-            return false;
-          }
-
-          // Extract UTC date from fixture date
-          const fixtureUTCDate = new Date(fixture.fixture.date);
-          if (isNaN(fixtureUTCDate.getTime())) {
-            console.warn('Invalid fixture date:', fixture.fixture.date);
-            return false;
-          }
-          
-          const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
-          return fixtureDateString === selectedDate;
-        } catch (error) {
-          console.warn('Error filtering fixture:', error, fixture);
-          return false;
-        }
-      });
-
-      console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
-      return filtered;
-    } catch (error) {
-      console.error('Error in fixture filtering:', error);
+    if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
+      console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
       return [];
     }
+
+    console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+
+    const filtered = fixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
+        return false;
+      }
+
+      // Extract UTC date from fixture date
+      const fixtureUTCDate = new Date(fixture.fixture.date);
+      const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
+
+      return fixtureDateString === selectedDate;
+    });
+
+    console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+    
+    return filtered;
   }, [fixtures, selectedDate]);
 
   const handleMatchClick = (matchId: number) => {
@@ -139,37 +120,17 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
               }}
             >
               {/* Render children if provided, otherwise show TodayMatchPageCard */}
-              <div>
-                {loading ? (
-                  <Card className="h-[600px]">
-                    <CardContent className="p-4">
-                      <div className="space-y-4">
-                        {[...Array(8)].map((_, i) => (
-                          <Skeleton key={i} className="h-16 w-full" />
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ) : (
-                  <Suspense fallback={
-                    <Card className="h-[600px]">
-                      <CardContent className="p-4">
-                        <div className="space-y-4">
-                          {[...Array(3)].map((_, i) => (
-                            <Skeleton key={i} className="h-16 w-full" />
-                          ))}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  }>
-                    <TodayMatchPageCard
-                      fixtures={filteredFixtures}
-                      onMatchClick={handleMatchClick}
-                      onMatchCardClick={handleMatchCardClick}
-                    />
-                  </Suspense>
-                )}
-              </div>
+              {children ? (
+                <div>{children}</div>
+              ) : (
+                <div>
+                  <TodayMatchPageCard
+                    fixtures={filteredFixtures}
+                    onMatchClick={handleMatchClick}
+                    onMatchCardClick={handleMatchCardClick}
+                  />
+                </div>
+              )}
             </div>
           )}
 
@@ -199,8 +160,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
       </div>
     </>
   );
-});
-
-MyMainLayout.displayName = 'MyMainLayout';
+};
 
 export default MyMainLayout;

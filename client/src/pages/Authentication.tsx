@@ -234,8 +234,8 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const pathParts = currentPath.split("/").filter((part) => part);
       const currentLang = pathParts[0] || "en";
 
-      // Navigate to Home page after successful login
-      navigate(`/${currentLang}`);
+      // Navigate immediately after state is set
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Login failed:", error);
       dispatch(userActions.setLoading(false));
@@ -273,31 +273,13 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       return;
     }
 
-    // Enhanced phone number validation
+    // Validate phone number format
     const selectedCountry = countryCodes.find(c => c.code === selectedCountryCode);
     const phoneNumberWithoutCode = phoneNumber.replace(selectedCountryCode, "");
-    
-    if (!phoneNumberWithoutCode || phoneNumberWithoutCode.length < 7) {
+    if (phoneNumberWithoutCode.length !== (selectedCountry?.digits || 8)) {
       toast({
         title: "Invalid Phone Number",
-        description: `Please enter a valid phone number`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // For Hong Kong and China, be more flexible with length validation
-    if (selectedCountryCode === "+852" && phoneNumberWithoutCode.length !== 8) {
-      toast({
-        title: "Invalid Hong Kong Phone Number",
-        description: "Hong Kong phone numbers should be 8 digits",
-        variant: "destructive",
-      });
-      return;
-    } else if (selectedCountryCode === "+86" && phoneNumberWithoutCode.length !== 11) {
-      toast({
-        title: "Invalid China Phone Number", 
-        description: "China phone numbers should be 11 digits",
+        description: `Please enter a valid ${selectedCountry?.country} phone number`,
         variant: "destructive",
       });
       return;
@@ -305,61 +287,27 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
 
     setIsSendingCode(true);
     try {
-      console.log('📱 Sending SMS to:', phoneNumber);
-      
-      // Use fetch with timeout for better error handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
-      const response = await fetch("/api/verification/send-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-        body: JSON.stringify({
-          phoneNumber: phoneNumber,
-          countryCode: selectedCountryCode
-        }),
-        signal: controller.signal
+      // Use the existing apiRequest function for consistency
+      const response = await apiRequest("POST", "/api/verification/send-verification", {
+        phoneNumber: phoneNumber,
       });
-      
-      clearTimeout(timeoutId);
-
-      console.log('📱 SMS Response status:', response.status);
 
       // Check if response is JSON
       const contentType = response.headers.get('content-type');
-      console.log('📱 [SMS Response] Content-Type:', contentType);
-      
       if (!contentType || !contentType.includes('application/json')) {
         const text = await response.text();
-        console.error('❌ Non-JSON response received:', {
-          status: response.status,
-          contentType,
-          textLength: text.length,
-          textPreview: text.substring(0, 200)
-        });
-        
-        // If we get HTML instead of JSON, it's likely a server error
-        if (text.includes('<!DOCTYPE') || text.includes('<html')) {
-          throw new Error('Server error - received HTML instead of JSON response. Please try again.');
-        } else if (text.length > 10000) {
-          throw new Error('Server returned oversized response. Please try again.');
-        } else {
-          throw new Error('Server returned invalid response format');
-        }
+        console.error('❌ Non-JSON response received:', text.substring(0, 200));
+        throw new Error('Server returned invalid response format');
       }
 
       const data = await response.json();
-      console.log('📱 SMS Response data:', data);
 
       if (response.ok && data.success) {
         setCodeSent(true);
         setCountdown(60); // 60 second countdown
         toast({
           title: "Verification Code Sent",
-          description: `SMS code sent to ${phoneNumber} via ${data.provider || 'SMS service'}. Please check your messages.`,
+          description: `SMS code sent to ${phoneNumber}. Please check your messages.`,
         });
 
         // Focus on verification code input
@@ -373,22 +321,12 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
         throw new Error(data.error || "Failed to send verification code");
       }
     } catch (error) {
-      console.error("❌ Failed to send verification code:", error);
+      console.error("Failed to send verification code:", error);
 
       let errorMessage = 'Failed to send verification code';
       if (error instanceof Error) {
-        if (error.name === 'AbortError') {
-          errorMessage = 'Request timeout - please try again';
-        } else if (error.message.includes('Server returned invalid response') || error.message.includes('HTML')) {
+        if (error.message.includes('Server returned invalid response')) {
           errorMessage = 'Server error - please try again later';
-        } else if (error.message.includes('IP')) {
-          errorMessage = 'SMS service configuration error. Please contact support.';
-        } else if (error.message.includes('authentication')) {
-          errorMessage = 'SMS service authentication failed. Please try again.';
-        } else if (error.message.includes('timeout')) {
-          errorMessage = 'Request timeout - please try again';
-        } else if (error.message.includes('fetch')) {
-          errorMessage = 'Network error - check your connection';
         } else {
           errorMessage = error.message;
         }
@@ -477,7 +415,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const currentLang = pathParts[0] || "en";
 
       // Navigate to home page immediately
-      navigate(`/${currentLang}`);
+      navigate(`/${currentLang}/football`);
     } catch (error) {
       console.error("Registration failed:", error);
       toast({
@@ -954,15 +892,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
                         />
                         <Button
                           type="button"
-                          onClick={() => {
-                            console.log('🔘 SMS Button clicked');
-                            const phone = registerForm.getValues("phoneNumber");
-                            console.log('📱 Current phone value:', phone);
-                            console.log('🌍 Selected country code:', selectedCountryCode);
-                            console.log('⏰ Current countdown:', countdown);
-                            console.log('📤 Is sending:', isSendingCode);
-                            sendVerificationCode();
-                          }}
+                          onClick={sendVerificationCode}
                           disabled={isSendingCode || countdown > 0}
                           className="absolute right-2 top-1/2 transform -translate-y-1/2 h-10 px-6 rounded-full bg-white/20 hover:bg-white/30 text-white font-large disabled:opacity-50 disabled:cursor-not-allowed"
                           style={{ fontSize: "14px" }}
