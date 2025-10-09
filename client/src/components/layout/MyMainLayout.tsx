@@ -7,6 +7,7 @@ import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 import { useTranslation } from "@/contexts/LanguageContext";
+import { CacheManager } from "@/lib/cachingHelper";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,9 +41,15 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
-  // Simplified fixture filtering
+  // Optimized fixture filtering with immediate cache check
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
+      // Try to get cached data immediately
+      const cachedData = CacheManager.getCachedData([`fixtures-${selectedDate}`]);
+      if (cachedData) {
+        console.log(`⚡ [MyMainLayout] Using cached data for ${selectedDate}`);
+        return cachedData;
+      }
       console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
       return [];
     }
@@ -62,6 +69,9 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     });
 
     console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+    
+    // Cache the filtered results
+    CacheManager.setCachedData([`fixtures-${selectedDate}`], filtered);
     
     return filtered;
   }, [fixtures, selectedDate]);

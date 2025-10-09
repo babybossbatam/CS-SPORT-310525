@@ -28,6 +28,7 @@ import {
 } from "@/lib/MyPopularLeagueExclusion";
 import { useDeviceInfo } from '@/hooks/use-mobile';
 import MyRightContent from '@/components/layout/MyRightContent';
+import { CacheManager } from '@/lib/cachingHelper';
 
 
 interface TodayMatchPageCardProps {
@@ -49,6 +50,29 @@ export const TodayMatchPageCard = ({
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
   const { isMobile } = useDeviceInfo();
+
+  const [cachedFixtures, setCachedFixtures] = useState<any[]>([]);
+
+  // Load cached data immediately on mount
+  useEffect(() => {
+    const cachedData = CacheManager.getCachedData([`today-matches-${selectedDate}`]);
+    if (cachedData) {
+      console.log(`⚡ [TodayMatchPageCard] Loaded cached fixtures for ${selectedDate}`);
+      setCachedFixtures(cachedData);
+    }
+  }, [selectedDate]);
+
+  // Update cache when new fixtures arrive
+  useEffect(() => {
+    if (fixtures?.length) {
+      CacheManager.setCachedData([`today-matches-${selectedDate}`], fixtures);
+      setCachedFixtures(fixtures);
+    }
+  }, [fixtures, selectedDate]);
+
+  // Use cached fixtures if available, fallback to props
+  const displayFixtures = fixtures?.length ? fixtures : cachedFixtures;
+
 
   // Calendar translation helpers
   const getMonthName = (monthIndex: number): string => {
@@ -487,7 +511,7 @@ export const TodayMatchPageCard = ({
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
-          fixtures={sharedAllFixtures} // Pass shared fixtures
+          fixtures={displayFixtures} // Use displayFixtures which includes cached data
         />
       ) : (
         // Neither filter active - show default view

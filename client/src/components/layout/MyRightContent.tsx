@@ -1,6 +1,7 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
+import { CacheManager } from "@/lib/cachingHelper";
 // import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew"; // Lazy loaded
 // import HomeTopScorersList from "@/components/leagues/HomeTopScorersList"; // Lazy loaded
 // import LeagueStandingsFilter from "@/components/leagues/LeagueStandingsFilter"; // Lazy loaded
@@ -27,7 +28,17 @@ const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
+  const [cachedData, setCachedData] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
+
+  // Load cached data immediately on mount
+  useEffect(() => {
+    const cached = CacheManager.getCachedData([`right-content-${selectedDate}`]);
+    if (cached) {
+      console.log(`⚡ [MyRightContent] Loaded cached data for ${selectedDate}`);
+      setCachedData(cached);
+    }
+  }, [selectedDate]);
 
   const handleMatchCardClick = (fixture: any) => {
     console.log("🎯 [MyRightContent] Match selected:", {

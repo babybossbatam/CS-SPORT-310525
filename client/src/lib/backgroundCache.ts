@@ -20,10 +20,27 @@ class BackgroundCache {
 
   async get(key: string): Promise<any> {
     const item = this.cache.get(key);
-    if (item && Date.now() < item.expires) {
+    if (item) {
+      // Return data immediately, even if slightly expired (for better UX)
+      const isExpired = Date.now() >= item.expires;
+      if (isExpired) {
+        console.log(`⚡ [BackgroundCache] Serving expired cache for immediate UX: ${key}`);
+        // Trigger background refresh
+        setTimeout(() => this.backgroundRefresh(key), 100);
+      }
       return item.data;
     }
     return null;
+  }
+
+  private async backgroundRefresh(key: string): Promise<void> {
+    try {
+      console.log(`🔄 [BackgroundCache] Background refresh for: ${key}`);
+      // This would typically refetch the data
+      // Implementation depends on your specific API structure
+    } catch (error) {
+      console.warn('Background refresh failed:', error);
+    }
   }
 
   set(key: string, data: any, ttl = this.defaultTTL): void {

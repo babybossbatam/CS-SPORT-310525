@@ -9,7 +9,7 @@ interface CachedQueryOptions<T> extends Partial<UseQueryOptions<T>> {
   backgroundRefresh?: boolean;
 }
 
-// Simplified cached query hook - selective fetching approach
+// Enhanced cached query hook with immediate cache serving
 export const useCachedQuery = <T>(
   queryKey: string[],
   queryFn: () => Promise<T>,
@@ -18,6 +18,7 @@ export const useCachedQuery = <T>(
   const {
     forceRefresh = false,
     maxAge = 30 * 60 * 1000,
+    backgroundRefresh = true,
     ...queryOptions
   } = options;
 
@@ -25,34 +26,42 @@ export const useCachedQuery = <T>(
     queryKey,
     queryFn,
     enabled: queryOptions.enabled !== false,
-    staleTime: maxAge,
-    gcTime: maxAge * 2, // Reduce memory usage
+    staleTime: backgroundRefresh ? 0 : maxAge, // Always serve cache immediately
+    gcTime: maxAge * 3, // Keep cache longer
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: backgroundRefresh ? 'always' : false, // Refresh in background
     refetchOnReconnect: false,
-    retry: 1,
+    retry: 2,
+    networkMode: 'offlineFirst', // Prioritize cache
+    placeholderData: (previousData) => previousData, // Keep previous data while loading
     ...queryOptions,
   });
 };
 
-// Smart cache manager
+// Smart cache manager with immediate serving
 export const CacheManager = {
-  // Get cached data with freshness check and localStorage fallback
+  // Get cached data immediately, regardless of freshness
   getCachedData: <T>(queryKey: string[], maxAge: number = 30 * 60 * 1000): T | null => {
     const cacheKey = queryKey.join('-');
     const data = queryClient.getQueryData<T>(queryKey);
     const state = queryClient.getQueryState(queryKey);
     
-    console.log(`🔍 [CacheManager] Checking cache for: ${cacheKey}`, {
-      hasData: !!data,
-      dataUpdatedAt: state?.dataUpdatedAt,
-      age: state?.dataUpdatedAt ? Date.now() - state.dataUpdatedAt : null,
-      maxAge,
-      isFresh: data && state?.dataUpdatedAt ? CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge) : false
-    });
-    
-    if (data && state?.dataUpdatedAt && CACHE_FRESHNESS.isFresh(state.dataUpdatedAt, maxAge)) {
-      console.log(`✅ [CacheManager] Cache hit for: ${cacheKey}`);
+    // ALWAYS return cached data if available (for immediate display)
+    if (data) {
+      const age = state?.dataUpdatedAt ? Date.now() - state.dataUpdatedAt : 0;
+      console.log(`⚡ [CacheManager] Immediate cache serve for: ${cacheKey}`, {
+        age: Math.floor(age / 1000) + 's',
+        isFresh: age < maxAge
+      });
+      
+      // Trigger background refresh if stale
+      if (age > maxAge) {
+        setTimeout(() => {
+          console.log(`🔄 [CacheManager] Background refresh triggered for: ${cacheKey}`);
+          queryClient.invalidateQueries({ queryKey, refetchType: 'active' });
+        }, 100);
+      }
+      
       return data;
     }
     
@@ -62,12 +71,23 @@ export const CacheManager = {
       if (cached) {
         const { data: localData, timestamp } = JSON.parse(cached);
         const age = Date.now() - timestamp;
-        console.log(`💾 [CacheManager] localStorage check for ${cacheKey}:`, { age, maxAge, valid: age < maxAge });
         
-        if (age < maxAge) {
-          console.log(`📂 [CacheManager] localStorage hit for: ${cacheKey}`);
+        // Return localStorage data regardless of age for immediate display
+        if (localData) {
+          console.log(`📂 [CacheManager] localStorage immediate serve for: ${cacheKey}`, {
+            age: Math.floor(age / 1000) + 's'
+          });
+          
           // Store back in React Query cache
           queryClient.setQueryData(queryKey, localData);
+          
+          // Trigger background refresh if stale
+          if (age > maxAge) {
+            setTimeout(() => {
+              queryClient.invalidateQueries({ queryKey, refetchType: 'active' });
+            }, 100);
+          }
+          
           return localData;
         }
       }
@@ -75,7 +95,7 @@ export const CacheManager = {
       console.error('Error reading from localStorage cache:', error);
     }
     
-    console.log(`❌ [CacheManager] Cache miss for: ${cacheKey}`);
+    console.log(`❌ [CacheManager] No cache available for: ${cacheKey}`);
     return null;
   },
 

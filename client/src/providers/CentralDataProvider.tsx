@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/lib/store';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppDispatch } from '@/lib/store';
 import { fixturesActions } from '@/lib/store';
@@ -6,6 +8,7 @@ import { FixtureResponse } from '@/types/fixtures';
 import { CACHE_DURATIONS } from '@/lib/cacheConfig';
 import { MySmartTimeFilter } from '@/lib/MySmartTimeFilter';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
+import { CacheManager } from '@/lib/cachingHelper';
 
 interface CentralDataContextType {
   fixtures: FixtureResponse[];
@@ -29,6 +32,9 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
 
   // Ensure selectedDate is a valid date string, otherwise default to today
   const validDate = selectedDate || new Date().toISOString().slice(0, 10);
+
+  // State for immediate data serving
+  const [hasImmediateData, setHasImmediateData] = useState(false);
 
   // Single source of truth for date fixtures
   const {
@@ -93,6 +99,9 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         });
 
         console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
+
+        // Cache the fetched data
+        CacheManager.cacheData([`central-fixtures-${validDate}`], basicFiltered);
 
         // Update Redux store with all valid fixtures
         dispatch(fixturesActions.setFixturesByDate({
@@ -244,6 +253,23 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     enabled: !!validDate,
   });
 
+  // Load cached data immediately on date change
+  useEffect(() => {
+    const cachedData = CacheManager.getCachedData([`central-fixtures-${validDate}`]);
+    if (cachedData) {
+      console.log(`⚡ [CentralDataProvider] Immediate cache serve for ${validDate}`);
+      // Dispatching directly to Redux here to ensure consistency if components rely on it
+      dispatch(fixturesActions.setFixturesByDate({
+        date: validDate,
+        fixtures: cachedData as any
+      }));
+      setHasImmediateData(true);
+    } else {
+      setHasImmediateData(false); // Reset if no cache found for the new date
+    }
+  }, [validDate, dispatch]);
+
+
   // Single source of truth for live fixtures
   const {
     data: liveFixtures = [],
@@ -348,7 +374,10 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         queryFn: async () => {
           const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
           if (!response.ok) return [];
-          return response.json();
+          const data: FixtureResponse[] = await response.json();
+          // Cache the prefetched data
+          CacheManager.cacheData([`central-fixtures-${tomorrowStr}`], data);
+          return data;
         },
         staleTime: CACHE_DURATIONS.FOUR_HOURS,
       });
@@ -360,7 +389,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   const contextValue: CentralDataContextType = {
     fixtures: dateFixtures,
     liveFixtures,
-    isLoading: isLoadingDate || isLoadingLive,
+    isLoading: isLoadingDate && !hasImmediateData, // Only show loading if no immediate data is available
     error: dateError?.message || liveError?.message || null,
     refetchLive,
     refetchDate

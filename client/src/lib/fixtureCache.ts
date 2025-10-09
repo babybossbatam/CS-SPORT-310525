@@ -697,16 +697,49 @@ class FixtureCache {
   }
 
   /**
-   * Check if we need fresh data for a date (improved logic)
+   * Check if we need fresh data for a date (optimized for immediate serving)
    */
   shouldFetchFresh(date: string): boolean {
     const today = new Date().toISOString().slice(0, 10);
     const cached = this.getCachedFixturesForDate(date);
 
-    // If no cache exists, we need fresh data
+    // ALWAYS return cached data first if available (for immediate display)
+    // Then determine if background refresh is needed
     if (!cached) {
       console.log(`🔍 [fixtureCache] No cache found for ${date}, fetching fresh data`);
       return true;
+    }
+
+    // For immediate UX, serve cache and refresh in background
+    const isPastDate = date < today;
+    const isToday = date === today;
+    
+    // Past dates: only refresh if cache is very old (>24h)
+    if (isPastDate) {
+      const cacheKey = this.generateKey(date, 'date', date);
+      const cachedItem = this.cache.get(cacheKey);
+      if (cachedItem) {
+        const cacheAge = Date.now() - cachedItem.timestamp;
+        const needsRefresh = cacheAge > 24 * 60 * 60 * 1000; // 24 hours
+        if (!needsRefresh) {
+          console.log(`📦 [fixtureCache] Past date ${date} cache is fresh, no refresh needed`);
+        }
+        return needsRefresh;
+      }
+    }
+
+    // Today: refresh every 5 minutes in background
+    if (isToday) {
+      const cacheKey = this.generateKey(date, 'date', date);
+      const cachedItem = this.cache.get(cacheKey);
+      if (cachedItem) {
+        const cacheAge = Date.now() - cachedItem.timestamp;
+        const needsRefresh = cacheAge > 5 * 60 * 1000; // 5 minutes
+        if (needsRefresh) {
+          console.log(`🔄 [fixtureCache] Today ${date} cache stale, background refresh needed`);
+        }
+        return needsRefresh;
+      }
     }
 
     // For better UX, serve cached data immediately and fetch fresh data in background
