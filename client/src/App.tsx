@@ -1,4 +1,3 @@
-
 import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -81,7 +80,7 @@ const AppRoutes = () => {
     <Switch>
       {/* Public routes - Login/Authentication */}
       <Route path="/:lang/login" component={Authentication} />
-      
+
       {/* Protected routes with language prefix */}
       <Route path="/:lang" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
       <Route path="/:lang/" component={() => <ProtectedRoute><Home /></ProtectedRoute>} />
@@ -141,7 +140,7 @@ function App() {
     const checkAuthState = () => {
       const userData = localStorage.getItem('user');
       const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
-      
+
       if (userData && isAuthenticated) {
         try {
           const user = JSON.parse(userData);
@@ -179,7 +178,7 @@ function App() {
       requestIdleCallback(() => {
         preloadData();
       }, { timeout: 2000 });
-      
+
       // Optimize font loading strategy
       const optimizeFontLoading = () => {
         // Create multiple font display elements to trigger immediate usage
@@ -188,7 +187,7 @@ function App() {
           document.createElement('div'),
           document.createElement('p')
         ];
-        
+
         triggerElements.forEach((element, index) => {
           element.style.fontFamily = 'Inter, sans-serif';
           element.style.position = 'fixed';
@@ -199,9 +198,9 @@ function App() {
           element.style.pointerEvents = 'none';
           element.textContent = 'Inter font trigger';
           element.setAttribute('aria-hidden', 'true');
-          
+
           document.body.appendChild(element);
-          
+
           // Remove after font is registered
           setTimeout(() => {
             if (document.body.contains(element)) {
@@ -218,18 +217,18 @@ function App() {
       fontPreload.as = 'font';
       fontPreload.type = 'font/woff2';
       fontPreload.crossOrigin = 'anonymous';
-      
+
       fontPreload.onload = () => {
         // Immediate font usage
         optimizeFontLoading();
       };
-      
+
       fontPreload.onerror = () => {
         console.log('🔧 Font preload failed, using fallback');
       };
-      
+
       document.head.appendChild(fontPreload);
-      
+
       // Also trigger font usage immediately for safety
       requestAnimationFrame(() => {
         optimizeFontLoading();

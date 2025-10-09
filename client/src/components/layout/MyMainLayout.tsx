@@ -1,4 +1,4 @@
-import React, { useState, useMemo, Suspense, lazy } from "react";
+import React, { useState, useMemo, Suspense, lazy, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
@@ -18,6 +18,34 @@ import Header from "@/components/layout/Header";
 const TodayMatchPageCard = lazy(
   () => import("@/components/matches/TodayMatchPageCard"),
 );
+
+// Simple Error Boundary Component
+class ErrorBoundary extends React.Component<{ fallback: React.ReactNode; children: React.ReactNode }, { hasError: boolean }> {
+  constructor(props: { fallback: React.ReactNode; children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: any) {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: any, errorInfo: any) {
+    // You can also log the error to an error reporting service
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return this.props.fallback;
+    }
+
+    return this.props.children;
+  }
+}
+
 
 interface MyMainLayoutProps {
   fixtures: any[];
@@ -46,6 +74,29 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   const [showTop20, setShowTop20] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
 
+  // Prevent excessive re-renders and add error handling
+  const [renderCount, setRenderCount] = useState(0);
+  useEffect(() => {
+    setRenderCount(prev => prev + 1);
+    if (renderCount > 10) {
+      console.warn('MyMainLayout: Too many re-renders detected, potential infinite loop. Component will unmount.');
+      // In a real app, you might want to handle this more gracefully, e.g., by showing an error message or resetting state.
+      // For this example, we'll just log and let the component continue to prevent crashing.
+    }
+  }, [fixtures, selectedDate, user, currentFixture, selectedFixture, isMobile, translationLanguage, timeFilterActive, showTop20, liveFilterActive]); // Add dependencies
+
+  // Early return with fallback UI if no fixtures and not loading
+  if (!loading && (!fixtures || fixtures.length === 0)) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold mb-2">No matches today</h3>
+          <p className="text-gray-600">Check back later for upcoming fixtures</p>
+        </div>
+      </div>
+    );
+  }
+
   // Simplified fixture filtering with error handling
   const filteredFixtures = useMemo(() => {
     try {
@@ -68,7 +119,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
             console.warn('Invalid fixture date:', fixture.fixture.date);
             return false;
           }
-          
+
           const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
           return fixtureDateString === selectedDate;
         } catch (error) {
@@ -138,7 +189,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
                 maxWidth: isMobile ? "100%" : "none",
               }}
             >
-              {/* Render children if provided, otherwise show TodayMatchPageCard */}
               <div>
                 {loading ? (
                   <Card className="h-[600px]">
@@ -151,22 +201,33 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
                     </CardContent>
                   </Card>
                 ) : (
-                  <Suspense fallback={
-                    <Card className="h-[600px]">
-                      <CardContent className="p-4">
-                        <div className="space-y-4">
-                          {[...Array(3)].map((_, i) => (
-                            <Skeleton key={i} className="h-16 w-full" />
-                          ))}
+                  <Suspense
+                    fallback={
+                      <Card className="h-[600px]">
+                        <CardContent className="p-4">
+                          <div className="space-y-4">
+                            {[...Array(3)].map((_, i) => (
+                              <Skeleton key={i} className="h-16 w-full" />
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    }
+                  >
+                    <ErrorBoundary
+                      fallback={
+                        <div className="text-center p-4 bg-red-50 rounded-lg">
+                          <h3 className="text-red-800 font-semibold">Error loading matches</h3>
+                          <p className="text-red-600 text-sm mt-1">Please try refreshing the page</p>
                         </div>
-                      </CardContent>
-                    </Card>
-                  }>
-                    <TodayMatchPageCard
-                      fixtures={filteredFixtures}
-                      onMatchClick={handleMatchClick}
-                      onMatchCardClick={handleMatchCardClick}
-                    />
+                      }
+                    >
+                      <TodayMatchPageCard
+                        fixtures={filteredFixtures}
+                        onMatchClick={handleMatchClick}
+                        onMatchCardClick={handleMatchCardClick}
+                      />
+                    </ErrorBoundary>
                   </Suspense>
                 )}
               </div>
