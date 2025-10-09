@@ -7,7 +7,7 @@ import { usePopularLeagueStandings } from '@/lib/MyStandingsCachedNew';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
 import TournamentHeader from '@/components/layout/TournamentHeader';
-import MyFootballMain from '@/components/layout/MyFootballMain';
+import MyFootballMainLayout from '@/components/layout/MyFootballMainLayout';
 import RegionModal from '@/components/modals/RegionModal';
 import { Trophy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -407,7 +407,7 @@ const Football = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />} 
       />
      
-      <MyFootballMain fixtures={fixtures} />
+      <MyFootballMainLayout fixtures={fixtures} />
 
       <div className="mt-16">
         <Footer />

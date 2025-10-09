@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
@@ -19,13 +20,13 @@ const TodayMatchPageCard = lazy(
   () => import("@/components/matches/TodayMatchPageCard"),
 );
 
-interface MyHomeMainLayoutProps {
+interface MyEsportsMainLayoutProps {
   fixtures: any[];
   loading?: boolean;
   children?: React.ReactNode;
 }
 
-const MyHomeMainLayout: React.FC<MyHomeMainLayoutProps> = ({
+const MyEsportsMainLayout: React.FC<MyEsportsMainLayoutProps> = ({
   fixtures,
   loading = false,
   children,
@@ -38,16 +39,16 @@ const MyHomeMainLayout: React.FC<MyHomeMainLayoutProps> = ({
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
   
-  console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
+  console.log(`🌐 [MyEsportsMainLayout] Translation language: ${translationLanguage}`);
 
-  // Simplified fixture filtering
+  // Simplified fixture filtering for esports
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
-      console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
+      console.warn('🚨 [MyEsportsMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
       return [];
     }
 
-    console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
+    console.log(`🔍 [MyEsportsMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
 
     const filtered = fixtures.filter((fixture) => {
       if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
@@ -61,7 +62,7 @@ const MyHomeMainLayout: React.FC<MyHomeMainLayoutProps> = ({
       return fixtureDateString === selectedDate;
     });
 
-    console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
+    console.log(`✅ [MyEsportsMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
     
     return filtered;
   }, [fixtures, selectedDate]);
@@ -162,4 +163,4 @@ const MyHomeMainLayout: React.FC<MyHomeMainLayoutProps> = ({
   );
 };
 
-export default MyHomeMainLayout;
+export default MyEsportsMainLayout;
