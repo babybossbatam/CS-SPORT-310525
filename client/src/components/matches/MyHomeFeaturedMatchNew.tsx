@@ -557,21 +557,67 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         const now = new Date();
-        
-        // Simplified refresh logic to reduce CPU usage
-        const shouldRefresh = forceRefresh || featuredMatches.length === 0;
-        
-        if (!shouldRefresh) {
-          // Check if we have recent data (within 5 minutes)
-          const lastUpdate = localStorage.getItem('featuredMatches_lastUpdate');
-          const fiveMinutesAgo = now.getTime() - (5 * 60 * 1000);
-          
-          if (lastUpdate && parseInt(lastUpdate) > fiveMinutesAgo) {
-            console.log('🔄 [MyHomeFeaturedMatchNew] Using recent cache, skipping fetch');
-            setIsLoading(false);
-            return;
-          }
-        }
+        // ENHANCED cache refresh logic - prioritize live matches and status transitions
+        const shouldRefresh =
+            forceRefresh ||
+            featuredMatches.length === 0 || // Always refresh if no matches
+            featuredMatches.some((dayData) =>
+              dayData.matches.some((match) => {
+                const status = match.fixture.status.short;
+                const matchDate = new Date(match.fixture.date);
+                const minutesFromKickoff =
+                  (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                const hoursFromKickoff = minutesFromKickoff / 60;
+
+                // Check if it's today's match
+                const matchDateLocal = format(matchDate, "yyyy-MM-dd");
+                const todayLocal = format(now, "yyyy-MM-dd");
+                const isToday = matchDateLocal === todayLocal;
+
+                // PRIORITY 1: Always refresh for live matches
+                const isLive = [
+                  "LIVE",
+                  "LIV",
+                  "1H",
+                  "HT",
+                  "2H",
+                  "ET",
+                  "BT",
+                  "P",
+                  "INT",
+                ].includes(status);
+
+                // PRIORITY 2: Matches that should have started (potential status transition)
+                const shouldHaveStarted = status === "NS" && minutesFromKickoff > 0;
+
+                // PRIORITY 3: Today's matches (any status)
+                const isTodaysMatch = isToday;
+
+                // PRIORITY 4: Recently ended matches (within 24 hours)
+                const isRecentlyEndedMatch =
+                  ["FT", "AET", "PEN"].includes(status) &&
+                  Math.abs(hoursFromKickoff) <= 24;
+
+                // PRIORITY 5: Upcoming matches within 2 hours (more aggressive)
+                const isUpcomingSoon =
+                  status === "NS" && Math.abs(minutesFromKickoff) <= 120;
+
+                const shouldRefreshMatch =
+                  isLive ||
+                  shouldHaveStarted ||
+                  isTodaysMatch ||
+                  isRecentlyEndedMatch ||
+                  isUpcomingSoon;
+
+                if (shouldRefreshMatch) {
+                  console.log(
+                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, ShouldStart: ${shouldHaveStarted}, Today: ${isTodaysMatch}`,
+                  );
+                }
+
+                return shouldRefreshMatch;
+              }),
+            );
 
         // Get dates for today and the next 4 days
         const today = new Date();
@@ -592,36 +638,60 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           },
         ];
 
-        // Reduced priority leagues to prevent overwhelming
-        const priorityLeagueIds = PRIORITY_LEAGUE_IDS.slice(0, 3); // Limit to top 3
+        // Use priority leagues from our clean list
+        const priorityLeagueIds = PRIORITY_LEAGUE_IDS;
         const allFixtures: FeaturedMatch[] = [];
 
         console.log(
-          "🔍 [MyHomeFeaturedMatchNew] Starting optimized fetch with limited leagues:",
+          "🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:",
           priorityLeagueIds,
         );
+        console.log(
+          "🔍 [MyHomeFeaturedMatchNew] All featured league IDs:",
+          FEATURED_MATCH_LEAGUE_IDS,
+        );
 
-        // Helper functions (simplified)
-        const isLiveMatch = (status: string) => 
-          ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-        
-        const isValidMatch = (fixture: any) => 
-          !!(fixture?.teams?.home?.name && fixture?.teams?.away?.name);
+        // Helper function to determine if match is live
+        const isLiveMatch = (status: string) => {
+          return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+            status,
+          );
+        };
 
-        // Fetch live matches with timeout
+        // Helper function to determine if match is ended
+        const isEndedMatch = (status: string) => {
+          return [
+            "FT",
+            "AET",
+            "PEN",
+            "AWD",
+            "WO",
+            "ABD",
+            "CANC",
+            "SUSP",
+          ].includes(status);
+        };
+
+        // Helper function to determine if match is upcoming
+        const isUpcomingMatch = (status: string) => {
+          return ["NS", "TBD", "PST"].includes(status);
+        };
+
+        // Simple validation - only check for valid team names
+        const isValidMatch = (fixture: any) => {
+          return !!(fixture?.teams?.home?.name && fixture?.teams?.away?.name);
+        };
+
+        // Fetch live matches from API for real-time updates - ALWAYS fetch for status transitions
         let liveFixtures: FeaturedMatch[] = [];
         try {
-          console.log("🔴 [MyHomeFeaturedMatchNew] Fetching live matches (limited)");
-          
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
-          
+          console.log(
+            "🔴 [MyHomeFeaturedMatchNew] Fetching live matches for status transitions",
+          );
           const liveResponse = await apiRequest(
             "GET",
             "/api/featured-match/live?skipFilter=true",
-            { signal: controller.signal }
           );
-          clearTimeout(timeoutId);
           const liveData = await liveResponse.json();
 
           if (Array.isArray(liveData)) {
@@ -710,37 +780,20 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         allFixtures.push(...liveFixtures);
 
-        // Batch fetch with delays to prevent server overload
-        if (shouldRefresh || allFixtures.length < 5) {
-          console.log("🔄 [MyHomeFeaturedMatchNew] Fetching with batching and delays");
-          
-          // Process leagues in small batches
-          const batchSize = 2;
-          const leagueBatches = [];
-          for (let i = 0; i < priorityLeagueIds.length; i += batchSize) {
-            leagueBatches.push(priorityLeagueIds.slice(i, i + batchSize));
-          }
-          
-          for (const [batchIndex, batch] of leagueBatches.entries()) {
-            // Add delay between batches to prevent overwhelming
-            if (batchIndex > 0) {
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-            
-            const batchPromises = batch.map(async (leagueId) => {
-              try {
-                console.log(`🔍 [MyHomeFeaturedMatchNew] Batch ${batchIndex + 1}: Fetching league ${leagueId}`);
-                
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 8000);
-                
-                const fixturesResponse = await apiRequest(
-                  "GET",
-                  `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
-                  { signal: controller.signal }
-                );
-                clearTimeout(timeoutId);
-                const fixturesData = await fixturesResponse.json();
+        // Fetch non-live matches from cached data with smart refresh logic
+        if (shouldRefresh || allFixtures.length === 0) {
+          // Fetch non-live matches from cached data (priority leagues)
+          for (const leagueId of priorityLeagueIds) {
+            try {
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
+              );
+
+              const fixturesResponse = await apiRequest(
+                "GET",
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+              );
+              const fixturesData = await fixturesResponse.json();
 
               if (Array.isArray(fixturesData)) {
                 const cachedFixtures = fixturesData
