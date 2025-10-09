@@ -176,13 +176,13 @@ function App() {
         clearAllLogoCaches();
         console.log('🚀 Background initialization complete');
 
-    // Minimal preloading only when idle
-    if (typeof window !== 'undefined') {
-      requestIdleCallback(() => {
-        preloadData();
-      }, { timeout: 5000 });
-    }
-
+        // Minimal preloading only when idle
+        if (typeof window !== 'undefined') {
+          requestIdleCallback(() => {
+            preloadData();
+          }, { timeout: 5000 });
+        }
+      }, 0);
     };
 
     deferredInit(); // Call the deferred initialization
