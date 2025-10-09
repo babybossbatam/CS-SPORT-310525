@@ -70,16 +70,20 @@ if (typeof process !== 'undefined' && process.setMaxListeners) {
 // Set higher limits immediately for browser environment
 if (typeof window !== 'undefined') {
   // Set limits on any existing EventEmitter instances
-  Object.keys(window).forEach(key => {
-    const obj = (window as any)[key];
-    if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+  try {
+    Object.keys(window).forEach(key => {
       try {
-        obj.setMaxListeners(8000);
+        const obj = (window as any)[key];
+        if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+          obj.setMaxListeners(8000);
+        }
       } catch (e) {
-        // Ignore errors
+        // Ignore cross-origin and other access errors
       }
-    }
-  });
+    });
+  } catch (e) {
+    // Ignore cross-origin frame access errors
+  }
 }
 
 // Set default max listeners for EventEmitter globally
@@ -144,9 +148,16 @@ if (typeof window !== 'undefined') {
   }
 }
 
+// Helper function to set global EventEmitter limits
+const setGlobalEventEmitterLimits = (limit: number) => {
+  if (typeof process !== 'undefined' && process.setMaxListeners) {
+    process.setMaxListeners(limit);
+  }
+};
+
 // Set up a more aggressive initial application
-  const immediateSetup = () => {
-    setGlobalEventEmitterLimits(8000);
+const immediateSetup = () => {
+  setGlobalEventEmitterLimits(8000);
 
     // Specifically handle the changes listeners that are causing the warning
     if (typeof window !== 'undefined') {
@@ -170,16 +181,20 @@ if (typeof window !== 'undefined') {
       });
 
       // Set limits on any existing EventEmitter instances
-      Object.keys(window).forEach(key => {
-        const obj = (window as any)[key];
-        if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+      try {
+        Object.keys(window).forEach(key => {
           try {
-            obj.setMaxListeners(8000);
+            const obj = (window as any)[key];
+            if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+              obj.setMaxListeners(8000);
+            }
           } catch (e) {
-            // Ignore errors
+            // Ignore cross-origin and other access errors
           }
-        }
-      });
+        });
+      } catch (e) {
+        // Ignore cross-origin frame access errors
+      }
     }
   };
 

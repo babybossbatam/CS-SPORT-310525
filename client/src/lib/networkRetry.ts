@@ -45,26 +45,6 @@ export class NetworkRetryManager {
   }
 
   private isNetworkError(error: any): boolean {
-    return error.name === 'NetworkError' ||
-           error.message?.includes('fetch') ||
-           error.message?.includes('network') ||
-           error.code === 'NETWORK_ERROR';
-  }
-
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  setupOnlineListener(callback: (online: boolean) => void): void {
-    window.addEventListener('online', () => callback(true));
-    window.addEventListener('offline', () => callback(false));
-  }
-}
-
-export const networkRetry = NetworkRetryManager.getInstance();
-  }
-
-  private isNetworkError(error: any): boolean {
     if (!error) return false;
     
     const errorStr = error.toString().toLowerCase();
@@ -74,7 +54,11 @@ export const networkRetry = NetworkRetryManager.getInstance();
       errorStr.includes('err_internet_disconnected') ||
       errorStr.includes('websocket') ||
       errorStr.includes('timeout') ||
-      errorStr.includes('net::err_')
+      errorStr.includes('net::err_') ||
+      error.name === 'NetworkError' ||
+      error.message?.includes('fetch') ||
+      error.message?.includes('network') ||
+      error.code === 'NETWORK_ERROR'
     );
   }
 
