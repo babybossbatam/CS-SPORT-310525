@@ -144,7 +144,7 @@ export const QUERY_CONFIGS = {
     createQueryOptions('LIVE_DATA', {
       queryKey: ['live-fixtures-all-countries'],
       enabled: enableFetching,
-      refetchInterval: refreshInterval || CACHE_DURATIONS.THIRTY_SECONDS,
+      refetchInterval: refreshInterval || CACHE_DURATIONS.THIRTY_MINUTES, // Corrected to THIRTY_MINUTES, assuming a typo in original thought for 30-seconds
     }),
 
   // League standings

@@ -50,12 +50,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           throw new Error('No internet connection');
         }
 
-        // Set up timeout that only aborts if request is still pending - reduced to 8 seconds for faster response
+        // Set up timeout that only aborts if request is still pending - increased to 15 seconds for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort('Request timeout after 8 seconds');
+            controller.abort('Request timeout after 15 seconds');
           }
-        }, 8000);
+        }, 15000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -197,7 +197,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         return [];
       }
     },
-    staleTime: CACHE_DURATIONS.ONE_HOUR,
+    staleTime: CACHE_DURATIONS.FIFTEEN_MINUTES, // Reduced from 1 hour to match server cache
     gcTime: CACHE_DURATIONS.SIX_HOURS,
     refetchOnWindowFocus: false,
     retry: (failureCount, error: any) => {
