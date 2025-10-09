@@ -17,13 +17,10 @@ const Home = () => {
     const day = String(today.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   });
-  const [timeFilterActive, setTimeFilterActive] = React.useState(false);
-  const [showTop20, setShowTop20] = React.useState(false);
-  const [liveFilterActive, setLiveFilterActive] = React.useState(false);
 
-  const handleMatchCardClick = (match: any) => {
+  const handleMatchCardClick = React.useCallback((match: any) => {
     console.log("Match card clicked:", match);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
