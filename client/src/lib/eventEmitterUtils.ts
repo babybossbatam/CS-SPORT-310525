@@ -300,8 +300,8 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Initialize with higher limits for Replit environment - increased for heavy file watching
-setGlobalEventEmitterLimits(8000);
+// Initialize with reasonable limits for Replit environment
+setGlobalEventEmitterLimits(50);
 
 // Set up periodic cleanup to prevent memory leaks
 if (typeof window !== 'undefined') {
@@ -310,18 +310,18 @@ if (typeof window !== 'undefined') {
     try {
       cleanupEventListeners();
       // Re-apply higher limits in case they were reset
-      setGlobalEventEmitterLimits(8000);
+      setGlobalEventEmitterLimits(50);
 
       // Specifically handle the file watchers that are causing warnings
       const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher', 'fileSavedChanged'];
       changesTargets.forEach(target => {
         if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
-          (window as any)[target].setMaxListeners(8000);
+          (window as any)[target].setMaxListeners(50);
         }
         // Also check in replit namespace
         if ((window as any).replit && (window as any).replit[target] &&
             typeof (window as any).replit[target].setMaxListeners === 'function') {
-          (window as any).replit[target].setMaxListeners(8000);
+          (window as any).replit[target].setMaxListeners(50);
         }
       });
     } catch (e) {

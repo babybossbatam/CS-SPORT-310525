@@ -74,16 +74,11 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
   const [showTop20, setShowTop20] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
 
-  // Prevent excessive re-renders and add error handling
-  const [renderCount, setRenderCount] = useState(0);
-  useEffect(() => {
-    setRenderCount(prev => prev + 1);
-    if (renderCount > 10) {
-      console.warn('MyMainLayout: Too many re-renders detected, potential infinite loop. Component will unmount.');
-      // In a real app, you might want to handle this more gracefully, e.g., by showing an error message or resetting state.
-      // For this example, we'll just log and let the component continue to prevent crashing.
-    }
-  }, [fixtures, selectedDate, user, currentFixture, selectedFixture, isMobile, translationLanguage, timeFilterActive, showTop20, liveFilterActive]); // Add dependencies
+  // Simple render optimization
+  const renderKey = useMemo(() => 
+    `${selectedDate}-${fixtures.length}-${selectedFixture?.fixture?.id || 'none'}`,
+    [selectedDate, fixtures.length, selectedFixture?.fixture?.id]
+  );
 
   // Early return with fallback UI if no fixtures and not loading
   if (!loading && (!fixtures || fixtures.length === 0)) {
@@ -97,43 +92,19 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = React.memo(({
     );
   }
 
-  // Simplified fixture filtering with error handling
+  // Optimized fixture filtering
   const filteredFixtures = useMemo(() => {
-    try {
-      if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
-        console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
-        return [];
-      }
+    if (!fixtures?.length || !selectedDate) return [];
 
-      console.log(`🔍 [MyMainLayout] Processing ${fixtures.length} fixtures for date: ${selectedDate}`);
-
-      const filtered = fixtures.filter((fixture) => {
-        try {
-          if (!fixture?.fixture?.date || !fixture?.fixture?.status?.short) {
-            return false;
-          }
-
-          // Extract UTC date from fixture date
-          const fixtureUTCDate = new Date(fixture.fixture.date);
-          if (isNaN(fixtureUTCDate.getTime())) {
-            console.warn('Invalid fixture date:', fixture.fixture.date);
-            return false;
-          }
-
-          const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0];
-          return fixtureDateString === selectedDate;
-        } catch (error) {
-          console.warn('Error filtering fixture:', error, fixture);
-          return false;
-        }
-      });
-
-      console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
-      return filtered;
-    } catch (error) {
-      console.error('Error in fixture filtering:', error);
-      return [];
-    }
+    return fixtures.filter((fixture) => {
+      if (!fixture?.fixture?.date) return false;
+      
+      const fixtureDate = new Date(fixture.fixture.date);
+      if (isNaN(fixtureDate.getTime())) return false;
+      
+      const fixtureDateString = fixtureDate.toISOString().split("T")[0];
+      return fixtureDateString === selectedDate;
+    });
   }, [fixtures, selectedDate]);
 
   const handleMatchClick = (matchId: number) => {
