@@ -94,17 +94,23 @@ const AppRoutes = () => {
       <Route path="/:lang/league/:leagueId" component={() => <ProtectedRoute><LeagueDetails /></ProtectedRoute>} />
       <Route path="/:lang/my-scores" component={() => <ProtectedRoute><MyScores /></ProtectedRoute>} />
 
-      {/* Fallback routes without language (redirect to login) */}
+      {/* Fallback routes without language (redirect to home with language) */}
       <Route path="/" component={() => {
-        window.location.href = "/en/login";
+        // Check if user is authenticated
+        const isAuthenticated = localStorage.getItem('isAuthenticated') === 'true';
+        if (isAuthenticated) {
+          window.location.href = "/en";
+        } else {
+          window.location.href = "/en/login";
+        }
         return null;
       }} />
       <Route path="/football" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en/football";
         return null;
       }} />
       <Route path="/basketball" component={() => {
-        window.location.href = "/en/login";
+        window.location.href = "/en/basketball";
         return null;
       }} />
 

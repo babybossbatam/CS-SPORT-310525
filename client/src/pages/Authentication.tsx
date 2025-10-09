@@ -213,7 +213,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const currentLang = pathParts[0] || "en";
       
       // Use window.location for immediate navigation to prevent React Router delays
-      window.location.href = `/${currentLang}/football`;
+      window.location.href = `/${currentLang}`;
 
     } catch (error) {
       console.error("Login failed:", error);
@@ -455,7 +455,7 @@ const Authentication = ({ mode = "login" }: AuthenticationProps) => {
       const currentLang = pathParts[0] || "en";
 
       // Navigate immediately - no blocking operations
-      navigate(`/${currentLang}/football`);
+      navigate(`/${currentLang}`);
 
     } catch (error) {
       console.error("Registration failed:", error);
