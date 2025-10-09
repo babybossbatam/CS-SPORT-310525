@@ -25,8 +25,8 @@ const FIXTURE_CACHE_CONFIG = {
   PAST_DATE_CACHE_DURATION: 7 * 24 * 60 * 60 * 1000,
   // Future matches: 24 hours (schedules rarely change)
   FUTURE_CACHE_DURATION: 24 * 60 * 60 * 1000,
-  // Today's matches: 15 minutes (balance between freshness and performance) - FIXED
-  TODAY_CACHE_DURATION: 15 * 60 * 1000,
+  // Today's matches: 30 minutes (balance between freshness and performance)
+  TODAY_CACHE_DURATION: 30 * 60 * 1000,
   // Maximum cache size
   MAX_CACHE_SIZE: 10000,
   // Cleanup interval
