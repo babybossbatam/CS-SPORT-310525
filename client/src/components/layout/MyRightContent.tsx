@@ -31,12 +31,18 @@ const MyRightContent: React.FC = () => {
   const [cachedData, setCachedData] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
 
-  // Load cached data immediately on mount
+  // Load cached data immediately on mount with extended cache duration
   useEffect(() => {
     const cached = CacheManager.getCachedData([`right-content-${selectedDate}`]);
     if (cached) {
       console.log(`⚡ [MyRightContent] Loaded cached data for ${selectedDate}`);
       setCachedData(cached);
+      
+      // Cache non-live content for much longer (6 hours)
+      CacheManager.setCachedData([`right-content-${selectedDate}`], cached, {
+        maxAge: 6 * 60 * 60 * 1000, // 6 hours for non-live content
+        priority: 'high'
+      });
     }
   }, [selectedDate]);
 

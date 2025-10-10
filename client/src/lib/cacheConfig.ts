@@ -116,6 +116,28 @@ export const CACHE_PRESETS = {
     refetchInterval: false,
     retry: 1,
   },
+
+  // Specific cache for TodayMatchPageCard components
+  TODAY_MATCH_CARD: {
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // 24 hours for fixtures
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep for 7 days
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    retry: 2,
+  },
+
+  // Specific cache for MyRightContent components
+  RIGHT_CONTENT: {
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS / 2, // 12 hours for right content
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 5, // Keep for 5 days
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
+    retry: 1,
+  },
 } as const;
 
 // Helper function to create query options with cache presets
