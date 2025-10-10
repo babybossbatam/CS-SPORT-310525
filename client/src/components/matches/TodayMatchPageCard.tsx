@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, Suspense } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, memo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
@@ -37,11 +37,11 @@ interface TodayMatchPageCardProps {
   onMatchCardClick?: (fixture: any) => void;
 }
 
-export const TodayMatchPageCard = ({
+const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}: TodayMatchPageCardProps) => {
+}) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -70,8 +70,11 @@ export const TodayMatchPageCard = ({
     }
   }, [fixtures, selectedDate]);
 
-  // Use cached fixtures if available, fallback to props
-  const displayFixtures = fixtures?.length ? fixtures : cachedFixtures;
+  // Use cached fixtures if available, fallback to props - memoized
+  const displayFixtures = useMemo(() => 
+    fixtures?.length ? fixtures : cachedFixtures, 
+    [fixtures, cachedFixtures]
+  );
 
 
   // Calendar translation helpers
@@ -129,33 +132,33 @@ export const TodayMatchPageCard = ({
     }
   }, [selectedDate, liveFilterActive, timeFilterActive]);
 
-  // Date navigation handlers
-  const goToPreviousDay = () => {
+  // Date navigation handlers - memoized
+  const goToPreviousDay = useCallback(() => {
     const newDate = format(subDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
     setSelectedDate(newDate);
-  };
+  }, [selectedDate]);
 
-  const goToNextDay = () => {
+  const goToNextDay = useCallback(() => {
     const newDate = format(addDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
     setSelectedDate(newDate);
-  };
+  }, [selectedDate]);
 
-  const handleDateSelect = (date: Date | undefined) => {
+  const handleDateSelect = useCallback((date: Date | undefined) => {
     if (date) {
       const selectedDateString = formatYYYYMMDD(date);
       setSelectedDate(selectedDateString);
       setIsCalendarOpen(false);
     }
-  };
+  }, []);
 
-  const goToToday = () => {
+  const goToToday = useCallback(() => {
     const today = getCurrentUTCDateString();
     setSelectedDate(today);
     setIsCalendarOpen(false);
-  };
+  }, []);
 
-  // Dedicated date display function for match page
-  const getDateDisplayName = () => {
+  // Dedicated date display function for match page - memoized
+  const getDateDisplayName = useMemo(() => {
     const today = getCurrentUTCDateString();
     const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
@@ -194,7 +197,7 @@ export const TodayMatchPageCard = ({
         return `${dayOfWeek}, ${day}${ordinalSuffix} ${month}`;
       }
     }
-  };
+  }, [selectedDate, currentLanguage, t]);
 
   // Helper function for ordinal suffix (1st, 2nd, 3rd, etc.)
   const getOrdinalSuffix = (day: number): string => {
@@ -228,7 +231,7 @@ export const TodayMatchPageCard = ({
 
   console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
 
-  const handleMatchCardClick = (fixture: any) => {
+  const handleMatchCardClick = useCallback((fixture: any) => {
     console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -239,9 +242,9 @@ export const TodayMatchPageCard = ({
       source: 'TodayMatchPageCard'
     });
     onMatchCardClick?.(fixture);
-  };
+  }, [onMatchCardClick]);
 
-  const handleLiveMatchClick = (fixture: any) => {
+  const handleLiveMatchClick = useCallback((fixture: any) => {
     console.log('🔴 [TodayMatchPageCard] LIVE Match card clicked from LiveMatchForAllCountry:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -251,7 +254,7 @@ export const TodayMatchPageCard = ({
       source: 'LiveMatchForAllCountry'
     });
     onMatchCardClick?.(fixture);
-  };
+  }, [onMatchCardClick]);
 
   // Using native UTC methods instead of date-fns to avoid timezone conversion
 
@@ -397,7 +400,7 @@ export const TodayMatchPageCard = ({
         <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
           {/* Live button */}
           <button
-            onClick={() => {
+            onClick={useCallback(() => {
               if (!liveFilterActive) {
                 // Activating live filter
                 setLiveFilterActive(true);
@@ -421,7 +424,7 @@ export const TodayMatchPageCard = ({
                   setTimeFilterActive(true);
                 }
               }
-            }}
+            }, [liveFilterActive, timeFilterActive])}
             className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
               liveFilterActive
                 ? "bg-red-500 text-white hover:bg-red-600"
@@ -548,4 +551,9 @@ export const TodayMatchPageCard = ({
   );
 };
 
+});
+
+TodayMatchPageCard.displayName = 'TodayMatchPageCard';
+
+export { TodayMatchPageCard };
 export default TodayMatchPageCard;
