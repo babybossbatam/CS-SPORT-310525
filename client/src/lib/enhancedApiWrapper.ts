@@ -11,8 +11,57 @@ export interface ApiWrapperOptions {
 export class EnhancedApiWrapper {
   private cache: Map<string, { data: any; timestamp: number; expires: number }> = new Map();
   private readonly defaultCacheDuration = 5 * 60 * 1000; // 5 minutes
+  private requestQueue: Array<{ resolve: Function; reject: Function; request: Function }> = [];
+  private isProcessing = false;
+  private requestCount = 0;
+  private lastRequestTime = 0;
+  private readonly maxRequestsPerSecond = 2;
 
   async fetchWithDebug<T>(
+    endpoint: string,
+    options: ApiWrapperOptions,
+    cacheDuration: number = this.defaultCacheDuration
+  ): Promise<T> {
+    // Queue requests to prevent overwhelming the server
+    return this.queueRequest(() => this.executeRequest(endpoint, options, cacheDuration));
+  }
+
+  private async queueRequest<T>(requestFn: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.requestQueue.push({ resolve, reject, request: requestFn });
+      this.processQueue();
+    });
+  }
+
+  private async processQueue(): Promise<void> {
+    if (this.isProcessing || this.requestQueue.length === 0) return;
+    
+    this.isProcessing = true;
+    
+    while (this.requestQueue.length > 0) {
+      const now = Date.now();
+      const timeSinceLastRequest = now - this.lastRequestTime;
+      const minInterval = 1000 / this.maxRequestsPerSecond; // 500ms between requests
+      
+      if (timeSinceLastRequest < minInterval) {
+        await new Promise(resolve => setTimeout(resolve, minInterval - timeSinceLastRequest));
+      }
+      
+      const { resolve, reject, request } = this.requestQueue.shift()!;
+      this.lastRequestTime = Date.now();
+      
+      try {
+        const result = await request();
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    }
+    
+    this.isProcessing = false;
+  }
+
+  private async executeRequest<T>(
     endpoint: string,
     options: ApiWrapperOptions,
     cacheDuration: number = this.defaultCacheDuration

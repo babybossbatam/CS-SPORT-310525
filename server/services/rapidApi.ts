@@ -41,6 +41,9 @@ const fixturesCache = new Map<string, { data: any; timestamp: number }>();
 const leaguesCache = new Map<string, { data: any; timestamp: number }>();
 const playersCache = new Map<string, { data: any; timestamp: number }>();
 
+// Request deduplication map
+const activeRequests = new Map<string, Promise<any>>();
+
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
   2: ["Real Madrid", "Manchester City", "Bayern Munich", "PSG", "Inter"], // Champions League
@@ -307,268 +310,290 @@ export const rapidApiService = {
       return cached.data;
     }
 
+    // Add request deduplication
+    if (activeRequests.has(cacheKey)) {
+      console.log(`⏳ [RapidAPI] Waiting for existing request: ${cacheKey}`);
+      return activeRequests.get(cacheKey);
+    }
+
     try {
-      let allFixtures: FixtureResponse[] = [];
+      // Create a promise for the current request and store it
+      const requestPromise = (async () => {
+        let allFixtures: FixtureResponse[] = [];
 
-      // For today's matches, prioritize live data first
-      if (isToday) {
-        try {
-          console.log(`Getting live fixtures first for today (${date})`);
-          const liveFixtures = await this.getLiveFixtures();
-
-          if (liveFixtures && liveFixtures.length > 0) {
-            console.log(`Found ${liveFixtures.length} live fixtures for today`);
-            // Validate live fixtures before adding
-            const validLiveFixtures = liveFixtures.filter(
-              (fixture) =>
-                fixture &&
-                fixture.fixture &&
-                fixture.league &&
-                fixture.teams &&
-                fixture.teams.home &&
-                fixture.teams.away &&
-                fixture.teams.home.name &&
-                fixture.teams.away.name,
-            );
-            allFixtures = [...validLiveFixtures];
-          }
-        } catch (liveError) {
-          console.error("Error fetching live fixtures for today:", liveError);
-        }
-      }
-
-      if (fetchAll) {
-        console.log(
-          `[Timezone-inclusive fetching] Fetching fixtures with expanded date range for World competitions`,
-        );
-
-        // Timezone-inclusive fetching: Queries ±1 day to catch all timezone variations
-        const requestedDate = new Date(date);
-        const previousDay = new Date(requestedDate);
-        previousDay.setDate(previousDay.getDate() - 1);
-        const nextDay = new Date(requestedDate);
-        nextDay.setDate(nextDay.getDate() + 1);
-
-        const dateRange = [
-          previousDay.toISOString().split("T")[0],
-          date,
-          nextDay.toISOString().split("T")[0],
-        ];
-
-        console.log(
-          `[Timezone-inclusive] Querying date range: ${dateRange.join(", ")} for World competitions`,
-        );
-
-        // Fetch fixtures from all dates in range
-        for (const queryDate of dateRange) {
+        // For today's matches, prioritize live data first
+        if (isToday) {
           try {
-            console.log(
-              `🌍 [RapidAPI] Making API request for date: ${queryDate}`,
-            );
+            console.log(`Getting live fixtures first for today (${date})`);
+            const liveFixtures = await this.getLiveFixtures();
 
-            const response = await apiClient.get("/fixtures", {
-              params: {
-                date: queryDate,
-              },
-            });
+            if (liveFixtures && liveFixtures.length > 0) {
+              console.log(`Found ${liveFixtures.length} live fixtures for today`);
+              // Validate live fixtures before adding
+              const validLiveFixtures = liveFixtures.filter(
+                (fixture) =>
+                  fixture &&
+                  fixture.fixture &&
+                  fixture.league &&
+                  fixture.teams &&
+                  fixture.teams.home &&
+                  fixture.teams.away &&
+                  fixture.teams.home.name &&
+                  fixture.teams.away.name,
+              );
+              allFixtures = [...validLiveFixtures];
+            }
+          } catch (liveError) {
+            console.error("Error fetching live fixtures for today:", liveError);
+          }
+        }
 
-            console.log(
-              `📡 [RapidAPI] API response for ${queryDate}: status ${response.status}, results: ${response.data?.results || 0}`,
-            );
+        if (fetchAll) {
+          console.log(
+            `[Timezone-inclusive fetching] Fetching fixtures with expanded date range for World competitions`,
+          );
 
-            if (response.data && response.data.response) {
-              const dateFixtures = response.data.response;
+          // Timezone-inclusive fetching: Queries ±1 day to catch all timezone variations
+          const requestedDate = new Date(date);
+          const previousDay = new Date(requestedDate);
+          previousDay.setDate(previousDay.getDate() - 1);
+          const nextDay = new Date(requestedDate);
+          nextDay.setDate(nextDay.getDate() + 1);
 
-              // Filter fixtures for World competitions only
-              const validFixtures = dateFixtures.filter((fixture: any) => {
-                try {
-                  // Check date validity
-                  if (!fixture?.fixture?.date) {
-                    return false;
-                  }
+          const dateRange = [
+            previousDay.toISOString().split("T")[0],
+            date,
+            nextDay.toISOString().split("T")[0],
+          ];
 
-                  // Simple date matching for timezone variations
-                  const validDateChecks = this.isFixtureValidForDate(
-                    fixture,
-                    date,
-                  );
+          console.log(
+            `[Timezone-inclusive] Querying date range: ${dateRange.join(", ")} for World competitions`,
+          );
 
-                  if (!validDateChecks.isValid) {
-                    return false;
-                  }
+          // Fetch fixtures from all dates in range
+          for (const queryDate of dateRange) {
+            try {
+              console.log(
+                `🌍 [RapidAPI] Making API request for date: ${queryDate}`,
+              );
 
-                  // Check required data structure
-                  if (
-                    !fixture.league ||
-                    !fixture.league.id ||
-                    !fixture.league.name
-                  )
-                    return false;
-                  if (
-                    !fixture.teams ||
-                    !fixture.teams.home ||
-                    !fixture.teams.away
-                  )
-                    return false;
-                  if (!fixture.teams.home.name || !fixture.teams.away.name)
-                    return false;
-
-                  // Set default values for missing data
-                  if (!fixture.league.country)
-                    fixture.league.country = "Unknown";
-                  if (!fixture.league.logo)
-                    fixture.league.logo =
-                      "https://media.api-sports.io/football/leagues/1.png";
-                  if (!fixture.teams.home.logo)
-                    fixture.teams.home.logo = "/assets/fallback-logo.png";
-                  if (!fixture.teams.away.logo)
-                    fixture.teams.away.logo = "/assets/fallback-logo.png";
-
-                  // Enhanced esports filtering
-                  if (this.isEsportsFixture(fixture)) {
-                    return false;
-                  }
-
-                  // Filter out fixtures with null/undefined country
-                  if (
-                    fixture.league.country === null ||
-                    fixture.league.country === undefined ||
-                    fixture.league.country === ""
-                  ) {
-                    return false;
-                  }
-
-                  // Additional check for suspicious country values
-                  if (
-                    typeof fixture.league.country === "string" &&
-                    fixture.league.country.toLowerCase().includes("unknown")
-                  ) {
-                    return false;
-                  }
-
-                  return true;
-                } catch (error) {
-                  console.error("Error validating fixture:", error, fixture);
-                  return false;
-                }
+              const response = await apiClient.get("/fixtures", {
+                params: {
+                  date: queryDate,
+                },
               });
 
               console.log(
-                `Retrieved ${dateFixtures.length} fixtures from ${queryDate}, ${validFixtures.length} valid for target date ${date}`,
+                `📡 [RapidAPI] API response for ${queryDate}: status ${response.status}, results: ${response.data?.results || 0}`,
               );
 
-              // Merge with existing fixtures, avoiding duplicates
+              if (response.data && response.data.response) {
+                const dateFixtures = response.data.response;
+
+                // Filter fixtures for World competitions only
+                const validFixtures = dateFixtures.filter((fixture: any) => {
+                  try {
+                    // Check date validity
+                    if (!fixture?.fixture?.date) {
+                      return false;
+                    }
+
+                    // Simple date matching for timezone variations
+                    const validDateChecks = this.isFixtureValidForDate(
+                      fixture,
+                      date,
+                    );
+
+                    if (!validDateChecks.isValid) {
+                      return false;
+                    }
+
+                    // Check required data structure
+                    if (
+                      !fixture.league ||
+                      !fixture.league.id ||
+                      !fixture.league.name
+                    )
+                      return false;
+                    if (
+                      !fixture.teams ||
+                      !fixture.teams.home ||
+                      !fixture.teams.away
+                    )
+                      return false;
+                    if (!fixture.teams.home.name || !fixture.teams.away.name)
+                      return false;
+
+                    // Set default values for missing data
+                    if (!fixture.league.country)
+                      fixture.league.country = "Unknown";
+                    if (!fixture.league.logo)
+                      fixture.league.logo =
+                        "https://media.api-sports.io/football/leagues/1.png";
+                    if (!fixture.teams.home.logo)
+                      fixture.teams.home.logo = "/assets/fallback-logo.png";
+                    if (!fixture.teams.away.logo)
+                      fixture.teams.away.logo = "/assets/fallback-logo.png";
+
+                    // Enhanced esports filtering
+                    if (this.isEsportsFixture(fixture)) {
+                      return false;
+                    }
+
+                    // Filter out fixtures with null/undefined country
+                    if (
+                      fixture.league.country === null ||
+                      fixture.league.country === undefined ||
+                      fixture.league.country === ""
+                    ) {
+                      return false;
+                    }
+
+                    // Additional check for suspicious country values
+                    if (
+                      typeof fixture.league.country === "string" &&
+                      fixture.league.country.toLowerCase().includes("unknown")
+                    ) {
+                      return false;
+                    }
+
+                    return true;
+                  } catch (error) {
+                    console.error("Error validating fixture:", error, fixture);
+                    return false;
+                  }
+                });
+
+                console.log(
+                  `Retrieved ${dateFixtures.length} fixtures from ${queryDate}, ${validFixtures.length} valid for target date ${date}`,
+                );
+
+                // Merge with existing fixtures, avoiding duplicates
+                const existingIds = new Set(allFixtures.map((f) => f.fixture.id));
+                const newFixtures = validFixtures.filter(
+                  (f: any) => !existingIds.has(f.fixture.id),
+                );
+                allFixtures = [...allFixtures, ...newFixtures];
+              }
+            } catch (error) {
+              console.error(
+                `Error fetching fixtures for date ${queryDate}:`,
+                error,
+              );
+              continue;
+            }
+          }
+
+          console.log(
+            `[Timezone-inclusive] Total fixtures collected: ${allFixtures.length} for date ${date}`,
+          );
+        } else {
+          // Define popular leagues - matches core leagues
+          const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
+
+          for (const leagueId of popularLeagues) {
+            try {
+              const leagueFixtures = await this.getFixturesByLeague(
+                leagueId,
+                2024,
+              );
+              const dateFixtures = leagueFixtures.filter((fixture) => {
+                const validDateChecks = this.isFixtureValidForDate(fixture, date);
+                return validDateChecks.isValid;
+              });
+
+              // Merge avoiding duplicates
               const existingIds = new Set(allFixtures.map((f) => f.fixture.id));
-              const newFixtures = validFixtures.filter(
-                (f: any) => !existingIds.has(f.fixture.id),
+              const newFixtures = dateFixtures.filter(
+                (f) => !existingIds.has(f.fixture.id),
               );
               allFixtures = [...allFixtures, ...newFixtures];
+            } catch (error) {
+              console.error(
+                `Error fetching fixtures for league ${leagueId}:`,
+                error,
+              );
+              continue;
             }
-          } catch (error) {
-            console.error(
-              `Error fetching fixtures for date ${queryDate}:`,
-              error,
-            );
-            continue;
           }
-        }
 
-        console.log(
-          `[Timezone-inclusive] Total fixtures collected: ${allFixtures.length} for date ${date}`,
-        );
-      } else {
-        // Define popular leagues - matches core leagues
-        const popularLeagues = [2, 3, 15, 39, 140, 135, 78, 848]; // Champions League, Europa League, FIFA Club World Cup, Premier League, La Liga, Serie A, Bundesliga, Conference League
-
-        for (const leagueId of popularLeagues) {
-          try {
-            const leagueFixtures = await this.getFixturesByLeague(
-              leagueId,
-              2024,
-            );
-            const dateFixtures = leagueFixtures.filter((fixture) => {
-              const validDateChecks = this.isFixtureValidForDate(fixture, date);
-              return validDateChecks.isValid;
-            });
-
-            // Merge avoiding duplicates
-            const existingIds = new Set(allFixtures.map((f) => f.fixture.id));
-            const newFixtures = dateFixtures.filter(
-              (f) => !existingIds.has(f.fixture.id),
-            );
-            allFixtures = [...allFixtures, ...newFixtures];
-          } catch (error) {
-            console.error(
-              `Error fetching fixtures for league ${leagueId}:`,
-              error,
-            );
-            continue;
-          }
-        }
-
-        console.log(
-          `Popular leagues: ${allFixtures.length} total fixtures for ${date}`,
-        );
-      }
-
-      // Sort fixtures for today: Live first, then upcoming, then finished
-      if (isToday && allFixtures.length > 0) {
-        allFixtures.sort((a, b) => {
-          const aStatus = a.fixture.status.short;
-          const bStatus = b.fixture.status.short;
-
-          // Live matches first
-          const aLive = [
-            "LIVE",
-            "1H",
-            "HT",
-            "2H",
-            "ET",
-            "BT",
-            "P",
-            "INT",
-          ].includes(aStatus);
-          const bLive = [
-            "LIVE",
-            "1H",
-            "HT",
-            "2H",
-            "ET",
-            "BT",
-            "P",
-            "INT",
-          ].includes(bStatus);
-          if (aLive && !bLive) return -1;
-          if (!aLive && bLive) return 1;
-
-          // Then upcoming matches
-          const aUpcoming =
-            aStatus === "NS" && new Date(a.fixture.date) > new Date();
-          const bUpcoming =
-            bStatus === "NS" && new Date(b.fixture.date) > new Date();
-          if (aUpcoming && !bUpcoming) return -1;
-          if (!aUpcoming && bUpcoming) return 1;
-
-          // Finally by time
-          return (
-            new Date(a.fixture.date).getTime() -
-            new Date(b.fixture.date).getTime()
+          console.log(
+            `Popular leagues: ${allFixtures.length} total fixtures for ${date}`,
           );
+        }
+
+        // Sort fixtures for today: Live first, then upcoming, then finished
+        if (isToday && allFixtures.length > 0) {
+          allFixtures.sort((a, b) => {
+            const aStatus = a.fixture.status.short;
+            const bStatus = b.fixture.status.short;
+
+            // Live matches first
+            const aLive = [
+              "LIVE",
+              "1H",
+              "HT",
+              "2H",
+              "ET",
+              "BT",
+              "P",
+              "INT",
+            ].includes(aStatus);
+            const bLive = [
+              "LIVE",
+              "1H",
+              "HT",
+              "2H",
+              "ET",
+              "BT",
+              "P",
+              "INT",
+            ].includes(bStatus);
+            if (aLive && !bLive) return -1;
+            if (!aLive && bLive) return 1;
+
+            // Then upcoming matches
+            const aUpcoming =
+              aStatus === "NS" && new Date(a.fixture.date) > new Date();
+            const bUpcoming =
+              bStatus === "NS" && new Date(b.fixture.date) > new Date();
+            if (aUpcoming && !bUpcoming) return -1;
+            if (!aUpcoming && bUpcoming) return 1;
+
+            // Finally by time
+            return (
+              new Date(a.fixture.date).getTime() -
+              new Date(b.fixture.date).getTime()
+            );
+          });
+
+          console.log(
+            `Sorted ${allFixtures.length} fixtures for today - prioritizing live matches`,
+          );
+        }
+
+        fixturesCache.set(cacheKey, {
+          data: allFixtures,
+          timestamp: now,
         });
 
-        console.log(
-          `Sorted ${allFixtures.length} fixtures for today - prioritizing live matches`,
-        );
-      }
+        return allFixtures;
+      })();
 
-      fixturesCache.set(cacheKey, {
-        data: allFixtures,
-        timestamp: now,
+      // Store the promise in the activeRequests map
+      activeRequests.set(cacheKey, requestPromise);
+
+      // Once the promise resolves, remove it from the activeRequests map
+      requestPromise.finally(() => {
+        activeRequests.delete(cacheKey);
       });
 
-      return allFixtures;
+      return requestPromise;
     } catch (error) {
       console.error("RapidAPI: Error fetching fixtures by date:", error);
+
+      // Remove request from active requests map on error
+      activeRequests.delete(cacheKey);
 
       if (cached?.data) {
         console.log("Using cached data due to API error");

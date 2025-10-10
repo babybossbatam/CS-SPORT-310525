@@ -172,7 +172,7 @@ const isNationalTeam = (
       " city",
       " athletic",
       " real ",
-      " barcelona",
+      "barcelona",
       " valencia",
       " sevilla",
       " arsenal",
@@ -1083,8 +1083,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // Process leagues in optimized batches
-      const batchSize = 5; // Increase concurrent requests for priority leagues
+      // Process leagues in batches to avoid overwhelming the API
+      const batchSize = 3; // Reduced batch size
+      const delayBetweenBatches = 1000; // Increased delay to 1 second
+
       const results: Array<{
         leagueId: number;
         fixtures: FixtureData[];
@@ -1254,8 +1256,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
-          await delay(25);
+          console.log(`⏳ [MyNewLeague2] Waiting ${delayBetweenBatches}ms before next batch...`);
+          await delay(delayBetweenBatches);
         }
       }
 
@@ -1564,7 +1566,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         const getStatusPriority = (status: string) => {
           // Priority 1: Live matches (highest priority)
           if (
-            ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
+            ["LIVE", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
               status,
             )
           ) {

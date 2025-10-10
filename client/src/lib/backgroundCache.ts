@@ -10,8 +10,10 @@ interface CacheItem {
 class BackgroundCache {
   private cache = new Map<string, CacheItem>();
   private prefetchQueue = new Set<string>();
-  private maxCacheSize = 2000; // Increased cache size
-  private defaultTTL = 10 * 60 * 1000; // 10 minutes for better performance
+  private maxCacheSize = 5000; // Further increased cache size
+  private defaultTTL = 30 * 60 * 1000; // 30 minutes for better performance
+  private requestQueue: string[] = [];
+  private processingQueue = false;
 
   constructor() {
     // Cleanup expired items every 2 minutes instead of 1

@@ -1,17 +1,20 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 
-// Cache durations in milliseconds - optimized for performance
+// Cache durations in milliseconds - optimized for performance and reduced API calls
 export const CACHE_DURATIONS = {
   ONE_HOUR: 60 * 60 * 1000,
   SIX_HOURS: 6 * 60 * 60 * 1000,
   TWELVE_HOURS: 12 * 60 * 60 * 1000,
   TWENTY_FOUR_HOURS: 24 * 60 * 60 * 1000,
   THIRTY_MINUTES: 30 * 60 * 1000,
-  FIFTEEN_MINUTES: 15 * 60 * 1000, // New duration for better balance
-  TEN_MINUTES: 10 * 60 * 1000, // Extended from 5 minutes
+  FIFTEEN_MINUTES: 15 * 60 * 1000,
+  TEN_MINUTES: 10 * 60 * 1000,
   FIVE_MINUTES: 5 * 60 * 1000,
   TWO_MINUTES: 2 * 60 * 1000,
   FOUR_HOURS: 4 * 60 * 60 * 1000,
+  // Extended durations for heavy data
+  LEAGUE_FIXTURES: 2 * 60 * 60 * 1000, // 2 hours for league fixtures
+  STANDINGS: 4 * 60 * 60 * 1000, // 4 hours for standings
 } as const;
 
 // Cache presets for different data types
