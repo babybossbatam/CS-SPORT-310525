@@ -62,8 +62,11 @@ initializeFlagCachePersistence();
 // Initialize storage monitoring
 StorageMonitor.getInstance().init();
 
-// Run the immediate setup
+// Run the immediate setup after function declaration
 immediateSetup();
+
+// Setup global error handlers
+setupGlobalErrorHandlers();
 
 // Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined' && process.setMaxListeners) {
@@ -181,7 +184,7 @@ const setGlobalEventEmitterLimits = (maxListeners: number) => {
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(maxListeners);
   }
-  
+
   if (typeof window !== 'undefined') {
     if ((window as any).EventEmitter) {
       (window as any).EventEmitter.defaultMaxListeners = maxListeners;
@@ -227,9 +230,6 @@ const immediateSetup = () => {
     });
   }
 };
-
-// Setup global error handlers
-setupGlobalErrorHandlers();
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
