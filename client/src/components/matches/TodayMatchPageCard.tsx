@@ -545,11 +545,10 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
             </Suspense>
           )}
         </>
-      )
-    }
-</>
+      )}
+    </>
   );
-};
+});
 
 });
 
