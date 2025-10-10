@@ -47,7 +47,7 @@ const activeRequests = new Map<string, Promise<any>>();
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
   2: ["Real Madrid", "Manchester City", "Bayern Munich", "PSG", "Inter"], // Champions League
-  3: ["Liverpool", "Atalanta", "Marseille", "Roma", "Leverkusen"], // Europa League
+  3: ["Liverpool", "Atalanta", "Marseille", "Leverkusen"], // Europa League
   39: [
     "Arsenal",
     "Chelsea",
@@ -67,7 +67,35 @@ const popularLeagues: { [leagueId: number]: string[] } = {
   78: ["Bayern Munich", "Dortmund", "Leipzig", "Leverkusen", "Frankfurt"], // Bundesliga
 };
 
+// Enhanced rate limiting
+const RATE_LIMIT = {
+  requests: 50, // Reduced from 100
+  window: 60000, // 1 minute
+  current: 0,
+  resetTime: Date.now() + 60000,
+  backoffDelay: 1000 // Start with 1 second backoff
+};
+
 export const rapidApiService = {
+  /**
+   * Helper function to check and enforce rate limits before making an API call.
+   */
+  async enforceRateLimit(): Promise<void> {
+    if (RATE_LIMIT.current >= RATE_LIMIT.requests) {
+      const waitTime = Math.max(RATE_LIMIT.resetTime - Date.now(), RATE_LIMIT.backoffDelay);
+      if (waitTime > 0) {
+        console.log(`⏳ [RapidAPI] Rate limit reached, waiting ${waitTime}ms`);
+        await new Promise(resolve => setTimeout(resolve, waitTime));
+        RATE_LIMIT.backoffDelay = Math.min(RATE_LIMIT.backoffDelay * 1.5, 10000); // Exponential backoff, max 10s
+        RATE_LIMIT.current = 0;
+        RATE_LIMIT.resetTime = Date.now() + RATE_LIMIT.window;
+      } else {
+        RATE_LIMIT.backoffDelay = 1000; // Reset backoff on success
+      }
+    }
+    RATE_LIMIT.current++;
+  },
+
   /**
    * Get match predictions from RapidAPI
    */
@@ -83,6 +111,7 @@ export const rapidApiService = {
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`📊 [RapidAPI] Fetching predictions for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/predictions", {
@@ -131,6 +160,7 @@ export const rapidApiService = {
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`📊 [RapidAPI] Fetching odds for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/odds", {
@@ -179,6 +209,7 @@ export const rapidApiService = {
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`📊 [RapidAPI] Fetching player statistics for ${playerId ? `player ${playerId}` : `team ${teamId}`}, season ${season}`);
 
       const params: any = {
@@ -237,6 +268,7 @@ export const rapidApiService = {
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`📊 [RapidAPI] Fetching team statistics for team ${teamId}, league ${leagueId}, season ${season}`);
 
       const response = await apiClient.get("/teams/statistics", {
@@ -373,6 +405,7 @@ export const rapidApiService = {
           // Fetch fixtures from all dates in range
           for (const queryDate of dateRange) {
             try {
+              await this.enforceRateLimit(); // Enforce rate limit before API call
               console.log(
                 `🌍 [RapidAPI] Making API request for date: ${queryDate}`,
               );
@@ -706,6 +739,7 @@ export const rapidApiService = {
     // NO CACHE for live fixtures - always fetch fresh data for accuracy
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(
         "🔴 [RapidAPI PRO] Fetching live fixtures without timezone restriction...",
       );
@@ -825,14 +859,14 @@ export const rapidApiService = {
 
       if (b365LiveMatches && b365LiveMatches.length > 0) {
         // Convert B365 matches to RapidAPI format
-        const convertedMatches = b365LiveMatches.map(match => 
+        const convertedMatches = b365LiveMatches.map(match =>
           b365ApiService.convertToRapidApiFormat(match)
         );
 
         console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures`);
-        fixturesCache.set(cacheKey, { 
-          data: convertedMatches, 
-          timestamp: now 
+        fixturesCache.set(cacheKey, {
+          data: convertedMatches,
+          timestamp: now
         });
         return convertedMatches;
       }
@@ -849,14 +883,14 @@ export const rapidApiService = {
         const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
 
         if (b365LiveMatches && b365LiveMatches.length > 0) {
-          const convertedMatches = b365LiveMatches.map(match => 
+          const convertedMatches = b365LiveMatches.map(match =>
             b365ApiService.convertToRapidApiFormat(match)
           );
 
           console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
-          fixturesCache.set(cacheKey, { 
-            data: convertedMatches, 
-            timestamp: now 
+          fixturesCache.set(cacheKey, {
+            data: convertedMatches,
+            timestamp: now
           });
           return convertedMatches;
         }
@@ -884,6 +918,7 @@ export const rapidApiService = {
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       const response = await apiClient.get("/fixtures", {
         params: {
           id,
@@ -918,6 +953,7 @@ export const rapidApiService = {
 
   async getFixtureEvents(fixtureId: number): Promise<any[]> {
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`📊 [RapidAPI] Fetching events for fixture: ${fixtureId}`);
 
       const response = await apiClient.get("/fixtures/events", {
@@ -959,6 +995,7 @@ export const rapidApiService = {
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`👥 [RapidAPI] Fetching player statistics for fixture ${fixtureId}`);
 
       const response = await apiClient.get("/fixtures/players", {
@@ -1000,6 +1037,7 @@ timestamp: now,
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`📊 [RapidAPI] Fetching statistics for fixture ${fixtureId}${teamId ? ` and team ${teamId}` : ''}`);
 
       const params: any = {
@@ -1038,6 +1076,7 @@ timestamp: now,
 
   async getFixtureRounds(leagueId: number, season: number): Promise<string[]> {
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       const response = await apiClient.get("/fixtures/rounds", {
         params: {
           league: leagueId.toString(),
@@ -1093,6 +1132,7 @@ timestamp: now,
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`Fetching fixtures for league ${leagueId}, season ${season}`);
 
       // First let's check if the league exists and get the current season
@@ -1169,6 +1209,7 @@ timestamp: now,
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       const response = await apiClient.get("/leagues");
 
       if (response.data && response.data.response) {
@@ -1204,6 +1245,7 @@ timestamp: now,
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`Fetching league with ID ${id}`);
       const response = await apiClient.get("/leagues", {
         params: { id },
@@ -1257,6 +1299,7 @@ timestamp: now,
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(
         `Fetching top scorers for league ${leagueId}, season ${season}`,
       );
@@ -1410,6 +1453,7 @@ timestamp: now,
         `Using correct season ${correctSeason} for league ${leagueId} (${leagueInfo.league.name})`,
       );
 
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       const response = await apiClient.get("/standings", {
         params: { league: leagueId, season: correctSeason },
       });
@@ -1464,6 +1508,7 @@ timestamp: now,
     }
 
     try {
+      await this.enforceRateLimit(); // Enforce rate limit before API call
       console.log(`🔍 [RapidAPI] Fetching head-to-head data for teams: ${h2h}, season: ${season}`);
 
       const response = await apiClient.get("/fixtures/headtohead", {

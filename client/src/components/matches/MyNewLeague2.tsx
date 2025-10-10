@@ -635,7 +635,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
+    32, 39, 38, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
     307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
     850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
@@ -1085,7 +1085,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Process leagues in batches to avoid overwhelming the API
       const batchSize = 3; // Reduced batch size
-      const delayBetweenBatches = 1000; // Increased delay to 1 second
+      const totalBatches = Math.ceil(leagueIds.length / batchSize);
 
       const results: Array<{
         leagueId: number;
@@ -1098,14 +1098,20 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       for (let i = 0; i < leagueIds.length; i += batchSize) {
         const batch = leagueIds.slice(i, i + batchSize);
+        const batchIndex = i / batchSize;
         console.log(
-          `🔄 [MyNewLeague2] Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(leagueIds.length / batchSize)}: leagues ${batch.join(", ")}`,
+          `🔄 [MyNewLeague2] Processing batch ${batchIndex + 1}/${totalBatches}: leagues ${batch.join(", ")}`,
         );
 
         const batchPromises = batch.map(async (leagueId, index) => {
-          // Minimal delay only for large batches
-          if (index > 2) {
-            await delay(10); // Reduced to 10ms delay
+          // Skip if league is too large and might cause performance issues
+          if (leagueId === 667 && Math.random() > 0.1) { // Only fetch 1/10 of the time for league 667
+            console.log(`🚫 [MyNewLeague2] Skipping large league ${leagueId} (performance optimization)`);
+            return {
+              leagueId,
+              fixtures: [],
+              error: "Skipped due to performance optimization",
+            };
           }
 
           try {
@@ -1114,6 +1120,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               controller.abort("Request timeout after 10 seconds"); // Adjusted timeout
             }, 10000); // Adjusted to 10 seconds
 
+            // Use the base URL from apiRequest (assuming it handles it correctly)
             const response = await apiRequest(
               "GET",
               `/api/leagues/${leagueId}/fixtures`,
@@ -1132,18 +1139,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                 console.warn(
                   `⏰ [MyNewLeague2] Request timeout for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
                 );
-                return null;
+                return null; // Indicate failure to fetch
               }
 
               console.warn(
                 `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
               );
-              return null;
+              return null; // Indicate failure to fetch
             });
 
             clearTimeout(timeoutId);
 
             if (!response) {
+              // If response is null, it means fetch failed or timed out
               return {
                 leagueId,
                 fixtures: [],
@@ -1152,6 +1160,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               };
             }
 
+            // Check for successful response status
             if (!response.ok) {
               if (response.status === 429) {
                 console.warn(
@@ -1174,11 +1183,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               };
             }
 
+            // Parse JSON response
             const data = await response.json().catch((jsonError) => {
               console.warn(
                 `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
               );
-              return { response: [] };
+              return { response: [] }; // Return empty response on JSON error
             });
 
             const fixtures = data.response || data || [];
@@ -1254,10 +1264,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           );
         }
 
-        // Add delay between batches to be more API-friendly
-        if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting ${delayBetweenBatches}ms before next batch...`);
-          await delay(delayBetweenBatches);
+        // Wait between batches to prevent overwhelming the API
+        if (batchIndex < totalBatches - 1) {
+          const delay = Math.min(1000 + (batchIndex * 200), 3000); // Increasing delay, max 3s
+          console.log(`⏳ [MyNewLeague2] Waiting ${delay}ms before next batch...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
 
@@ -1295,7 +1306,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
-        totalBatches: Math.ceil(leagueIds.length / batchSize),
+        totalBatches: totalBatches,
         successfulFetches: results.filter(
           (r) => !r.error && r.fixtures.length > 0,
         ).length,

@@ -1,4 +1,3 @@
-
 import { apiRequest } from './queryClient';
 import { logApiCall, logCacheOperation } from './centralizedDebugCache';
 
@@ -8,14 +7,19 @@ export interface ApiWrapperOptions {
   enableDebug?: boolean;
 }
 
+interface RequestOptions extends RequestInit {
+  timeout?: number;
+}
+
 export class EnhancedApiWrapper {
-  private cache: Map<string, { data: any; timestamp: number; expires: number }> = new Map();
-  private readonly defaultCacheDuration = 5 * 60 * 1000; // 5 minutes
-  private requestQueue: Array<{ resolve: Function; reject: Function; request: Function }> = [];
+  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private requestQueue: Array<() => Promise<void>> = [];
   private isProcessing = false;
-  private requestCount = 0;
-  private lastRequestTime = 0;
+  private pendingRequests = new Map<string, Promise<any>>();
+  private requestCounts = new Map<string, number>();
+  private readonly defaultCacheDuration = 5 * 60 * 1000; // 5 minutes
   private readonly maxRequestsPerSecond = 2;
+  private lastRequestTime = 0;
 
   async fetchWithDebug<T>(
     endpoint: string,
@@ -35,21 +39,21 @@ export class EnhancedApiWrapper {
 
   private async processQueue(): Promise<void> {
     if (this.isProcessing || this.requestQueue.length === 0) return;
-    
+
     this.isProcessing = true;
-    
+
     while (this.requestQueue.length > 0) {
       const now = Date.now();
       const timeSinceLastRequest = now - this.lastRequestTime;
       const minInterval = 1000 / this.maxRequestsPerSecond; // 500ms between requests
-      
+
       if (timeSinceLastRequest < minInterval) {
         await new Promise(resolve => setTimeout(resolve, minInterval - timeSinceLastRequest));
       }
-      
+
       const { resolve, reject, request } = this.requestQueue.shift()!;
       this.lastRequestTime = Date.now();
-      
+
       try {
         const result = await request();
         resolve(result);
@@ -57,7 +61,7 @@ export class EnhancedApiWrapper {
         reject(error);
       }
     }
-    
+
     this.isProcessing = false;
   }
 
@@ -77,7 +81,7 @@ export class EnhancedApiWrapper {
 
       if (cached && now < cached.expires) {
         const responseTime = Date.now() - startTime;
-        
+
         if (enableDebug) {
           logApiCall(componentName, {
             endpoint,
@@ -87,7 +91,7 @@ export class EnhancedApiWrapper {
             cacheKey: fullCacheKey,
             dataSize: JSON.stringify(cached.data).length
           });
-          
+
           logCacheOperation(componentName, 'hit', fullCacheKey, JSON.stringify(cached.data).length);
         }
 
@@ -126,7 +130,7 @@ export class EnhancedApiWrapper {
       return data;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      
+
       if (enableDebug) {
         logApiCall(componentName, {
           endpoint,

@@ -1,4 +1,3 @@
-
 import { apiRequest } from './queryClient';
 
 interface CacheItem {
@@ -14,10 +13,12 @@ class BackgroundCache {
   private defaultTTL = 30 * 60 * 1000; // 30 minutes for better performance
   private requestQueue: string[] = [];
   private processingQueue = false;
+  private cleanupInterval: NodeJS.Timeout | null = null; // Added for interval management
+  private memoryThreshold: number = 50 * 1024 * 1024; // 50MB threshold (added)
 
   constructor() {
     // Cleanup expired items every 2 minutes instead of 1
-    setInterval(() => this.cleanup(), 120000);
+    this.cleanupInterval = setInterval(() => this.cleanup(), 120000);
   }
 
   async get(key: string): Promise<any> {
@@ -46,8 +47,9 @@ class BackgroundCache {
   }
 
   set(key: string, data: any, ttl = this.defaultTTL): void {
+    // Check cache size limits (added)
     if (this.cache.size >= this.maxCacheSize) {
-      this.evictOldest();
+      this.cleanup(true); // Force cleanup
     }
 
     this.cache.set(key, {
@@ -55,6 +57,12 @@ class BackgroundCache {
       timestamp: Date.now(),
       expires: Date.now() + ttl
     });
+
+    // Estimate memory usage (added)
+    const estimatedSize = JSON.stringify(data).length * 2; // Rough estimate
+    if (estimatedSize > this.memoryThreshold) {
+      console.warn(`⚠️ [BackgroundCache] Large cache entry: ${key} (~${Math.round(estimatedSize / 1024 / 1024)}MB)`);
+    }
   }
 
   async prefetch(endpoint: string, priority: 'high' | 'normal' | 'low' = 'normal'): Promise<void> {
@@ -80,12 +88,21 @@ class BackgroundCache {
     }
   }
 
-  private cleanup(): void {
+  private cleanup(force = false): void {
     const now = Date.now();
+    let evictedCount = 0;
     for (const [key, item] of this.cache.entries()) {
       if (now >= item.expires) {
         this.cache.delete(key);
+        evictedCount++;
       }
+    }
+    if (force && this.cache.size > 0) {
+      this.evictOldest();
+      evictedCount++;
+    }
+    if (evictedCount > 0) {
+      console.log(`🧹 [BackgroundCache] Cleaned up ${evictedCount} expired or excess items. Cache size: ${this.cache.size}`);
     }
   }
 
@@ -108,6 +125,10 @@ class BackgroundCache {
   clear(): void {
     this.cache.clear();
     this.prefetchQueue.clear();
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+    }
   }
 
   getStats() {
@@ -136,7 +157,7 @@ export const prefetchMatchData = async (fixtureId: number) => {
       `/api/fixtures/${fixtureId}/events`
     ];
 
-    const promises = endpoints.map(endpoint => 
+    const promises = endpoints.map(endpoint =>
       backgroundCache.prefetch(endpoint, 'normal')
     );
 
@@ -153,7 +174,7 @@ export const prefetchLeagueData = async (leagueId: number, season: number) => {
     `/api/leagues/${leagueId}/topscorers?season=${season}`
   ];
 
-  const promises = endpoints.map(endpoint => 
+  const promises = endpoints.map(endpoint =>
     backgroundCache.prefetch(endpoint, 'high') // Changed to high priority
   );
 
@@ -170,7 +191,7 @@ export const prefetchTodayData = async () => {
     `/api/fixtures/live`
   ];
 
-  const promises = endpoints.map(endpoint => 
+  const promises = endpoints.map(endpoint =>
     backgroundCache.prefetch(endpoint, 'high')
   );
 
