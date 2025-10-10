@@ -550,8 +550,6 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
   );
 });
 
-});
-
 TodayMatchPageCard.displayName = 'TodayMatchPageCard';
 
 export { TodayMatchPageCard };
