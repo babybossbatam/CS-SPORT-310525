@@ -29,10 +29,10 @@ export const CACHE_PRESETS = {
     refetchOnReconnect: true,
   },
 
-  // For match fixtures and schedules (smart cache based on date) - EXTENDED CACHE
+  // For match fixtures and schedules (smart cache based on date) - ULTRA EXTENDED CACHE
   FIXTURES: {
-    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // Extended to 24 hours for better performance
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep in memory for 7 days
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 2, // Extended to 48 hours for home page
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 14, // Keep in memory for 14 days
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -40,10 +40,10 @@ export const CACHE_PRESETS = {
     retry: 1,
   },
 
-  // For upcoming fixtures (longer cache since they rarely change)
+  // For upcoming fixtures (much longer cache since they rarely change)
   UPCOMING_FIXTURES: {
-    staleTime: CACHE_DURATIONS.TWELVE_HOURS,
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // Extended to 24 hours
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep in memory for 7 days
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -103,6 +103,17 @@ export const CACHE_PRESETS = {
     staleTime: CACHE_DURATIONS.FIVE_MINUTES,
     gcTime: CACHE_DURATIONS.THIRTY_MINUTES,
     refetchOnWindowFocus: false,
+    retry: 1,
+  },
+
+  // Ultra-conservative cache for home page components
+  HOME_PAGE_CONSERVATIVE: {
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // 3 days for non-live content
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 14, // Keep in memory for 2 weeks
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
     retry: 1,
   },
 } as const;

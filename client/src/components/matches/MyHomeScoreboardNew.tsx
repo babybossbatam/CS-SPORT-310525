@@ -134,9 +134,12 @@ const MyHomeScoreboardNew: React.FC<MyHomeScoreboardNewProps> = ({
     },
     {
       enabled: !!currentDate,
-      maxAge: 30 * 60 * 1000, // 30 minutes cache
-      backgroundRefresh: true,
-      staleTime: 15 * 60 * 1000, // Don't refetch for 15 minutes
+      maxAge: 6 * 60 * 60 * 1000, // 6 hours cache for non-live content
+      backgroundRefresh: false, // Disable background refresh for home page
+      staleTime: 6 * 60 * 60 * 1000, // Don't refetch for 6 hours
+      refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     }
   );
 

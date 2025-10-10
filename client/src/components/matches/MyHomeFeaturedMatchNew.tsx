@@ -78,7 +78,7 @@ const CHAMPIONS_LEAGUE_ELITE_TEAMS = [
   157, 165, 168, // Bundesliga elite: Bayern Munich, Borussia Dortmund, Bayer Leverkusen
   489, 492, 496, 502, // Serie A elite: AC Milan, Inter, Juventus, Napoli
   81, // Ligue 1 elite: PSG
-  610, 194, // Eredivisie elite: Ajax, PSV
+  610, 194, // Eredivivisie elite: Ajax, PSV
   211, 212, 228, // Primeira Liga elite: Porto, Benfica, Sporting CP
 ];
 
@@ -179,7 +179,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = away.toLowerCase();
+  const awayTeamLower = awayTeam.toLowerCase(); // Corrected 'away' to 'awayTeam'
 
   const popularNamesToCheck = isChampionsLeague
     ? CHAMPIONS_LEAGUE_ELITE_TEAMS.map(
