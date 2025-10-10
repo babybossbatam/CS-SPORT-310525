@@ -99,7 +99,9 @@ const AppWithLanguageRouting = () => {
               window.location.href = "/en/basketball";
               return null;
             }} />
-            <Route path="/" component={Home} />
+            <Route path="/">
+              <Home />
+            </Route>
 
             {/* 404 page */}
             <Route component={NotFound} />
