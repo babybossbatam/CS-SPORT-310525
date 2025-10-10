@@ -78,8 +78,6 @@ const AppWithLanguageRouting = () => {
         return (
           <Switch>
             {/* Routes with language prefix */}
-            <Route path="/:lang" component={Home} />
-            <Route path="/:lang/" component={Home} />
             <Route path="/:lang/football" component={Football} />
             <Route path="/:lang/basketball" component={Basketball} />
             <Route path="/:lang/tv" component={TV} />
@@ -90,26 +88,27 @@ const AppWithLanguageRouting = () => {
             <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
             <Route path="/:lang/my-scores" component={MyScores} />
             <Route path="/:lang/login" component={Authentication} />
+            <Route path="/:lang" component={Home} />
 
             {/* Fallback routes without language (redirect to default language) */}
+            <Route path="/football" component={() => {
+              window.location.href = "/en/football";
+              return null;
+            }} />
+            <Route path="/basketball" component={() => {
+              window.location.href = "/en/basketball";
+              return null;
+            }} />
             <Route path="/" component={() => {
               window.location.href = "/en";
-        return null;
-      }} />
-      <Route path="/football" component={() => {
-        window.location.href = "/en/football";
-        return null;
-      }} />
-      <Route path="/basketball" component={() => {
-        window.location.href = "/en/basketball";
-        return null;
-      }} />
+              return null;
+            }} />
 
-      {/* 404 page */}
-      <Route component={NotFound} />
-    </Switch>
-  );
-};
+            {/* 404 page */}
+            <Route component={NotFound} />
+          </Switch>
+        );
+      };
 const Settings = lazy(() => import("@/pages/Settings"));
 const SearchResults = lazy(() => import("@/pages/SearchResults"));
 const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
