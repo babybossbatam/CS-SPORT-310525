@@ -303,7 +303,7 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
               className="flex items-center gap-3 px-3 py-4   h-full"
             >
               <span className={`font-medium ${currentLanguage.startsWith('zh') ? 'font-sans' : ''}`}>
-                {getDateDisplayName()}
+                {getDateDisplayName}
               </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isCalendarOpen ? "rotate-180" : ""}`}
