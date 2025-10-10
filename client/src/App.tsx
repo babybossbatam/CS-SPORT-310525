@@ -99,10 +99,7 @@ const AppWithLanguageRouting = () => {
               window.location.href = "/en/basketball";
               return null;
             }} />
-            <Route path="/" component={() => {
-              window.location.href = "/en";
-              return null;
-            }} />
+            <Route path="/" component={Home} />
 
             {/* 404 page */}
             <Route component={NotFound} />
@@ -166,7 +163,7 @@ function App() {
       requestIdleCallback(() => {
         preloadData();
       }, { timeout: 2000 });
-      
+
       // Simplified font loading strategy
       if (document.fonts && document.fonts.load) {
         document.fonts.load('12px Inter').catch(() => {
