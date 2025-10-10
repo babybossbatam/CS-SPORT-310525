@@ -20,42 +20,6 @@ const TodayMatchPageCard = lazy(
   () => import("@/components/matches/TodayMatchPageCard"),
 );
 
-const MyMainLayout = ({ fixtures }: { fixtures: any[] }) => {
-  const { isMobile } = useDeviceInfo();
-
-  return (
-    <div className={cn("w-full", isMobile ? "px-2" : "px-4")}>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Content */}
-        <div className="lg:col-span-2">
-          <Card>
-            <CardContent className="p-6">
-              <h2 className="text-lg font-semibold mb-4">Today's Matches</h2>
-              {fixtures && fixtures.length > 0 ? (
-                <Suspense fallback={<Skeleton className="h-32 w-full" />}>
-                  <TodayMatchPageCard />
-                </Suspense>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No matches available at the moment</p>
-                  <p className="text-sm mt-2">Check back later for updates</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Right Sidebar */}
-        <div className="lg:col-span-1">
-          <MyRightContent />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default MyMainLayout;
-
 interface MyMainLayoutProps {
   fixtures: any[];
   loading?: boolean;

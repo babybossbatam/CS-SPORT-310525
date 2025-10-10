@@ -56,12 +56,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           throw new Error('No internet connection');
         }
 
-        // Set up timeout that only aborts if request is still pending - reduced to 8 seconds for better reliability
+        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for better reliability
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort(new Error('Request timeout after 8 seconds'));
+            controller.abort(new Error('Request timeout after 10 seconds'));
           }
-        }, 8000);
+        }, 10000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,

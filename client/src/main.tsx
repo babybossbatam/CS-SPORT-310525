@@ -51,58 +51,6 @@ if (import.meta.env.DEV) {
   };
 }
 
-// Set up global EventEmitter limits
-const setGlobalEventEmitterLimits = (maxListeners: number) => {
-  if (typeof process !== 'undefined' && process.setMaxListeners) {
-    process.setMaxListeners(maxListeners);
-  }
-
-  if (typeof window !== 'undefined') {
-    if ((window as any).EventEmitter) {
-      (window as any).EventEmitter.defaultMaxListeners = maxListeners;
-    }
-  }
-};
-
-// Set up a more aggressive initial application
-const immediateSetup = () => {
-  setGlobalEventEmitterLimits(8000);
-
-  // Specifically handle the changes listeners that are causing the warning
-  if (typeof window !== 'undefined') {
-    const targets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileWatcher', 'textFileWatcher'];
-    targets.forEach(target => {
-      const searchPaths = [
-        (window as any)[target],
-        (window as any).replit?.[target],
-        document[target as any],
-        (window as any).global?.[target],
-        (window as any)._replit?.[target],
-        (window as any).__replit?.[target]
-      ];
-
-      searchPaths.forEach(obj => {
-        if (obj && typeof obj.setMaxListeners === 'function') {
-          obj.setMaxListeners(8000);
-          console.log(`🔧 [Immediate] Set max listeners for ${target}: 8000`);
-        }
-      });
-    });
-
-    // Set limits on any existing EventEmitter instances
-    Object.keys(window).forEach(key => {
-      const obj = (window as any)[key];
-      if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
-        try {
-          obj.setMaxListeners(8000);
-        } catch (e) {
-          // Ignore errors
-        }
-      }
-    });
-  }
-};
-
 // Make debugging functions available globally in development
 if (import.meta.env.DEV) {
   (window as any).printMissingCountriesReport = printMissingCountriesReport;
@@ -113,12 +61,6 @@ initializeFlagCachePersistence();
 
 // Initialize storage monitoring
 StorageMonitor.getInstance().init();
-
-// Run the immediate setup after function declaration
-immediateSetup();
-
-// Setup global error handlers
-setupGlobalErrorHandlers();
 
 // Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined' && process.setMaxListeners) {
@@ -227,9 +169,51 @@ if (typeof window !== 'undefined') {
 
   // If EventEmitter is available globally, set its default
   if ((window as any).EventEmitter) {
-    (window as any).EventEmitter.defaultUnrDefined = 100;
+    (window as any).EventEmitter.defaultMaxListeners = 100;
   }
 }
+
+// Set up a more aggressive initial application
+  const immediateSetup = () => {
+    setGlobalEventEmitterLimits(8000);
+
+    // Specifically handle the changes listeners that are causing the warning
+    if (typeof window !== 'undefined') {
+      const targets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileWatcher', 'textFileWatcher'];
+      targets.forEach(target => {
+        const searchPaths = [
+          (window as any)[target],
+          (window as any).replit?.[target],
+          document[target as any],
+          (window as any).global?.[target],
+          (window as any)._replit?.[target],
+          (window as any).__replit?.[target]
+        ];
+
+        searchPaths.forEach(obj => {
+          if (obj && typeof obj.setMaxListeners === 'function') {
+            obj.setMaxListeners(8000);
+            console.log(`🔧 [Immediate] Set max listeners for ${target}: 8000`);
+          }
+        });
+      });
+
+      // Set limits on any existing EventEmitter instances
+      Object.keys(window).forEach(key => {
+        const obj = (window as any)[key];
+        if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+          try {
+            obj.setMaxListeners(8000);
+          } catch (e) {
+            // Ignore errors
+          }
+        }
+      });
+    }
+  };
+
+// Setup global error handlers
+setupGlobalErrorHandlers();
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

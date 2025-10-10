@@ -34,17 +34,11 @@ const Home = () => {
         icon={<Trophy className="h-4 w-4 text-neutral-600" />}
       />
 
-      <div className="flex-1" style={{ marginTop: "52px", marginBottom: "-34px" }}>
+      <div className="flex-1 h-full" style={{ marginTop: "52px", marginBottom: "-34px" }}>
         <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>}>
-          <div className="container mx-auto px-4 py-6">
-            <div className="text-center mb-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to CSSPORT</h1>
-              <p className="text-gray-600">Your premier destination for live sports scores and updates</p>
-            </div>
-            <MyMainLayout fixtures={[]} />
-          </div>
+          <MyMainLayout fixtures={[]} />
         </Suspense>
       </div>
 
