@@ -13,8 +13,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
+import { handleApiError } from '@/lib/errorHandler';
 import Header from '@/components/layout/Header';
 import SportsCategoryTabs from '@/components/layout/SportsCategoryTabs';
+import ClassErrorBoundary from '@/components/common/ClassErrorBoundary';
 
 // Extend the user schema with login validation
 const loginSchema = z.object({
@@ -70,7 +72,16 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
 
     try {
       const response = await apiRequest('POST', '/api/auth/login', data);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const userData = await response.json();
+
+      if (!userData.id || !userData.username) {
+        throw new Error('Invalid response from server');
+      }
 
       dispatch(userActions.setUser({
         id: userData.id,
@@ -78,19 +89,27 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
         email: userData.email
       }));
 
-      // Get user preferences
+      // Get user preferences with error handling
       try {
         const prefsResponse = await apiRequest('GET', `/api/user/${userData.id}/preferences`);
-        const prefsData = await prefsResponse.json();
-
+        if (prefsResponse.ok) {
+          const prefsData = await prefsResponse.json();
+          dispatch(userActions.setUserPreferences({
+            favoriteTeams: prefsData.favoriteTeams || [],
+            favoriteLeagues: prefsData.favoriteLeagues || [],
+            favoriteMatches: prefsData.favoriteMatches || [],
+            region: prefsData.region || 'global'
+          }));
+        }
+      } catch (prefsError) {
+        console.warn('Failed to fetch user preferences:', prefsError);
+        // Set default preferences if fetch fails
         dispatch(userActions.setUserPreferences({
-          favoriteTeams: prefsData.favoriteTeams || [],
-          favoriteLeagues: prefsData.favoriteLeagues || [],
-          favoriteMatches: prefsData.favoriteMatches || [],
-          region: prefsData.region || 'global'
+          favoriteTeams: [],
+          favoriteLeagues: [],
+          favoriteMatches: [],
+          region: 'global'
         }));
-      } catch (error) {
-        console.error('Failed to fetch user preferences:', error);
       }
 
       toast({
@@ -101,9 +120,27 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
       navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
+      
+      const errorInfo = handleApiError(error, 'Authentication');
+      let errorMessage = 'Invalid username or password';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          errorMessage = 'Invalid username or password';
+        } else if (error.message.includes('403') || error.message.includes('Forbidden')) {
+          errorMessage = 'Account is temporarily disabled. Please contact support.';
+        } else if (error.message.includes('429')) {
+          errorMessage = 'Too many login attempts. Please try again later.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (error.message.includes('Network') || error.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+      }
+
       toast({
         title: 'Login Failed',
-        description: 'Invalid username or password',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -120,7 +157,16 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
 
     try {
       const response = await apiRequest('POST', '/api/auth/register', userData);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const newUser = await response.json();
+
+      if (!newUser.id || !newUser.username) {
+        throw new Error('Invalid response from server');
+      }
 
       dispatch(userActions.setUser({
         id: newUser.id,
@@ -138,15 +184,35 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
 
       toast({
         title: 'Registration Successful',
-        description: `Welcome to 365Scores, ${newUser.username}!`
+        description: `Welcome to CS SPORT, ${newUser.username}!`
       });
 
       navigate('/');
     } catch (error) {
       console.error('Registration failed:', error);
+      
+      const errorInfo = handleApiError(error, 'Registration');
+      let errorMessage = 'There was an error creating your account. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('409') || error.message.includes('Conflict')) {
+          errorMessage = 'Username or email already exists. Please choose a different one.';
+        } else if (error.message.includes('400') || error.message.includes('Bad Request')) {
+          errorMessage = 'Please check your information and try again.';
+        } else if (error.message.includes('422')) {
+          errorMessage = 'Please check that all fields are filled correctly.';
+        } else if (error.message.includes('429')) {
+          errorMessage = 'Too many registration attempts. Please try again later.';
+        } else if (error.message.includes('500')) {
+          errorMessage = 'Server error. Please try again later.';
+        } else if (error.message.includes('Network') || error.message.includes('fetch')) {
+          errorMessage = 'Network error. Please check your connection and try again.';
+        }
+      }
+
       toast({
         title: 'Registration Failed',
-        description: 'There was an error creating your account. Please try again.',
+        description: errorMessage,
         variant: 'destructive'
       });
     } finally {
@@ -155,7 +221,12 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
   };
 
   return (
-    <>
+    <ClassErrorBoundary 
+      errorMessage="Authentication system is temporarily unavailable. Please try again later."
+      onError={(error, errorInfo) => {
+        console.error('Authentication Error Boundary caught:', error, errorInfo);
+      }}
+    >
       <Header />
       <SportsCategoryTabs />
 
@@ -208,7 +279,11 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                       )}
                     />
 
-                    <Button type="submit" className="w-full bg-[#3182CE]" disabled={isLoading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-[#3182CE] hover:bg-[#2C5AA0] disabled:opacity-50" 
+                      disabled={isLoading}
+                    >
                       {isLoading ? 'Signing in...' : 'Sign In'}
                     </Button>
                   </form>
@@ -294,7 +369,11 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
                       )}
                     />
 
-                    <Button type="submit" className="w-full bg-[#3182CE]" disabled={isLoading}>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-[#3182CE] hover:bg-[#2C5AA0] disabled:opacity-50" 
+                      disabled={isLoading}
+                    >
                       {isLoading ? 'Creating Account...' : 'Create Account'}
                     </Button>
                   </form>
@@ -319,7 +398,7 @@ const Authentication = ({ mode = 'login' }: AuthenticationProps) => {
           </CardFooter>
         </Card>
       </div>
-    </>
+    </ClassErrorBoundary>
   );
 };
 
