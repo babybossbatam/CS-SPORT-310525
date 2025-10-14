@@ -632,6 +632,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   );
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
+  const [dynamicCacheConfig, setDynamicCacheConfig] = useState<any>({}); // State for dynamic cache config
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
@@ -968,9 +969,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     };
   }, [selectedDate]);
 
-  const dynamicCacheConfig = useMemo(() => getDynamicCacheConfig(), [
-    getDynamicCacheConfig,
-  ]);
+  // Apply dynamic cache configuration
+  useEffect(() => {
+    setDynamicCacheConfig(getDynamicCacheConfig());
+  }, [getDynamicCacheConfig]);
 
   // Get query client for cache management
   const queryClient = useQueryClient();
@@ -1096,8 +1098,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       );
 
       // Process leagues in optimized batches
-      const batchSize = 5; // Reduced batch size
-      const delayBetweenBatches = 100; // Increased delay between batches
+      const batchSize = 3; // Further reduced for stability
+      const delayBetweenBatches = 300; // Increased delay for system stability
       const results: Array<{
         leagueId: number;
         fixtures: FixtureData[];

@@ -42,8 +42,8 @@ const monitorMemory = () => {
   }
 };
 
-// Check memory every 2 minutes to reduce overhead
-setInterval(monitorMemory, 120000);
+// Check memory every 5 minutes to reduce overhead
+setInterval(monitorMemory, 300000);
 
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(8000);
@@ -88,7 +88,7 @@ setInterval(() => {
   if (uptime % 600 === 0) { // Every 10 minutes
     console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
   }
-}, 30000); // Check every 30 seconds instead of 1 second
+}, 60000); // Check every 60 seconds for less overhead
 
 
 

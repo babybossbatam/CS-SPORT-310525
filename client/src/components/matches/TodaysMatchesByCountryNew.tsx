@@ -637,10 +637,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
               // Based on the user's intention to "Reduce concurrent operations and batch delays"
               // and the specific change provided, I'll assume the delay reduction
               // applies to the batch processing loop.
-              // The provided change "⏳ [MyNewLeague2] Waiting 500ms before next batch..."
-              // is likely from a different component, but the intention is clear: reduce delays.
-              // I'll simulate this reduction by ensuring the timeout is minimal for immediate processing.
-              setTimeout(processBatch, 10); // Reduced delay for batch processing
+              setTimeout(processBatch, 50); // Balanced delay for stability
             }
           };
 

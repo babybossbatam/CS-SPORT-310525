@@ -4,8 +4,8 @@ export class OptimizedBatchProcessor {
   private static instance: OptimizedBatchProcessor;
   private requestQueue: Array<() => Promise<any>> = [];
   private isProcessing = false;
-  private readonly BATCH_SIZE = 3; // Reduced from higher values
-  private readonly BATCH_DELAY = 100; // Reduced delay
+  private readonly BATCH_SIZE = 2; // Further reduced to prevent overload
+  private readonly BATCH_DELAY = 200; // Increased delay for stability
 
   static getInstance(): OptimizedBatchProcessor {
     if (!OptimizedBatchProcessor.instance) {
