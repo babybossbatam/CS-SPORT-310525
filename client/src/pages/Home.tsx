@@ -33,7 +33,9 @@ const Home = () => {
       />
 
       <div className="flex-1 h-full" style={{ marginTop: "52px", marginBottom: "-34px" }}>
-        <MyMainLayout fixtures={[]} />
+        <React.Suspense fallback={<BrandedLoading />}>
+          <MyMainLayout fixtures={[]} />
+        </React.Suspense>
       </div>
 
       <div className="mt-10">

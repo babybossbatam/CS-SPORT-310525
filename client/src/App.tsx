@@ -286,7 +286,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppWithLanguageRouting />
+      <ErrorBoundary>
+        <AppWithLanguageRouting />
+      </ErrorBoundary>
     </QueryClientProvider>
   );
 }

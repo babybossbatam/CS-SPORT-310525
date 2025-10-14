@@ -171,7 +171,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         // Only try nearby dates for current/recent dates to avoid unnecessary searches
         const today = new Date().toISOString().slice(0, 10);
         const isRecentDate = Math.abs(new Date(validDate).getTime() - new Date(today).getTime()) <= 3 * 24 * 60 * 60 * 1000; // Within 3 days
-        
+
         if (isRecentDate) {
           const dates = [];
           for (let i = -2; i <= 2; i++) {

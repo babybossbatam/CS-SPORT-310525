@@ -38,7 +38,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
-  
+
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
   // Optimized fixture filtering with immediate cache check
@@ -69,10 +69,10 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     });
 
     console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
-    
+
     // Cache the filtered results
     CacheManager.setCachedData([`fixtures-${selectedDate}`], filtered);
-    
+
     return filtered;
   }, [fixtures, selectedDate]);
 
