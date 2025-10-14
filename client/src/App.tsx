@@ -20,6 +20,7 @@ import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
 import { memoryCleanup } from './lib/memoryCleanup';
+import { cacheCleanupManager } from './lib/comprehensiveCacheCleanup';
 
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
@@ -156,8 +157,8 @@ function App() {
     setupGlobalErrorHandlers();
     const refreshInterval = setupCacheRefresh();
 
-    // Clear all logo caches on app initialization
-    clearAllLogoCaches();
+    // Initialize comprehensive cache cleanup
+    cacheCleanupManager.init();
     
     // Initialize memory cleanup
     memoryCleanup.init();

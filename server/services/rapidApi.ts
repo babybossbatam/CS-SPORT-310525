@@ -67,13 +67,14 @@ const popularLeagues: { [leagueId: number]: string[] } = {
   78: ["Bayern Munich", "Dortmund", "Leipzig", "Leverkusen", "Frankfurt"], // Bundesliga
 };
 
-// Enhanced rate limiting
+// Ultra-optimized rate limiting
 const RATE_LIMIT = {
-  requests: 50, // Reduced from 100
+  requests: 30, // Further reduced to prevent hitting limits
   window: 60000, // 1 minute
   current: 0,
   resetTime: Date.now() + 60000,
-  backoffDelay: 1000 // Start with 1 second backoff
+  backoffDelay: 500, // Reduced initial backoff
+  maxBackoff: 5000 // Maximum backoff of 5 seconds
 };
 
 export const rapidApiService = {
@@ -81,16 +82,21 @@ export const rapidApiService = {
    * Helper function to check and enforce rate limits before making an API call.
    */
   async enforceRateLimit(): Promise<void> {
+    const now = Date.now();
+    
+    // Reset counter if window expired
+    if (now > RATE_LIMIT.resetTime) {
+      RATE_LIMIT.current = 0;
+      RATE_LIMIT.resetTime = now + RATE_LIMIT.window;
+      RATE_LIMIT.backoffDelay = 500; // Reset backoff
+    }
+    
     if (RATE_LIMIT.current >= RATE_LIMIT.requests) {
-      const waitTime = Math.max(RATE_LIMIT.resetTime - Date.now(), RATE_LIMIT.backoffDelay);
+      const waitTime = Math.min(RATE_LIMIT.resetTime - now, RATE_LIMIT.backoffDelay);
       if (waitTime > 0) {
         console.log(`⏳ [RapidAPI] Rate limit reached, waiting ${waitTime}ms`);
         await new Promise(resolve => setTimeout(resolve, waitTime));
-        RATE_LIMIT.backoffDelay = Math.min(RATE_LIMIT.backoffDelay * 1.5, 10000); // Exponential backoff, max 10s
-        RATE_LIMIT.current = 0;
-        RATE_LIMIT.resetTime = Date.now() + RATE_LIMIT.window;
-      } else {
-        RATE_LIMIT.backoffDelay = 1000; // Reset backoff on success
+        RATE_LIMIT.backoffDelay = Math.min(RATE_LIMIT.backoffDelay * 1.2, RATE_LIMIT.maxBackoff);
       }
     }
     RATE_LIMIT.current++;
