@@ -1,0 +1,53 @@
+Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'ambient-light-sensor'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'battery'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'execution-while-not-rendered'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'execution-while-out-of-viewport'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'layout-animations'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'legacy-image-formats'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'navigation-override'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'oversized-images'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'publickey-credentials'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'speaker-selection'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'unoptimized-images'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'unsized-media'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Unrecognized feature: 'pointer-lock'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Allow attribute will take precedence over 'allowfullscreen'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+framework-e12aa63890e8f5c4.js:1 Allow attribute will take precedence over 'allowpaymentrequest'.
+_ @ framework-e12aa63890e8f5c4.js:1Understand this warning
+background.js:1 Uncaught SyntaxError: Invalid or unexpected tokenUnderstand this error
+_app-35ecfd9528f4857f.js:28 Adding extension: Icon Generator Object
+stallwart.build.js:1 stallwart: failed ping 1
+stallwart.build.js:1 stallwart: failed ping 2
+stallwart.build.js:1 stallwart: failed ping 3
+stallwart.build.js:1 stallwart: failed ping 4
+stallwart.build.js:1 stallwart: failed ping 5
+stallwart.build.js:1 stallwart: session stalled
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arjc%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.
