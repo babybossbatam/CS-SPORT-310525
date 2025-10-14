@@ -47,8 +47,8 @@ const PerformanceMonitor: React.FC = () => {
 
   useEffect(() => {
     if (metrics) {
-      // Log performance metrics in development
-      if (process.env.NODE_ENV === 'development') {
+      // Reduced logging frequency to prevent memory issues
+      if (process.env.NODE_ENV === 'development' && Math.random() < 0.1) {
         console.log('🚀 Performance Metrics:', {
           FCP: `${metrics.fcp?.toFixed(2)}ms`,
           LCP: `${metrics.lcp?.toFixed(2)}ms`, 

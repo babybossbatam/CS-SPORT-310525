@@ -16,14 +16,14 @@ export const CACHE_DURATIONS = {
 
 // Cache presets for different data types
 export const CACHE_PRESETS = {
-  // For frequently changing data like live scores - optimized
+  // For frequently changing data like live scores - memory optimized
   LIVE_DATA: {
-    staleTime: CACHE_DURATIONS.TWO_MINUTES,
-    gcTime: CACHE_DURATIONS.FIVE_MINUTES,
-    refetchInterval: CACHE_DURATIONS.TWO_MINUTES,
-    refetchOnWindowFocus: false, // Reduce unnecessary refetches
+    staleTime: CACHE_DURATIONS.FIVE_MINUTES,
+    gcTime: CACHE_DURATIONS.TEN_MINUTES,
+    refetchInterval: CACHE_DURATIONS.FIVE_MINUTES,
+    refetchOnWindowFocus: false,
     refetchOnMount: false,
-    refetchOnReconnect: true,
+    refetchOnReconnect: false, // Disable to reduce memory pressure
   },
 
   // For match fixtures and schedules (smart cache based on date) - EXTENDED CACHE

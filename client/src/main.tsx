@@ -15,6 +15,12 @@ import { initializeFlagCachePersistence } from "./lib/flagUtils";
 import { printMissingCountriesReport } from './lib/flagUtils';
 import { StorageMonitor } from './lib/storageMonitor';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import './lib/memoryManager'
+import './lib/workflowManager'
+import { ResourceMonitor } from './lib/resourceMonitor'
+
+// Initialize resource monitoring
+ResourceMonitor.getInstance().init()
 
 // Initialize dark mode from localStorage
 const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -94,7 +100,7 @@ if (typeof window !== 'undefined') {
   setTimeout(setLimitsImmediately, 100);
 }
 
-// Set default max listeners for EventEmitter globally
+// Set EventEmitter default max listeners for EventEmitter globally
 if (typeof window !== 'undefined') {
   // Try to set high limits on any existing EventEmitter classes
   try {
