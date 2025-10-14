@@ -210,8 +210,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         }
 
         // Only warn if this is a current/recent date where we'd expect data
-        const today = new Date().toISOString().slice(0, 10);
-        const isRecentDate = Math.abs(new Date(validDate).getTime() - new Date(today).getTime()) <= 3 * 24 * 60 * 60 * 1000; // Within 3 days
+        if (isRecentDate) {
         
         if (isRecentDate) {
           console.log(`📅 [CentralDataProvider] No cached data available for ${validDate}, returning empty array`);
