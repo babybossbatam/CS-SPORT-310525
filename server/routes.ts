@@ -9,17 +9,15 @@ import soccersApi from "./services/soccersApi";
 import { supabaseService } from "./services/supabase";
 import {
   insertUserSchema,
-  insertUserPreferencesSchema,
-  insertCachedFixturesSchema,
-  insertCachedLeaguesSchema,
+  insertUserPreferenceSchema,
+  insertCachedFixtureSchema,
+  insertCachedLeagueSchema,
   insertNewsArticleSchema,
   CachedFixture,
   NewsArticle,
 } from "@shared/schema";
 import { z } from "zod";
 import { format, addDays, subDays, isPast } from "date-fns";
-// Removing uefaU21Routes import as requested
-import cors from "cors";
 import playerRoutes from './routes/playerRoutes';
 import playerDataRoutes from './routes/playerDataRoutes';
 import featuredMatchRoutes from "./routes/featuredMatchRoutes";
@@ -28,7 +26,6 @@ import { sofaScoreAPI } from './services/sofascoreApi';
 import highlightsRoutes from './routes/highlightsRoutes';
 import axios from "axios";
 import { simpleRapidApi } from "./services/simpleRapidApi";
-import athlete365Routes from './routes/athlete365Routes';
 import scores365StatsRoutes from './routes/365scoresStatsRoutes';
 import keyPlayersRoutes from './routes/365scoresKeyPlayersRoutes';
 import playersRoutes from './routes/playersRoutes';
@@ -39,7 +36,6 @@ import basketballRoutes from './routes/basketballRoutes';
 import basketballStandingsRoutes from './routes/basketballStandingsRoutes';
 import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
-import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
 import verificationRoutes from "./routes/verificationRoutes";
 
@@ -432,7 +428,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (cachedFixtures && cachedFixtures.length > 0) {
         const now = new Date();
-        const cacheTime = new Date(cachedFixtures[0].timestamp);
+        const cacheTime = new Date(cachedFixtures[0].timestamp || Date.now());
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         // Use smart cache durations based on date - EXTENDED CACHE TIMES
@@ -637,7 +633,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (cachedFixture) {
         // Check if cache is fresh (less than 1 hour old)
         const now = new Date();
-        const cacheTime = new Date(cachedFixture.timestamp);
+        const cacheTime = new Date(cachedFixture.timestamp || Date.now());
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         if (cacheAge < 60 * 60 * 1000) {
@@ -953,7 +949,7 @@ name: "Bundesliga",
       if (cachedLeague) {
         // Check if cache is fresh (less than 4 hours old)
         const now = new Date();
-        const cacheTime = new Date(cachedLeague.timestamp);
+        const cacheTime = new Date(cachedLeague.timestamp || Date.now());
         const cacheAge = now.getTime() - cacheTime.getTime();
 
         if (cacheAge < 4 * 60 * 60 * 1000) {
@@ -1042,95 +1038,9 @@ name: "Bundesliga",
         const cacheKey = `topscorers-${id}-${season}`;
         const cachedTopScorers = await storage.getCachedFixture(cacheKey);
 
-
-// Popular teams endpoint
-app.get('/api/teams/popular', async (req, res) => {
-  try {
-    // Set proper JSON content type header
-    res.setHeader('Content-Type', 'application/json');
-
-    // Return popular teams with correct structure
-    const popularTeams = [
-      {
-        team: { id: 33, name: "Manchester United", logo: "https://media.api-sports.io/football/teams/33.png" },
-        country: { name: "England" },
-        popularity: 95,
-      },
-      {
-        team: { id: 40, name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" },
-        country: { name: "England" },
-        popularity: 92,
-      },
-      {
-        team: { id: 50, name: "Manchester City", logo: "https://media.api-sports.io/football/teams/50.png" },
-        country: { name: "England" },
-        popularity: 90,
-      },
-      {
-        team: { id: 541, name: "Real Madrid", logo: "https://media.api-sports.io/football/teams/541.png" },
-        country: { name: "Spain" },
-        popularity: 88,
-      },
-      {
-        team: { id: 529, name: "FC Barcelona", logo: "https://media.api-sports.io/football/teams/529.png" },
-        country: { name: "Spain" },
-        popularity: 85,
-      },
-      {
-        team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
-        country: { name: "England" },
-        popularity: 83,
-      },
-      {
-        team: { id: 49, name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
-        country: { name: "England" },
-        popularity: 80,
-      },
-      {
-        team: { id: 157, name: "Bayern Munich", logo: "https://media.api-sports.io/football/teams/157.png" },
-        country: { name: "Germany" },
-        popularity: 78,
-      },
-      {
-        team: { id: 47, name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" },
-        country: { name: "England" },
-        popularity: 75,
-      },
-      {
-        team: { id: 489, name: "AC Milan", logo: "https://media.api-sports.io/football/teams/489.png" },
-        country: { name: "Italy" },
-        popularity: 68,
-      },
-      {
-        team: { id: 496, name: "Juventus", logo: "https://media.api-sports.io/football/teams/496.png" },
-        country: { name: "Italy" },
-        popularity: 65,
-      },
-      {
-        team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api-sports.io/football/teams/165.png" },
-        country: { name: "Germany" },
-        popularity: 62,
-      },
-      {
-        team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api-sports.io/football/teams/85.png" },
-        country: { name: "France" },
-        popularity: 60,
-      }
-    ];
-
-    console.log(`✅ [API] Returning ${popularTeams.length} popular teams`);
-    res.json(popularTeams);
-  } catch (error) {
-    console.error('❌ [API] Error fetching popular teams:', error);
-    res.setHeader('Content-Type', 'application/json');
-    res.status(500).json({ error: 'Failed to fetch popular teams' });
-  }
-});
-
-
         if (cachedTopScorers) {
           const now = new Date();
-          const cacheTime = new Date(cachedTopScorers.timestamp);
+          const cacheTime = new Date(cachedTopScorers.timestamp || Date.now());
           const cacheAge = now.getTime() - cacheTime.getTime();
 
           // Use 2 hour cache for top scorers for better performance
@@ -1206,7 +1116,7 @@ app.get('/api/teams/popular', async (req, res) => {
 
         if (cachedStandings) {
           const now = new Date();
-          const cacheTime = new Date(cachedStandings.timestamp);
+          const cacheTime = new Date(cachedStandings.timestamp || Date.now());
           const cacheAge = now.getTime() - cacheTime.getTime();
 
           // Use 4 hour cache for standings
@@ -1255,6 +1165,84 @@ app.get('/api/teams/popular', async (req, res) => {
       }
     },
   );
+
+  // Popular teams endpoint
+  apiRouter.get('/teams/popular', async (_req: Request, res: Response) => {
+    try {
+      const popularTeams = [
+        {
+          team: { id: 33, name: "Manchester United", logo: "https://media.api-sports.io/football/teams/33.png" },
+          country: { name: "England" },
+          popularity: 95,
+        },
+        {
+          team: { id: 40, name: "Liverpool", logo: "https://media.api-sports.io/football/teams/40.png" },
+          country: { name: "England" },
+          popularity: 92,
+        },
+        {
+          team: { id: 50, name: "Manchester City", logo: "https://media.api-sports.io/football/teams/50.png" },
+          country: { name: "England" },
+          popularity: 90,
+        },
+        {
+          team: { id: 541, name: "Real Madrid", logo: "https://media.api-sports.io/football/teams/541.png" },
+          country: { name: "Spain" },
+          popularity: 88,
+        },
+        {
+          team: { id: 529, name: "FC Barcelona", logo: "https://media.api-sports.io/football/teams/529.png" },
+          country: { name: "Spain" },
+          popularity: 85,
+        },
+        {
+          team: { id: 42, name: "Arsenal", logo: "https://media.api-sports.io/football/teams/42.png" },
+          country: { name: "England" },
+          popularity: 83,
+        },
+        {
+          team: { id: 49, name: "Chelsea", logo: "https://media.api-sports.io/football/teams/49.png" },
+          country: { name: "England" },
+          popularity: 80,
+        },
+        {
+          team: { id: 157, name: "Bayern Munich", logo: "https://media.api-sports.io/football/teams/157.png" },
+          country: { name: "Germany" },
+          popularity: 78,
+        },
+        {
+          team: { id: 47, name: "Tottenham", logo: "https://media.api-sports.io/football/teams/47.png" },
+          country: { name: "England" },
+          popularity: 75,
+        },
+        {
+          team: { id: 489, name: "AC Milan", logo: "https://media.api-sports.io/football/teams/489.png" },
+          country: { name: "Italy" },
+          popularity: 68,
+        },
+        {
+          team: { id: 496, name: "Juventus", logo: "https://media.api-sports.io/football/teams/496.png" },
+          country: { name: "Italy" },
+          popularity: 65,
+        },
+        {
+          team: { id: 165, name: "Borussia Dortmund", logo: "https://media.api-sports.io/football/teams/165.png" },
+          country: { name: "Germany" },
+          popularity: 62,
+        },
+        {
+          team: { id: 85, name: "Paris Saint Germain", logo: "https://media.api-sports.io/football/teams/85.png" },
+          country: { name: "France" },
+          popularity: 60,
+        }
+      ];
+
+      res.json(popularTeams);
+    } catch (error) {
+      console.error('Error fetching popular teams:', error);
+      res.status(500).json({ error: 'Failed to fetch popular teams' });
+    }
+  });
 
   // Conference League fixtures endpoint (League ID 848)
   apiRouter.get(
@@ -2467,7 +2455,7 @@ app.get('/api/teams/popular', async (req, res) => {
 
           if (cachedFixture) {
             const cacheAge =
-              Date.now() - new Date(cachedFixture.timestamp).getTime();
+              Date.now() - new Date(cachedFixture.timestamp || Date.now()).getTime();
             cacheInfo = {
               exists: true,
               age: Math.round(cacheAge / 60000), // in minutes

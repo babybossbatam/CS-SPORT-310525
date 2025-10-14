@@ -60,6 +60,8 @@ export interface FixtureResponse {
   };
   goals: Goals;
   score: Score;
+  isLiveData?: boolean;
+  lastUpdated?: number;
 }
 
 export interface LeagueResponse {
