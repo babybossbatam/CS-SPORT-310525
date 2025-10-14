@@ -400,18 +400,18 @@ export const setupGlobalErrorHandlers = () => {
     process.setMaxListeners(15);
   }
 
-  // Set max listeners for global objects - keep it low
+  // Set max listeners for global objects - keep reasonable
   if (typeof window !== 'undefined') {
     if (window.addEventListener && window.setMaxListeners) {
-      (window as any).setMaxListeners?.(15);
+      (window as any).setMaxListeners?.(10);
     }
     if (document.addEventListener && document.setMaxListeners) {
-      (document as any).setMaxListeners?.(15);
+      (document as any).setMaxListeners?.(10);
     }
 
     // Set max listeners for global EventEmitter if available
     if ((window as any).EventEmitter) {
-      (window as any).EventEmitter.defaultMaxListeners = 15;
+      (window as any).EventEmitter.defaultMaxListeners = 10;
     }
   }
 
@@ -419,7 +419,7 @@ export const setupGlobalErrorHandlers = () => {
   if (typeof require !== 'undefined') {
     try {
       const EventEmitter = require('events');
-      EventEmitter.defaultMaxListeners = 15;
+      EventEmitter.defaultMaxListeners = 10;
     } catch (e) {
       // EventEmitter not available in browser context
     }

@@ -88,12 +88,17 @@ export async function apiRequest(
     if (url.includes('/shots') || url.includes('/headtohead') || url.includes('/players')) {
       if (errorMessage.includes('400') || errorMessage.includes('Bad Request')) {
         console.warn(`⚠️ [apiRequest] Invalid parameters for ${url}: ${errorMessage}`);
-        throw new Error(`Invalid request parameters`);
+        throw new Error(`Invalid request parameters for ${url}`);
       }
 
       if (errorMessage.includes('500') || errorMessage.includes('Internal Server Error')) {
         console.warn(`🔧 [apiRequest] Server error for ${url}: ${errorMessage}`);
-        throw new Error(`Server temporarily unavailable`);
+        throw new Error(`Server temporarily unavailable for ${url}`);
+      }
+
+      if (errorMessage.includes('429') || errorMessage.includes('Too Many Requests')) {
+        console.warn(`⚠️ [apiRequest] Rate limit exceeded for ${url}: ${errorMessage}`);
+        throw new Error(`Rate limit exceeded. Please try again later.`);
       }
     }
 
