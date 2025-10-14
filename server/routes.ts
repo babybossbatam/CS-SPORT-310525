@@ -41,6 +41,7 @@ import basketballGamesRoutes from './routes/basketballGamesRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes';
 import { RapidAPI } from './utils/rapidApi'; // corrected rapidApi import
 import translationRoutes from "./routes/translationRoutes";
+import verificationRoutes from "./routes/verificationRoutes";
 
 
 // Cache duration constants
@@ -64,6 +65,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   apiRouter.use('/api', playerRoutes);
   apiRouter.use('/api', playerDataRoutes);
   apiRouter.use('/api', playerVerificationRoutes);
+  app.use('/api/auth', verificationRoutes);
 
   // Health check endpoint
   apiRouter.get("/health", async (_req: Request, res: Response) => {
@@ -136,16 +138,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .json({ message: "Username and password are required" });
       }
 
-      const user = await storage.getUserByUsername(username);
+      console.log(`Login attempt for username: ${username}`);
 
-      if (!user || user.password !== password) {
+      // Check if user exists first
+      const user = await storage.getUserByUsername(username);
+      if (!user) {
+        console.log(`User not found: ${username}`);
         return res
           .status(401)
-          .json({ message: "Invalid username or password" });
+          .json({ message: "User not found. Please check your username or register first." });
       }
 
-      // Return user without password
+      console.log(`User found: ${user.username} (ID: ${user.id})`);
+
+      // Check password
+      if (user.password !== password) {
+        console.log(`Invalid password for user: ${username}`);
+        return res
+          .status(401)
+          .json({ message: "Invalid password" });
+      }
+
+      // Login successful
       const { password: _, ...userWithoutPassword } = user;
+      console.log(`Login successful for user: ${username}`);
       res.json(userWithoutPassword);
     } catch (error) {
       res.status(500).json({ message: "Failed to login" });
@@ -2911,8 +2927,7 @@ error) {
           lineups: null,
         });
       }
-    },
-  );
+    },  );
 
   // Get live fixtures (with B365API fallback)
   apiRouter.get("/fixtures/live", async (_req: Request, res: Response) => {

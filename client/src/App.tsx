@@ -9,8 +9,8 @@ import { queryClient } from "@/lib/queryClient";
 import BrandedLoading from "@/components/common/BrandedLoading";
 
 import React from 'react';
-import { Provider } from "react-redux";
-import { store } from "@/lib/store";
+import { Provider, useSelector } from "react-redux";
+import { store, RootState } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -73,27 +73,27 @@ const AppWithLanguageRouting = () => {
   );
 };
 
-// Separate component for routes
-const AppRoutes = () => {
-  return (
-    <Switch>
-      {/* Routes with language prefix */}
-      <Route path="/:lang" component={Home} />
-      <Route path="/:lang/" component={Home} />
-      <Route path="/:lang/football" component={Football} />
-      <Route path="/:lang/basketball" component={Basketball} />
-      <Route path="/:lang/tv" component={TV} />
-      <Route path="/:lang/horse-racing" component={HorseRacing} />
-      <Route path="/:lang/snooker" component={Snooker} />
-      <Route path="/:lang/esport" component={Esport} />
-      <Route path="/:lang/match/:matchId" component={MatchDetails} />
-      <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
-      <Route path="/:lang/my-scores" component={MyScores} />
-      <Route path="/:lang/login" component={Authentication} />
+      // Separate component for routes
+      const AppRoutes = () => {
+        return (
+          <Switch>
+            {/* Routes with language prefix */}
+            <Route path="/:lang" component={Home} />
+            <Route path="/:lang/" component={Home} />
+            <Route path="/:lang/football" component={Football} />
+            <Route path="/:lang/basketball" component={Basketball} />
+            <Route path="/:lang/tv" component={TV} />
+            <Route path="/:lang/horse-racing" component={HorseRacing} />
+            <Route path="/:lang/snooker" component={Snooker} />
+            <Route path="/:lang/esport" component={Esport} />
+            <Route path="/:lang/match/:matchId" component={MatchDetails} />
+            <Route path="/:lang/league/:leagueId" component={LeagueDetails} />
+            <Route path="/:lang/my-scores" component={MyScores} />
+            <Route path="/:lang/login" component={Authentication} />
 
-      {/* Fallback routes without language (redirect to default language) */}
-      <Route path="/" component={() => {
-        window.location.href = "/en";
+            {/* Fallback routes without language (redirect to default language) */}
+            <Route path="/" component={() => {
+              window.location.href = "/en";
         return null;
       }} />
       <Route path="/football" component={() => {
@@ -161,8 +161,70 @@ function App() {
     // Start performance monitoring
     console.log('🚀 Starting performance monitoring...');
 
-    // Preload critical data
-    preloadData();
+    // Optimize performance for initial load
+    if (typeof window !== 'undefined') {
+      // Reduce initial bundle size impact
+      requestIdleCallback(() => {
+        preloadData();
+      }, { timeout: 2000 });
+      
+      // Optimize font loading strategy
+      const optimizeFontLoading = () => {
+        // Create multiple font display elements to trigger immediate usage
+        const triggerElements = [
+          document.createElement('span'),
+          document.createElement('div'),
+          document.createElement('p')
+        ];
+        
+        triggerElements.forEach((element, index) => {
+          element.style.fontFamily = 'Inter, sans-serif';
+          element.style.position = 'fixed';
+          element.style.top = '-100px';
+          element.style.left = '-100px';
+          element.style.fontSize = '12px';
+          element.style.visibility = 'hidden';
+          element.style.pointerEvents = 'none';
+          element.textContent = 'Inter font trigger';
+          element.setAttribute('aria-hidden', 'true');
+          
+          document.body.appendChild(element);
+          
+          // Remove after font is registered
+          setTimeout(() => {
+            if (document.body.contains(element)) {
+              document.body.removeChild(element);
+            }
+          }, 50 + (index * 10));
+        });
+      };
+
+      // Preload font with immediate usage
+      const fontPreload = document.createElement('link');
+      fontPreload.rel = 'preload';
+      fontPreload.href = '/fonts/Inter-Regular.woff2';
+      fontPreload.as = 'font';
+      fontPreload.type = 'font/woff2';
+      fontPreload.crossOrigin = 'anonymous';
+      
+      fontPreload.onload = () => {
+        // Immediate font usage
+        optimizeFontLoading();
+      };
+      
+      fontPreload.onerror = () => {
+        console.log('🔧 Font preload failed, using fallback');
+      };
+      
+      document.head.appendChild(fontPreload);
+      
+      // Also trigger font usage immediately for safety
+      requestAnimationFrame(() => {
+        optimizeFontLoading();
+      });
+    } else {
+      preloadData();
+    }
 
     return () => {
       cleanupCacheRefresh(refreshInterval);

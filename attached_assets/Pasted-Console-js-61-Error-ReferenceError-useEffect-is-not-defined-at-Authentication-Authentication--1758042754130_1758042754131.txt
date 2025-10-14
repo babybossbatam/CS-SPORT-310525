@@ -1,0 +1,61 @@
+Console.js:61 Error: ReferenceError: useEffect is not defined
+    at Authentication (Authentication.tsx:237:3)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=aa6d5358:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=aa6d5358:14582:28)
+    at mountLazyComponent (chunk-RPCDYKBN.js?v=aa6d5358:14833:23)
+    at beginWork (chunk-RPCDYKBN.js?v=aa6d5358:15918:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=aa6d5358:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=aa6d5358:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=aa6d5358:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=aa6d5358:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=aa6d5358:19198:20)
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 Context: Object
+Console.js:61 🚨 Global error: ReferenceError: useEffect is not defined
+    at Authentication (Authentication.tsx:237:3)
+    at renderWithHooks (chunk-RPCDYKBN.js?v=aa6d5358:11548:26)
+    at updateFunctionComponent (chunk-RPCDYKBN.js?v=aa6d5358:14582:28)
+    at mountLazyComponent (chunk-RPCDYKBN.js?v=aa6d5358:14833:23)
+    at beginWork (chunk-RPCDYKBN.js?v=aa6d5358:15918:22)
+    at HTMLUnknownElement.callCallback2 (chunk-RPCDYKBN.js?v=aa6d5358:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-RPCDYKBN.js?v=aa6d5358:3699:24)
+    at invokeGuardedCallback (chunk-RPCDYKBN.js?v=aa6d5358:3733:39)
+    at beginWork$1 (chunk-RPCDYKBN.js?v=aa6d5358:19765:15)
+    at performUnitOfWork (chunk-RPCDYKBN.js?v=aa6d5358:19198:20)
+Mt.forEach.n.<computed> @ Console.js:61Understand this error
+Console.js:61 🔧 Runtime/ErrorOverlay error caught and suppressed: Uncaught ReferenceError: useEffect is not defined
+Console.js:61 Suppressed DOM manipulation error: useEffect is not defined
+Mt.forEach.n.<computed> @ Console.js:61Understand this warning
+Console.js:61 🔧 EventEmitter setup for Replit environment completed with minor issues
+Console.js:61 🔧 EventEmitter cleanup completed
+Console.js:61 🔧 EventEmitter setup for Replit environment completed with minor issues
+Console.js:61 ⏰ [CentralDataProvider] Request timeout for 2025-09-16 after 15 seconds
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:39
+console.warn @ main.tsx:131
+console.warn @ errorHandler.ts:395
+console.warn @ errorHandler.ts:395
+console.warn @ errorHandler.ts:395
+queryFn @ CentralDataProvider.tsx:140Understand this warning
+Console.js:61 ⚠️ [CentralDataProvider] No fallback data available for 2025-09-16, returning empty array
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:39
+console.warn @ main.tsx:131
+console.warn @ errorHandler.ts:395
+console.warn @ errorHandler.ts:395
+console.warn @ errorHandler.ts:395
+queryFn @ CentralDataProvider.tsx:196Understand this warning
+Console.js:61 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+2Console.js:61 🔧 network-connectivity error suppressed: Request timeout after 15 seconds
+Console.js:61 ⏰ [CentralDataProvider] Request timeout for 2025-09-16 after 15 seconds
+Mt.forEach.n.<computed> @ Console.js:61
+console.warn @ eventEmitterUtils.ts:295
+console.warn @ main.tsx:39
+console.warn @ main.tsx:131
+console.warn @ errorHandler.ts:395
+console.warn @ errorHandler.ts:395
+console.warn @ errorHandler.ts:395
+queryFn @ CentralDataProvider.tsx:140Understand this warning
+Console.js:61 ⚠️ [CentralDataProvider] No fallback data available for 2025-09-16, returning empty array

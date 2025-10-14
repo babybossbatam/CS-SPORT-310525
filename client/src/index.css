@@ -5,6 +5,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent autofill from changing input background and text size */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(255, 255, 255, 0.1) inset !important;
+  -webkit-text-fill-color: white !important;
+  background-color: transparent !important;
+  transition: background-color 5000s ease-in-out 0s;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+/* For other browsers */
+input:-moz-autofill {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+input:-ms-autofill {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  font-size: 16px !important;
+  font-family: inherit !important;
+  font-weight: inherit !important;
+}
+
+/* Additional autofill prevention for phone inputs specifically */
+input[type="tel"]:-webkit-autofill,
+input[type="tel"]:-webkit-autofill:hover,
+input[type="tel"]:-webkit-autofill:focus,
+input[type="tel"]:-webkit-autofill:active {
+  font-size: 16px !important;
+  -webkit-text-size-adjust: 100% !important;
+  text-size-adjust: 100% !important;
+}
+
 /* Hide Replit development error overlay - comprehensive */
 [data-error-overlay],
 #error-overlay,
@@ -487,11 +528,35 @@ footer {
 @layer base {
   * {
     @apply border-border;
-    font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
 
   body {
     @apply antialiased bg-background text-foreground;
-    font-family: 'Mont', 'Inter', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
   }
+}
+
+/* Font face declaration for immediate recognition */
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/Inter-Regular.woff2') format('woff2');
+}
+
+/* Force immediate font usage */
+html {
+  font-family: 'Inter', 'Mont', 'Helvetica Neue', 'Arial', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Ensure font is used in body immediately */
+body::before {
+  content: '';
+  font-family: 'Inter', sans-serif;
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  visibility: hidden;
 }

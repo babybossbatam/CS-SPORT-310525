@@ -71,12 +71,17 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
   const shouldUseCircularFlag = useMemo(() => {
     if (!teamName) return false;
 
+    const leagueName = leagueContext?.name?.toLowerCase() || "";
+
     // PRIORITY CHECK: Explicitly exclude FIFA Club World Cup and other club competitions
-    const isClubCompetition = leagueContext?.name?.toLowerCase().includes('fifa club world cup') ||
-                             leagueContext?.name?.toLowerCase().includes('club world cup') ||
-                             leagueContext?.name?.toLowerCase().includes('champions league') ||
-                             leagueContext?.name?.toLowerCase().includes('europa league') ||
-                             leagueContext?.name?.toLowerCase().includes('conference league');
+    const isClubCompetition = leagueName.includes('fifa club world cup') ||
+                             leagueName.includes('club world cup') ||
+                             leagueName.includes('champions league') ||
+                             leagueName.includes('europa league') ||
+                             leagueName.includes('conference league') ||
+                             leagueName.includes('conmebol') ||
+                             leagueName.includes('sudamericana') ||
+                             leagueName.includes('libertadores');
 
     if (isClubCompetition) {
       console.log(`🏟️ [MyWorldTeamLogo] Club competition detected: ${leagueContext?.name} - forcing club logo for ${teamName}`);
@@ -119,6 +124,116 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     // Specific check for European microstates
     const isMicrostate = ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city']
       .includes(teamName.toLowerCase());
+
+    // Known club indicators that should NEVER use circular flags
+    const clubIndicators = [
+      " fc",
+      " cf",
+      " ac",
+      " sc",
+      " rc",
+      " ud",
+      " cd",
+      " club",
+      " united",
+      " city",
+      " athletic",
+      " real ",
+      " barcelona",
+      " valencia",
+      " sevilla",
+      " arsenal",
+      " liverpool",
+      " chelsea",
+      " juventus",
+      " milan",
+      " napoli",
+      " roma",
+      " ajax",
+      " psv",
+      " feyenoord",
+      " bayern",
+      " dortmund",
+      " leipzig",
+      " manchester",
+      " tottenham",
+      " atletico",
+      " borussia",
+      " eintracht",
+      " inter",
+      " lazio",
+      " fiorentina",
+      " atalanta",
+      " olympique",
+      " monaco",
+      " lyon",
+      " marseille",
+      " lille",
+      " nice",
+      " rennes",
+      " strasbourg",
+      " psg",
+      " paris saint",
+      " saint-germain",
+      " sporting",
+      " porto",
+      " benfica",
+      " braga",
+      " vitoria",
+      " gil vicente",
+      " famalicao",
+      " pacos",
+      " tondela",
+      // South American club indicators
+      " universidad",
+      " universidade",
+      " instituto",
+      " deportivo",
+      " deportes",
+      " club ",
+      " alianza",
+      " independiente",
+      " nacional",
+      " olimpia",
+      " cerro",
+      " penarol",
+      " boca",
+      " river",
+      " racing",
+      " estudiantes",
+      " gimnasia",
+      " newells",
+      " rosario",
+      " velez",
+      " huracan",
+      " lanus",
+      " defensa",
+      " talleres",
+      " colon",
+      " union",
+      " arsenal",
+      " tigre",
+      " platense",
+      " sarmiento",
+    ];
+    
+    const teamNameLower = teamName.toLowerCase();
+
+    // If team name contains club indicators, it's definitely a club team
+    if (clubIndicators.some((indicator) => teamNameLower.includes(indicator))) {
+      console.log(`🏟️ [MyWorldTeamLogo] Club indicator found for ${teamName} in ${leagueName}: forcing club logo`);
+      return false;
+    }
+
+    // Additional specific checks for South American university/club teams
+    if (teamNameLower.includes("universidad") || 
+        teamNameLower.includes("universidade") ||
+        teamNameLower.includes("instituto") ||
+        (teamNameLower.includes("alianza") && !teamNameLower.includes("seleccion")) ||
+        (teamNameLower.includes("independiente") && !teamNameLower.includes("seleccion"))) {
+      console.log(`🏟️ [MyWorldTeamLogo] South American club pattern detected for ${teamName}: forcing club logo`);
+      return false;
+    }
 
     const finalDecision = isNational || isAdditionalNational || isYouthNational || isMicrostate;
 
@@ -210,14 +325,14 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     [darkMode],
   );
 
-  // DECISION POINT: Use MyCircularFlag for national teams, LazyImage for club teams
+  // DECISION POINT: Use MyCircularFlag for national teams, direct club logo rendering for club teams
   // National teams should ALWAYS use MyCircularFlag regardless of useTeamLogo prop
 
   // CRITICAL DEBUG: Log the exact decision state
   console.log(`🔥 [MyWorldTeamLogo] CRITICAL DECISION for ${teamName}:`, {
     shouldUseCircularFlag,
     teamId,
-    logoUrl,
+    logoUrl: logoUrlForClub,
     leagueContext
   });
 
@@ -238,8 +353,8 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
     );
   }
 
-  // For club teams, use LazyImage
-  console.log(`🏟️ [MyWorldTeamLogo] ❌ FALLBACK: Rendering LazyImage for club team: ${teamName} (shouldUseCircularFlag was ${shouldUseCircularFlag})`);
+  // For club teams, render club logo directly without using MyCircularFlag
+  console.log(`🏟️ [MyWorldTeamLogo] ✅ CONFIRMED: Rendering direct club logo for: ${teamName}`);
   return (
     <div
       className={`team-logo-container ${className}`}
@@ -250,18 +365,30 @@ const MyWorldTeamLogo: React.FC<MyWorldTeamLogoProps> = ({
         boxShadow: "none",
       }}
     >
-      <LazyImage
+      <img
         src={logoUrlForClub}
         alt={alt || teamName}
         title={teamName}
         className="team-logo"
         style={imageStyle}
-        useTeamLogo={false} // Important: LazyImage should NOT do team logo detection
-        teamId={teamId}
-        teamName={teamName}
-        leagueContext={leagueContext}
-        priority="medium"
-        fallbackSrc={`/api/team-logo/square/${teamId}?size=32`}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          console.warn(`⚠️ [MyWorldTeamLogo] Club logo error for ${teamName}:`, target.src);
+
+          // Try different fallback options for club teams
+          if (teamId && !target.src.includes(`/api/team-logo/square/${teamId}`)) {
+            const fallbackUrl = `/api/team-logo/square/${teamId}?size=32`;
+            console.log(`🔄 [MyWorldTeamLogo] Trying fallback: ${fallbackUrl}`);
+            target.src = fallbackUrl;
+            return;
+          }
+
+          // Final fallback
+          if (!target.src.includes("/assets/fallback-logo.svg")) {
+            console.log(`🚫 [MyWorldTeamLogo] Using final fallback for ${teamName}`);
+            target.src = "/assets/fallback-logo.svg";
+          }
+        }}
       />
     </div>
   );

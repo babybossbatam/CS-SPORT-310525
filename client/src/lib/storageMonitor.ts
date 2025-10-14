@@ -11,10 +11,10 @@ export class StorageMonitor {
   }
 
   init(): void {
-    // Monitor storage every 15 minutes to reduce overhead
+    // Monitor storage every 5 minutes
     this.cleanupInterval = setInterval(() => {
       this.checkAndCleanup();
-    }, 15 * 60 * 1000);
+    }, 5 * 60 * 1000);
 
     // Initial cleanup
     this.checkAndCleanup();

@@ -1,51 +1,15 @@
 import express, { type Request, Response, NextFunction } from "express";
 import logoRoutes from './routes/logoRoutes';
+import playerVerificationRoutes from './routes/playerVerificationRoutes.js';
+import headtoheadRoutes from './routes/headtoheadRoutes.js';
+import verificationRoutes from './routes/verificationRoutes.js';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { apiCircuitBreaker } from './utils/circuitBreaker';
 import path from "path";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
-// Add request throttling middleware with more aggressive limits
-const requestCounts = new Map();
-const maxRequestsPerMinute = 60; // Reduced from 100
-const maxConcurrentRequests = 10;
-let currentRequests = 0;
-
-const throttleMiddleware = (req, res, next) => {
-  // Check concurrent request limit
-  if (currentRequests >= maxConcurrentRequests) {
-    return res.status(429).json({ error: 'Server busy, please try again' });
-  }
-
-  const clientIP = req.ip || req.connection.remoteAddress;
-  const now = Date.now();
-  const windowStart = now - 60000; // 1 minute window
-
-  if (!requestCounts.has(clientIP)) {
-    requestCounts.set(clientIP, []);
-  }
-
-  const requests = requestCounts.get(clientIP);
-  const recentRequests = requests.filter(time => time > windowStart);
-
-  if (recentRequests.length >= maxRequestsPerMinute) {
-    return res.status(429).json({ error: 'Rate limit exceeded' });
-  }
-
-  recentRequests.push(now);
-  requestCounts.set(clientIP, recentRequests);
-  
-  currentRequests++;
-  res.on('finish', () => {
-    currentRequests--;
-  });
-  
-  next();
-};
 
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
@@ -64,26 +28,22 @@ const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
 
-  if (heapUsedMB > 1200) { // Lower threshold for earlier intervention
+  if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
 
-    if (memoryWarningCount > 3) { // More aggressive cleanup
+    if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
         global.gc();
         memoryWarningCount = 0;
       }
-      
-      // Clear request throttling cache
-      requestCounts.clear();
-      console.log('🧹 Cleared request throttling cache');
     }
   }
 };
 
-// Check memory every 15 seconds for more responsive monitoring
-setInterval(monitorMemory, 15000);
+// Check memory every 30 seconds
+setInterval(monitorMemory, 30000);
 
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(8000);
@@ -165,9 +125,6 @@ app.use((req, res, next) => {
 (async () => {
   const server = await registerRoutes(app);
 
-  // Apply throttling middleware to all API routes
-  app.use('/api', throttleMiddleware);
-
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
@@ -200,6 +157,9 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
 
   // API routes
   app.use('/api', logoRoutes);
+  app.use('/api', playerVerificationRoutes);
+  app.use('/api', headtoheadRoutes);
+  app.use('/api/verification', verificationRoutes);
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.

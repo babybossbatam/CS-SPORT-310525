@@ -120,15 +120,13 @@ router.get('/player-photo-by-name', async (req, res) => {
       // Focus on more reliable sources like API-Sports and Transfermarkt
     }
 
-    // Source 4: Generate fallback avatar with player initials
-    const fallbackUrl = generatePlayerFallbackAvatar(name);
-    console.log(`🎨 [PlayerPhotoByName] Generated fallback avatar for "${name}": ${fallbackUrl}`);
-    return res.redirect(fallbackUrl);
+    // No fallback avatar generation - let frontend handle fallback
+    console.log(`🚫 [PlayerPhotoByName] No real photo found for "${name}", returning 404`);
+    return res.status(404).json({ error: 'No real player photo found', message: `No authentic photo available for player: ${name}` });
 
   } catch (error) {
     console.error(`❌ [PlayerPhotoByName] Error searching for "${name}":`, error);
-    const fallbackUrl = generatePlayerFallbackAvatar(name);
-    return res.redirect(fallbackUrl);
+    return res.status(500).json({ error: 'Failed to search for player photo', message: error instanceof Error ? error.message : 'Unknown error' });
   }
 });
 

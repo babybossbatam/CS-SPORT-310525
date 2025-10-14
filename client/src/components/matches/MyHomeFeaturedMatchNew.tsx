@@ -29,7 +29,7 @@ import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslati
 import { RoundBadge } from "@/components/ui/round-badge";
 import MatchCard from "./MatchCard"; // Assuming MatchCard component exists
 
-// Import popular teams data from the same source as PopularTeamsList
+// Popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
   { id: 33, name: "Manchester United", country: "England" },
   { id: 40, name: "Liverpool", country: "England" },
@@ -69,6 +69,17 @@ const POPULAR_TEAMS_DATA = [
   { id: 1860, name: "Borussia Dortmund II", country: "Germany" },
   { id: 8572, name: "Jong PSV", country: "Netherlands" },
   { id: 8564, name: "Jong Ajax", country: "Netherlands" },
+];
+
+// Elite teams for Champions League - only the most popular clubs
+const CHAMPIONS_LEAGUE_ELITE_TEAMS = [
+  33, 40, 50, 42, 49, // Premier League elite: Man United, Liverpool, Man City, Arsenal, Chelsea
+  541, 529, 548, // La Liga elite: Real Madrid, Barcelona, Atletico Madrid
+  157, 165, 168, // Bundesliga elite: Bayern Munich, Borussia Dortmund, Bayer Leverkusen
+  489, 492, 496, 502, // Serie A elite: AC Milan, Inter, Juventus, Napoli
+  81, // Ligue 1 elite: PSG
+  610, 194, // Eredivisie elite: Ajax, PSV
+  211, 212, 228, // Primeira Liga elite: Porto, Benfica, Sporting CP
 ];
 
 const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map((team) => team.id);
@@ -148,12 +159,19 @@ const isPopularTeamMatch = (
   awayTeam: string,
   homeTeamId?: number,
   awayTeamId?: number,
+  leagueId?: number, // Added leagueId parameter
 ): boolean => {
+  // If it's Champions League, only consider elite teams
+  const isChampionsLeague = leagueId === 2; // Assuming League ID 2 is Champions League
+  const popularIdsToCheck = isChampionsLeague
+    ? CHAMPIONS_LEAGUE_ELITE_TEAMS
+    : POPULAR_TEAM_IDS;
+
   // First check by team ID (most accurate)
   if (homeTeamId && awayTeamId) {
     const hasPopularTeamById =
-      POPULAR_TEAM_IDS.includes(homeTeamId) ||
-      POPULAR_TEAM_IDS.includes(awayTeamId);
+      popularIdsToCheck.includes(homeTeamId) ||
+      popularIdsToCheck.includes(awayTeamId);
     if (hasPopularTeamById) {
       return true;
     }
@@ -163,17 +181,24 @@ const isPopularTeamMatch = (
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
 
-  const hasPopularTeamByName = POPULAR_TEAM_NAMES.some(
+  const popularNamesToCheck = isChampionsLeague
+    ? CHAMPIONS_LEAGUE_ELITE_TEAMS.map(
+        (id) =>
+          POPULAR_TEAMS_DATA.find((team) => team.id === id)?.name.toLowerCase(),
+      ).filter(Boolean)
+    : POPULAR_TEAM_NAMES;
+
+  const hasPopularTeamByName = popularNamesToCheck.some(
     (popularTeam) =>
-      homeTeamLower.includes(popularTeam) ||
-      awayTeamLower.includes(popularTeam),
+      homeTeamLower.includes(popularTeam!) ||
+      awayTeamLower.includes(popularTeam!),
   );
 
   if (hasPopularTeamByName) {
     return true;
   }
 
-  // Enhanced keyword-based matching
+  // Enhanced keyword-based matching (can also be made league-specific if needed)
   const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(
     (keyword) =>
       homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword),
@@ -182,9 +207,9 @@ const isPopularTeamMatch = (
   return hasKeywordMatch;
 };
 interface MyHomeFeaturedMatchNewProps {
-  selectedDate?: string;
+  selectedDate: string;
   maxMatches?: number;
-  onMatchSelect?: (matchId: number) => void;
+  onMatchCardClick?: (fixture: any) => void;
 }
 
 // Popular leagues from PopularLeaguesList.tsx
@@ -209,14 +234,14 @@ const POPULAR_LEAGUES = [
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 // Premier League (39) is prioritized first
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 79, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
+  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180, 67, 68, 69,
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup, National 2 - Group A
-const PRIORITY_LEAGUE_IDS = [39, 140, 78, 79, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), Ligue 1 (79), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
+const PRIORITY_LEAGUE_IDS = [39, 140, 78, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -290,8 +315,9 @@ interface DayMatches {
 }
 
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
-  maxMatches = 15,
-  onMatchSelect,
+  selectedDate,
+  maxMatches = 6,
+  onMatchCardClick,
 }) => {
   // Add CSS for truePulse animation
   const truePulseStyle = `
@@ -1129,6 +1155,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     awayTeam,
                     homeTeamId,
                     awayTeamId,
+                    fixture.league?.id, // Pass league ID
                   );
 
                   if (isPopular) {
@@ -1426,6 +1453,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           awayTeam,
                           homeTeamId,
                           awayTeamId,
+                          fixture.league?.id, // Pass league ID
                         );
 
                         if (isPopular) {
@@ -1759,7 +1787,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // Remove duplicates based on fixture ID
-        const uniqueFixtures = allFixtures.filter(
+        const allUniqueFixtures = allFixtures.filter(
           (fixture, index, self) =>
             index ===
             self.findIndex((f) => f.fixture.id === fixture.fixture.id),
@@ -1767,27 +1795,27 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         console.log(
           `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
-          uniqueFixtures.length,
+          allUniqueFixtures.length,
         );
 
         // Learn from fixtures data to improve translations
         try {
-          learnFromFixtures(uniqueFixtures);
+          learnFromFixtures(allUniqueFixtures);
           console.log(
-            `📚 [MyHomeFeaturedMatchNew] Learning from ${uniqueFixtures.length} fixtures for translation improvement`,
+            `📚 [MyHomeFeaturedMatchNew] Learning from ${allUniqueFixtures.length} fixtures for translation improvement`,
           );
 
           // Additional league-specific learning for comprehensive coverage
-          smartLeagueCountryTranslation.learnFromFixtures(uniqueFixtures);
+          smartLeagueCountryTranslation.learnFromFixtures(allUniqueFixtures);
           console.log(
-            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${uniqueFixtures.length} fixtures for better coverage`,
+            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${allUniqueFixtures.length} fixtures for better coverage`,
           );
         } catch (error) {
           console.warn("Error learning from fixtures:", error);
         }
 
         // Enhanced debug logging with league IDs
-        const fixtureDetails = uniqueFixtures.map((f) => ({
+        const fixtureDetails = allUniqueFixtures.map((f) => ({
           id: f.fixture.id,
           teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
           league: f.league.name,
@@ -1803,7 +1831,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
 
         // Special debug for Oberliga leagues
-        const oberligaMatches = uniqueFixtures.filter((f) =>
+        const oberligaMatches = allUniqueFixtures.filter((f) =>
           f.league.name?.toLowerCase().includes("oberliga"),
         );
 
@@ -1823,7 +1851,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
 
         // Special debug for Bayern Süd
-        const bayernSudMatches = uniqueFixtures.filter(
+        const bayernSudMatches = allUniqueFixtures.filter(
           (f) =>
             f.league.name?.toLowerCase().includes("bayern") &&
             f.league.name?.toLowerCase().includes("süd"),
@@ -1851,7 +1879,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         for (const dateInfo of dates) {
           const isToday = dateInfo.date === todayDateString;
 
-          const fixturesForDay = uniqueFixtures
+          const fixturesForDay = allUniqueFixtures
             .filter((fixture) => {
               // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
               if (fixture.league.id === 848) {
@@ -2228,6 +2256,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
+        // Remove duplicates based on fixture ID for final processing
+        const uniqueFixtures = allMatches.reduce((acc, dayData) => {
+          dayData.matches.forEach((match) => {
+            if (!acc.some((existingMatch) => existingMatch.fixture.id === match.fixture.id)) {
+              acc.push(match);
+            }
+          });
+          return acc;
+        }, [] as FeaturedMatch[]);
+
+
         // Group fixtures by league and update state
         const leagueMap: Record<number, FeaturedMatch[]> = {};
         uniqueFixtures.forEach((match) => {
@@ -2239,11 +2278,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
         setFixturesByLeague(leagueMap);
 
-        // Update state with the new matches
+        // Update state with the new matches using standings-like preservation logic
         setFeaturedMatches((prevMatches) => {
           // Compare match IDs for efficiency instead of full JSON stringify
           const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
-          const newIds = allMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
+          const newIds = uniqueFixtures.map(m => m.fixture.id).sort();
 
           if (prevIds.join(',') !== newIds.join(',')) {
             console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
@@ -2274,7 +2313,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             return allMatches;
           }
 
-          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, keeping existing state`);
+          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, preserving existing state like standings cache`);
           return prevMatches;
         });
       } catch (error) {
@@ -2879,13 +2918,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   );
 
   // Handle match click navigation
-  const handleMatchClick = useCallback((matchId: number) => {
-    if (onMatchSelect) {
-      onMatchSelect(matchId);
+  const handleMatchClick = useCallback((fixture: FeaturedMatch) => { // Changed parameter to fixture
+    if (onMatchCardClick) {
+      console.log(
+        `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
+        fixture.fixture.id,
+      );
+      onMatchCardClick(fixture); // Pass the entire fixture object like standings
     } else {
-      navigate(`/match/${matchId}`);
+      navigate(`/match/${fixture.fixture.id}`);
     }
-  }, [navigate, onMatchSelect]);
+  }, [navigate, onMatchCardClick]);
 
   // Toggle star for a match
   const toggleStar = useCallback((matchId: number) => {
@@ -3045,17 +3088,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         },
                       );
 
-                      // Call onMatchSelect if provided (for Details tab)
-                      if (onMatchSelect) {
-                        console.log(
-                          `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
-                          currentMatch.fixture.id,
-                        );
-                        onMatchSelect(currentMatch.fixture.id);
-                      } else {
-                        // Navigate to match details page if no callback provided
-                        navigate(`/match/${currentMatch.fixture.id}`);
-                      }
+                      // Call onMatchCardClick if provided, passing the fixture object
+                      handleMatchClick(currentMatch);
                     }}
                   >
                     {/* League header */}

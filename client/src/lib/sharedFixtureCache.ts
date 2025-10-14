@@ -1,3 +1,4 @@
+
 import { queryClient } from './queryClient';
 
 interface CachedFixtureData {
@@ -8,7 +9,7 @@ interface CachedFixtureData {
 
 export class SharedFixtureCache {
   private static instance: SharedFixtureCache;
-
+  
   static getInstance(): SharedFixtureCache {
     if (!SharedFixtureCache.instance) {
       SharedFixtureCache.instance = new SharedFixtureCache();
@@ -47,12 +48,12 @@ export class SharedFixtureCache {
 
         if (age < maxAge && Array.isArray(parsed.data)) {
           console.log(`📂 [SharedFixtureCache] localStorage hit for ${selectedDate} (${parsed.data.length} fixtures, age: ${Math.round(age / 60000)}min, source: ${parsed.source})`);
-
+          
           // Populate React Query cache for future use
           if (queryClient) {
             queryClient.setQueryData(["all-fixtures-by-date", selectedDate], parsed.data);
           }
-
+          
           return parsed.data;
         } else {
           console.log(`⏰ [SharedFixtureCache] localStorage cache expired for ${selectedDate}`);
@@ -106,7 +107,7 @@ export class SharedFixtureCache {
    */
   clearCache(selectedDate: string): void {
     console.log(`🗑️ [SharedFixtureCache] Clearing cache for ${selectedDate}`);
-
+    
     // Clear React Query cache
     const queryClient = window.__REACT_QUERY_CLIENT__;
     if (queryClient) {

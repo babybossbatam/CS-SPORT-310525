@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { getPlayerImage } from "@/lib/playerImageCache";
+import { playerImageCache } from "@/lib/playerImageCache";
 
 interface Player {
   id: number;
@@ -23,10 +23,6 @@ interface MyAvatarInfoProps {
   ) => void;
 }
 
-// Simple in-memory cache to prevent duplicate requests
-const imageCache = new Map<string, string>();
-const loadingRequests = new Map<string, Promise<string>>();
-
 const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   playerId,
   playerName,
@@ -41,9 +37,10 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     [playerId, playerName],
   );
 
-  const [imageUrl, setImageUrl] = useState<string>("/assets/matchdetaillogo/fallback_player.png");
+  const fallbackImageUrl = "/assets/matchdetaillogo/fallback_player.png";
+  const [imageUrl, setImageUrl] = useState<string>(fallbackImageUrl);
   const [isLoading, setIsLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sizeClasses = {
@@ -55,159 +52,116 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   // Create cache key for this player
   const cacheKey = useMemo(() => {
-    if (playerId && playerName) return `${playerId}-${playerName}`;
-    if (playerId) return `id-${playerId}`;
-    if (playerName) return `name-${playerName}`;
+    const cleanName = playerName?.trim().toLowerCase() || "";
+    const cleanId = playerId && playerId > 0 ? playerId : null;
+    
+    if (cleanId && cleanName) return `${cleanId}-${cleanName.replace(/\s+/g, '-')}`;
+    if (cleanId) return `id-${cleanId}`;
+    if (cleanName) return `name-${cleanName.replace(/\s+/g, '-')}`;
     return "unknown";
   }, [playerId, playerName]);
 
-  // Optimized image loading with caching and deduplication
+  // Simple and fast image loading using the existing cache system
   const loadPlayerImage = async (): Promise<string> => {
-    // Check cache first
-    if (imageCache.has(cacheKey)) {
-      const cachedUrl = imageCache.get(cacheKey)!;
-      console.log(`💾 [MyAvatarInfo-${componentId}] Cache hit: ${cachedUrl}`);
-      return cachedUrl;
+    try {
+      console.log(`🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`);
+      
+      // Use the existing sophisticated cache system
+      const imageUrl = await playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId);
+      
+      console.log(`✅ [MyAvatarInfo-${componentId}] Got image: ${imageUrl}`);
+      return imageUrl || fallbackImageUrl;
+    } catch (error) {
+      console.log(`❌ [MyAvatarInfo-${componentId}] Error loading image: ${error}`);
+      return fallbackImageUrl;
     }
-
-    // Check if request is already in progress
-    if (loadingRequests.has(cacheKey)) {
-      console.log(
-        `⏳ [MyAvatarInfo-${componentId}] Request in progress, waiting...`,
-      );
-      return await loadingRequests.get(cacheKey)!;
-    }
-
-    // Create new request
-    const loadPromise = (async (): Promise<string> => {
-      try {
-        console.log(
-          `🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`,
-        );
-
-        // Try advanced cache system first (fastest - multiple sources)
-        try {
-          const cachedImageUrl = await getPlayerImage(
-            playerId,
-            playerName,
-            teamId,
-          );
-
-          if (
-            cachedImageUrl &&
-            cachedImageUrl !== "" &&
-            cachedImageUrl !== "/assets/matchdetaillogo/fallback_player.png"
-          ) {
-            console.log(
-              `✅ [MyAvatarInfo-${componentId}] Got from player cache: ${cachedImageUrl}`,
-            );
-            imageCache.set(cacheKey, cachedImageUrl);
-            return cachedImageUrl;
-          }
-        } catch (error) {
-          console.log(
-            `⚠️ [MyAvatarInfo-${componentId}] Cache system failed: ${(error as Error)?.message || error}`,
-          );
-        }
-
-        // Quick fallback - try direct API-Sports URL if ID available
-        if (playerId) {
-          try {
-            const directUrl = `https://media.api-sports.io/football/players/${playerId}.png`;
-            // Don't validate, just use it - faster loading
-            console.log(
-              `🚀 [MyAvatarInfo-${componentId}] Using direct API-Sports: ${directUrl}`,
-            );
-            imageCache.set(cacheKey, directUrl);
-            return directUrl;
-          } catch (error) {
-            console.log(
-              `⚠️ [MyAvatarInfo-${componentId}] Direct API-Sports failed: ${error}`,
-            );
-          }
-        }
-
-        // All methods failed, cache the fallback to prevent future attempts
-        console.log(
-          `🎨 [MyAvatarInfo-${componentId}] Using fallback for: ${playerName}`,
-        );
-        imageCache.set(cacheKey, "/assets/matchdetaillogo/fallback_player.png");
-        return "/assets/matchdetaillogo/fallback_player.png";
-      } catch (error) {
-        console.log(
-          `❌ [MyAvatarInfo-${componentId}] Error loading image: ${(error as Error)?.message || error}`,
-        );
-        imageCache.set(cacheKey, "/assets/matchdetaillogo/fallback_player.png");
-        return "/assets/matchdetaillogo/fallback_player.png";
-      } finally {
-        // Clean up loading request
-        loadingRequests.delete(cacheKey);
-      }
-    })();
-
-    // Store the promise to prevent duplicate requests
-    loadingRequests.set(cacheKey, loadPromise);
-    return await loadPromise;
   };
 
-  // Load image immediately without waiting for intersection
+  // Optimized image loading with persistent cache
   useEffect(() => {
-    if (!playerId && !playerName) return;
+    // Validate we have meaningful player data
+    if ((!playerId || playerId <= 0) && (!playerName || !playerName.trim())) {
+      console.log(`⚠️ [MyAvatarInfo-${componentId}] No valid player data, using fallback`);
+      setImageUrl(fallbackImageUrl);
+      setIsLoading(false);
+      setIsVisible(true);
+      return;
+    }
 
     let isCancelled = false;
 
-    const loadImage = async () => {
-      setIsLoading(true);
+    const loadImageOptimized = async () => {
+      // Check the persistent cache first for instant loading
+      const cachedImage = playerImageCache.getCachedImage(playerId, playerName);
+      if (cachedImage && cachedImage.verified) {
+        console.log(`⚡ [MyAvatarInfo-${componentId}] Instant cache hit: ${cachedImage.url}`);
+        setImageUrl(cachedImage.url);
+        setIsLoading(false);
+        setIsVisible(true);
+        return;
+      }
+
+      // Show fallback immediately, then try to load real image in background
+      setImageUrl(fallbackImageUrl);
+      setIsLoading(false);
+      setIsVisible(true);
+
+      // Skip loading if we have recent failures to avoid repeated requests
+      if (cachedImage && cachedImage.failureCount && cachedImage.failureCount >= 3) {
+        const hoursSinceLastTry = (Date.now() - cachedImage.timestamp) / (1000 * 60 * 60);
+        if (hoursSinceLastTry < 24) {
+          console.log(`⏭️ [MyAvatarInfo-${componentId}] Skipping ${playerName} - too many recent failures`);
+          return;
+        }
+      }
 
       try {
         const url = await loadPlayerImage();
-        if (!isCancelled) {
+        if (!isCancelled && url !== fallbackImageUrl) {
           setImageUrl(url);
-          // Preload the image for instant display
-          const preloadLink = document.createElement('link');
-          preloadLink.rel = 'preload';
-          preloadLink.as = 'image';
-          preloadLink.href = url;
-          document.head.appendChild(preloadLink);
         }
       } catch (error) {
-        if (!isCancelled) {
-          console.log(
-            `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
-          );
-          setImageUrl("/assets/matchdetaillogo/fallback_player.png");
-        }
-      } finally {
-        if (!isCancelled) {
-          setIsLoading(false);
-        }
+        console.log(`❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`);
+        // Fallback is already set, so no need to update
       }
     };
 
-    loadImage();
+    loadImageOptimized();
 
     return () => {
       isCancelled = true;
     };
-  }, [isVisible, cacheKey]);
+  }, [cacheKey, playerId, playerName]);
+
+  // Optional: Keep intersection observer for performance on large lists (commented out for immediate loading)
+  /*
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "100px", threshold: 0.1 },
+    );
+
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+  */
 
   const handleClick = () => {
     if (onClick) {
-      const actualImageUrl =
-        imageUrl !== "/assets/matchdetaillogo/fallback_player.png" ? imageUrl : undefined;
+      const actualImageUrl = imageUrl !== fallbackImageUrl ? imageUrl : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
 
-  // Show loading state only while actually loading
-  if (isLoading) {
-    return (
-      <div
-        ref={containerRef}
-        className={`${sizeClasses[size]} border-2 border-gray-300 rounded-full bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 bg-[length:200%_100%] animate-pulse ${className}`}
-      ></div>
-    );
-  }
+  // No loading state since we show fallback immediately
 
   return (
     <div
@@ -222,11 +176,14 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
         className="w-full h-full object-cover"
         onError={() => {
           console.log(
-            `🖼️ [MyAvatarInfo-${componentId}] Image error, using fallback`,
+            `🖼️ [MyAvatarInfo-${componentId}] Image error for URL: ${imageUrl}, using fallback`,
           );
-          // Remove from cache and use fallback
-          imageCache.set(cacheKey, "/assets/matchdetaillogo/fallback_player.png");
-          setImageUrl("/assets/matchdetaillogo/fallback_player.png");
+          // Only set fallback if current URL is not already the fallback
+          if (imageUrl !== fallbackImageUrl) {
+            // Mark as failed in the cache system to avoid future attempts
+            playerImageCache.setCachedImage(playerId, playerName, imageUrl, 'api', true);
+            setImageUrl(fallbackImageUrl);
+          }
         }}
         onLoad={() => {
           console.log(

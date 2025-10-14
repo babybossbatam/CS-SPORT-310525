@@ -16,6 +16,7 @@ import MyCommentary from "./MyCommentary";
 import MyPlayerProfilePicture from "./MyPlayerProfilePicture";
 import PlayerProfileModal from "../modals/PlayerProfileModal";
 import MyAvatarInfo from "./MyAvatarInfo";
+import { useTranslation } from "@/contexts/LanguageContext";
 
 interface MyMatchEventNewProps {
   fixtureId: string | number;
@@ -100,6 +101,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
     image?: string;
   } | null>(null);
   const [showPlayerModal, setShowPlayerModal] = useState(false);
+  const { t } = useTranslation();
 
   const fetchMatchEvents = useCallback(async (retryCount = 0) => {
     if (!fixtureId) {
@@ -658,16 +660,22 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : (
-                    <span className="text-xs">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type?.toLowerCase() === "var" ? (
+                      <img
+                        src="/assets/matchdetaillogo/var-logo.svg"
+                        alt="VAR"
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <span className="text-xs">
+                        {getEventIcon(event.type, event.detail)}
+                      </span>
+                    )}
                 </div>
               </div>
-              </div>
-            )}
-          </div>
+            </div>
+          )}
+        </div>
 
         {/* Center - Time */}
         <div className="relative z-10 flex items-center justify-center w-12 h-12 bg-white border-2 border-gray-300 rounded-full">
@@ -748,11 +756,17 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                       }
                       className="w-4 h-8"
                     />
-                  ) : (
-                    <span className="text-xs">
-                      {getEventIcon(event.type, event.detail)}
-                    </span>
-                  )}
+                  ) : event.type?.toLowerCase() === "var" ? (
+                      <img
+                        src="/assets/matchdetaillogo/var-logo.svg"
+                        alt="VAR"
+                        className="w-4 h-4"
+                      />
+                    ) : (
+                      <span className="text-xs">
+                        {getEventIcon(event.type, event.detail)}
+                      </span>
+                    )}
                 </div>
               </div>
 
@@ -1095,7 +1109,7 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="text-md font-semibold">Match Events</h3>
+            <h3 className="text-md font-semibold">{t('match_events')}</h3>
           </div>
         </div>
       </CardHeader>
@@ -1566,6 +1580,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         className="w-4 h-8 "
                                       />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
                                     ) : (
                                       <span className="text-xs">
                                         {getEventIcon(event.type, event.detail)}
@@ -1690,6 +1710,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "Red Card"
                                         }
                                         className="w-4 h-4 "
+                                      />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
                                       />
                                     ) : (
                                       <span className="text-xs">
@@ -2184,6 +2210,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                         }
                                         className="w-4 h-8 "
                                       />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
+                                      />
                                     ) : (
                                       <span className="text-xs">
                                         {getEventIcon(event.type, event.detail)}
@@ -2308,6 +2340,12 @@ const MyMatchEventNew: React.FC<MyMatchEventNewProps> = ({
                                             : "Red Card"
                                         }
                                         className="w-4 h-4 "
+                                      />
+                                    ) : event.type?.toLowerCase() === "var" ? (
+                                      <img
+                                        src="/assets/matchdetaillogo/var-logo.svg"
+                                        alt="VAR"
+                                        className="w-4 h-4"
                                       />
                                     ) : (
                                       <span className="text-xs">
