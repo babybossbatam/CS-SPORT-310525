@@ -122,6 +122,15 @@ mode = "sequential"
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048 --unhandled-rejections=warn' tsx --watch=false --no-experimental-repl-await server/index.ts"
 
+[[workflows.workflow]]
+name = "Lightweight Server"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn' tsx --watch=false --inspect=0 server/index.ts"
+
 [[ports]]
 localPort = 5000
 externalPort = 6800
