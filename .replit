@@ -134,6 +134,3 @@ localPort = 5005
 
 [[ports]]
 localPort = 5006
-
-[[ports]]
-localPort = 35717
