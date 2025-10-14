@@ -2779,7 +2779,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         908: "World", // UEFA Europa League
                         1169: "World", // UEFA Nations League Women
                         23: "Italy", // Serie A Italy
-                        1077: "World", // UEFA Nations League Women
+                        1077: "World", // UEFA Champions League Women
                         253: "USA", // MLS
                         850: "World", // UEFA Champions League Women
                         893: "World", // UEFA Europa League Women
@@ -3508,10 +3508,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       )
                                       .replace(
                                         "im Elfmeterschießen",
-                                        penaltyScore + " " + onPenaltiesText,
-                                      )
-                                      .replace(
-                                        "ai rigori",
                                         penaltyScore + " " + onPenaltiesText,
                                       )
                                       .replace(

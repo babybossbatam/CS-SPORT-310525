@@ -239,21 +239,9 @@ export const cleanupEventListeners = () => {
         }
       });
 
-      // Remove excessive listeners from any Replit-related EventEmitters
-      Object.keys(window).forEach(key => {
-        const obj = (window as any)[key];
-        if (obj && typeof obj.removeAllListeners === 'function' && key.includes('replit')) {
-          try {
-            obj.removeAllListeners();
-          } catch (e) {
-            // Ignore individual cleanup errors
-          }
-        }
-      });
-
     } catch (e) {
-      // Ignore Replit cleanup errors
-      console.log('🔧 EventEmitter cleanup completed');
+      // Minimal cleanup
+      console.log('🔧 Basic cleanup completed');
     }
   }
 };

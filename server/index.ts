@@ -11,84 +11,14 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Global error handlers to prevent crashes
+// Simple error handling
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
-  // Log but don't exit to prevent restarts
 });
 
-process.on('unhandledRejection', (reason, promise) => {
+process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
-  // Prevent unhandled rejections from crashing the process
 });
-
-// Memory monitoring to prevent OOM crashes
-let memoryWarningCount = 0;
-const monitorMemory = () => {
-  const usage = process.memoryUsage();
-  const heapUsedMB = usage.heapUsed / 1024 / 1024;
-
-  if (heapUsedMB > 1500) { // Warning at 1.5GB
-    memoryWarningCount++;
-    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-
-    if (memoryWarningCount > 5) {
-      console.log('🧹 Forcing garbage collection...');
-      if (global.gc) {
-        global.gc();
-        memoryWarningCount = 0;
-      }
-    }
-  }
-};
-
-// Check memory every 10 minutes to reduce overhead
-setInterval(monitorMemory, 600000);
-
-// Set reasonable limits to prevent EventEmitter warnings
-process.setMaxListeners(50);
-import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
-
-// Set max listeners for common event emitters
-if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(50);
-}
-if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(50);
-}
-if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(20);
-}
-
-// Graceful shutdown handling
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received, shutting down gracefully');
-  process.exit(0);
-});
-
-process.on('SIGINT', () => {
-  console.log('SIGINT received, shutting down gracefully');
-  process.exit(0);
-});
-
-// Prevent exit on warnings
-process.on('warning', (warning) => {
-  if (warning.name === 'MaxListenersExceededWarning') {
-    // Suppress these warnings instead of logging
-    return;
-  }
-  console.warn('Process Warning:', warning.message);
-});
-
-// Monitor process uptime and stability - minimal frequency  
-let startTime = Date.now();
-setInterval(() => {
-  const uptime = Math.floor((Date.now() - startTime) / 1000);
-  if (uptime % 1800 === 0) { // Every 30 minutes
-    console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
-  }
-}, 300000); // Check every 5 minutes
 
 
 
