@@ -133,7 +133,7 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --max-semi-
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run dev"
+args = "cd client && npm run dev"
 
 [[workflows.workflow]]
 name = "Start Frontend Only"
@@ -146,10 +146,10 @@ args = "cd client && npm run dev"
 
 [[ports]]
 localPort = 5000
-externalPort = 3000
 
 [[ports]]
 localPort = 5001
+externalPort = 6800
 
 [[ports]]
 localPort = 5002
