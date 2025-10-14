@@ -22,28 +22,42 @@ process.on('unhandledRejection', (reason, promise) => {
   // Prevent unhandled rejections from crashing the process
 });
 
-// Memory monitoring to prevent OOM crashes
+// Enhanced memory monitoring to prevent OOM crashes
 let memoryWarningCount = 0;
+let lastCleanupTime = Date.now();
+
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
+  const heapTotalMB = usage.heapTotal / 1024 / 1024;
+  const rssMB = usage.rss / 1024 / 1024;
 
-  if (heapUsedMB > 1500) { // Warning at 1.5GB
+  // Lower threshold for Replit environment
+  if (heapUsedMB > 800) { // Warning at 800MB for Replit
     memoryWarningCount++;
-    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
+    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB heap, ${rssGB.toFixed(2)}MB RSS (Warning #${memoryWarningCount})`);
 
-    if (memoryWarningCount > 5) {
-      console.log('🧹 Forcing garbage collection...');
+    // More aggressive cleanup
+    if (memoryWarningCount > 3 || Date.now() - lastCleanupTime > 60000) {
+      console.log('🧹 Forcing aggressive garbage collection...');
       if (global.gc) {
         global.gc();
+        // Double GC for better cleanup
+        setTimeout(() => global.gc(), 1000);
         memoryWarningCount = 0;
+        lastCleanupTime = Date.now();
       }
     }
   }
+
+  // Log memory stats every 2 minutes
+  if (Date.now() % 120000 < 15000) {
+    console.log(`📊 Memory: ${heapUsedMB.toFixed(1)}MB/${heapTotalMB.toFixed(1)}MB heap, ${rssGB.toFixed(1)}MB RSS`);
+  }
 };
 
-// Check memory every 30 seconds
-setInterval(monitorMemory, 30000);
+// Check memory every 15 seconds for faster response
+setInterval(monitorMemory, 15000);
 
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(8000);
