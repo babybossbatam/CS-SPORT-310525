@@ -1,6 +1,6 @@
 // EventEmitter utilities for managing listeners and preventing memory leaks
 
-export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
+export const setGlobalEventEmitterLimits = (limit: number = 50) => {
   if (typeof window === 'undefined') return;
 
   try {
@@ -99,31 +99,10 @@ export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
         }
       });
 
-      // More aggressive detection of all EventEmitter-like objects
-      const searchForEventEmitters = (obj: any, path: string = '', depth: number = 0) => {
-        if (depth > 3 || !obj || typeof obj !== 'object') return;
-
-        try {
-          // Check if this object has setMaxListeners method
-          if (typeof obj.setMaxListeners === 'function') {
-            obj.setMaxListeners(limit);
-            console.log(`🔧 Set max listeners for: ${path}`);
-          }
-
-          // Recursively search common properties that might contain EventEmitters
-          const searchProps = ['fs', 'fileWatcher', 'textFileWatcher', 'watcher', 'emitter'];
-          searchProps.forEach(prop => {
-            if (obj[prop] && typeof obj[prop] === 'object') {
-              searchForEventEmitters(obj[prop], `${path}.${prop}`, depth + 1);
-            }
-          });
-        } catch (e) {
-          // Ignore access errors
-        }
-      };
-
-      // Search through window for any EventEmitter-like objects
-      searchForEventEmitters(window, 'window');
+      // Simple EventEmitter limit setting
+      if (typeof process !== 'undefined' && process.setMaxListeners) {
+        process.setMaxListeners(limit);
+      }
 
       // Handle any EventEmitter objects in the global scope that might be Replit-related
       Object.keys(window).forEach(key => {

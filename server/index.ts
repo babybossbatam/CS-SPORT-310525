@@ -8,16 +8,26 @@ import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: false, limit: '1mb' }));
 
-// Simple error handling
+// Improved error handling
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
+  // Don't exit, let it continue
 });
 
 process.on('unhandledRejection', (reason) => {
   console.error('Unhandled Rejection:', reason);
+  // Don't exit, let it continue
+});
+
+// Set reasonable timeout for requests
+app.use((req, res, next) => {
+  // Set timeout to 30 seconds
+  req.setTimeout(30000);
+  res.setTimeout(30000);
+  next();
 });
 
 

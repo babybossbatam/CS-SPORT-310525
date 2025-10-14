@@ -1098,8 +1098,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       );
 
       // Process leagues in optimized batches
-      const batchSize = 3; // Further reduced for stability
-      const delayBetweenBatches = 300; // Increased delay for system stability
+      const batchSize = 5; // Reasonable batch size
+      const delayBetweenBatches = 100; // Reduced delay for better responsiveness
       const results: Array<{
         leagueId: number;
         fixtures: FixtureData[];
