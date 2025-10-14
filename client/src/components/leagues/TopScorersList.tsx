@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'wouter';
@@ -85,11 +86,10 @@ interface TopScorersListProps {
 
 const TopScorersList = ({ leagueId }: TopScorersListProps) => {
   const [, navigate] = useLocation();
-  const [cachedData, setCachedData] = useState<PlayerStatistics[] | null>(null);
 
-  const { data: topScorers, isLoading } = useQuery({
-    queryKey: ["top-scorers-list", leagueId],
-    queryFn: async () => {
+  const { data: topScorers, isLoading } = useCachedQuery(
+    [`top-scorers-list-${leagueId}`],
+    async () => {
       if (!leagueId) return [];
 
       const response = await fetch(`/api/leagues/${leagueId}/topscorers`, {
@@ -99,13 +99,13 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
           'Cache-Control': 'max-age=7200'
         }
       });
-
+      
       if (!response.ok) {
         throw new Error(`Failed to fetch top scorers for league ${leagueId}`);
       }
-
+      
       const data: PlayerStatistics[] = await response.json();
-
+      
       // Filter out players from excluded competitions
       const filteredScorers = data.filter(scorer => {
         const scorerLeagueId = scorer.statistics[0]?.league?.id;
@@ -118,57 +118,21 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
       });
 
       // Sort by goals scored
-      const sortedScorers = filteredScorers.sort((a, b) => {
+      return filteredScorers.sort((a, b) => {
         const goalsA = a.statistics[0]?.goals?.total || 0;
         const goalsB = b.statistics[0]?.goals?.total || 0;
         return goalsB - goalsA;
       });
-
-      return sortedScorers;
     },
-    enabled: !!leagueId,
-    staleTime: 4 * 60 * 60 * 1000, // 4 hours cache - like standings
-    gcTime: 8 * 60 * 60 * 1000, // 8 hours memory retention
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    retry: 1
-  });
-
-  // State preservation logic similar to standings cache
-  const displayData = useMemo(() => {
-    if (topScorers && topScorers.length > 0) {
-      // Only update cached data if we have meaningful changes
-      setCachedData(prevData => {
-        if (!prevData || prevData.length !== topScorers.length) {
-          console.log(`🏆 [TopScorersList] Updating cache for league ${leagueId}: ${topScorers.length} scorers`);
-          return topScorers;
-        }
-
-        // Check for actual changes in goals
-        const hasChanges = topScorers.some((scorer, index) => {
-          const prevScorer = prevData[index];
-          const currentGoals = scorer.statistics[0]?.goals?.total || 0;
-          const prevGoals = prevScorer?.statistics[0]?.goals?.total || 0;
-          return currentGoals !== prevGoals;
-        });
-
-        if (hasChanges) {
-          console.log(`⚽ [TopScorersList] Goal changes detected for league ${leagueId}, updating cache`);
-          return topScorers;
-        }
-
-        console.log(`✅ [TopScorersList] No changes detected for league ${leagueId}, preserving cached data`);
-        return prevData;
-      });
-      return topScorers;
+    {
+      enabled: !!leagueId,
+      maxAge: 4 * 60 * 60 * 1000, // 4 hours cache - top scorers change infrequently
+      backgroundRefresh: false,
+      retry: 1
     }
+  );
 
-    // Return cached data if available, similar to standings fallback
-    return cachedData || [];
-  }, [topScorers, leagueId, cachedData]);
-
-
-  if (isLoading && !cachedData) {
+  if (isLoading) {
     return (
       <div className="space-y-3">
         {[...Array(3)].map((_, i) => (
@@ -184,7 +148,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
     );
   }
 
-  if (!displayData || displayData.length === 0) {
+  if (!topScorers || topScorers.length === 0) {
     return (
       <div className="py-4 text-center text-gray-500">
         <p>No top scorer data available</p>
@@ -194,7 +158,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
 
   return (
     <CardContent className="space-y-2">
-      {displayData.slice(0, 3).map((scorer, index) => {
+      {topScorers.slice(0, 3).map((scorer, index) => {
         const playerStats = scorer.statistics[0];
         const goals = playerStats.goals.total || 0;
 
@@ -229,7 +193,7 @@ const TopScorersList = ({ leagueId }: TopScorersListProps) => {
 
       {leagueId && (
         <div className="text-center pt-2">
-          <button
+          <button 
             className="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center mx-auto"
             onClick={() => navigate(`/league/${leagueId}/stats`)}
           >

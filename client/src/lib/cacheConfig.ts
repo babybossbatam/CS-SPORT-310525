@@ -1,28 +1,17 @@
 import { UseQueryOptions } from '@tanstack/react-query';
 
-// Cache durations in milliseconds - ULTRA OPTIMIZED for performance
+// Cache durations in milliseconds - optimized for performance
 export const CACHE_DURATIONS = {
-  // Basic durations
   ONE_HOUR: 60 * 60 * 1000,
-  THIRTY_MINUTES: 30 * 60 * 1000,
-  FIFTEEN_MINUTES: 15 * 60 * 1000,
-  TEN_MINUTES: 10 * 60 * 1000,
-  FIVE_MINUTES: 5 * 60 * 1000,
-  TWO_MINUTES: 2 * 60 * 1000,
-  ONE_MINUTE: 60 * 1000,
-  THIRTY_SECONDS: 30 * 1000,
-  
-  // Extended durations for static data
-  FOUR_HOURS: 4 * 60 * 60 * 1000,
+  SIX_HOURS: 6 * 60 * 60 * 1000,
   TWELVE_HOURS: 12 * 60 * 60 * 1000,
   TWENTY_FOUR_HOURS: 24 * 60 * 60 * 1000,
-  
-  // Specific optimized durations
-  LEAGUE_FIXTURES: 15 * 60 * 1000, // Reduced to 15 minutes
-  STANDINGS: 30 * 60 * 1000, // Reduced to 30 minutes
-  LIVE_DATA: 30 * 1000, // 30 seconds for live data
-  UPCOMING_MATCHES: 60 * 60 * 1000, // 1 hour for upcoming
-  ENDED_MATCHES: 4 * 60 * 60 * 1000, // 4 hours for ended matches
+  THIRTY_MINUTES: 30 * 60 * 1000,
+  FIFTEEN_MINUTES: 15 * 60 * 1000, // New duration for better balance
+  TEN_MINUTES: 10 * 60 * 1000, // Extended from 5 minutes
+  FIVE_MINUTES: 5 * 60 * 1000,
+  TWO_MINUTES: 2 * 60 * 1000,
+  FOUR_HOURS: 4 * 60 * 60 * 1000,
 } as const;
 
 // Cache presets for different data types
@@ -37,21 +26,21 @@ export const CACHE_PRESETS = {
     refetchOnReconnect: true,
   },
 
-  // For match fixtures - PERFORMANCE OPTIMIZED
+  // For match fixtures and schedules (smart cache based on date) - EXTENDED CACHE
   FIXTURES: {
-    staleTime: CACHE_DURATIONS.THIRTY_MINUTES, // Reduced to 30 minutes
-    gcTime: CACHE_DURATIONS.FOUR_HOURS, // Reduced to 4 hours
+    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // Extended to 24 hours for better performance
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep in memory for 7 days
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
-    refetchInterval: false,
+    refetchInterval: false, // Disable automatic refetching completely
     retry: 1,
   },
 
-  // For upcoming fixtures (much longer cache since they rarely change)
+  // For upcoming fixtures (longer cache since they rarely change)
   UPCOMING_FIXTURES: {
-    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // Extended to 24 hours
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep in memory for 7 days
+    staleTime: CACHE_DURATIONS.TWELVE_HOURS,
+    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // Keep in memory for 72 hours
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -111,39 +100,6 @@ export const CACHE_PRESETS = {
     staleTime: CACHE_DURATIONS.FIVE_MINUTES,
     gcTime: CACHE_DURATIONS.THIRTY_MINUTES,
     refetchOnWindowFocus: false,
-    retry: 1,
-  },
-
-  // Ultra-conservative cache for home page components
-  HOME_PAGE_CONSERVATIVE: {
-    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 3, // 3 days for non-live content
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 14, // Keep in memory for 2 weeks
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchInterval: false,
-    retry: 1,
-  },
-
-  // Specific cache for TodayMatchPageCard components
-  TODAY_MATCH_CARD: {
-    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS, // 24 hours for fixtures
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 7, // Keep for 7 days
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchInterval: false,
-    retry: 2,
-  },
-
-  // Specific cache for MyRightContent components
-  RIGHT_CONTENT: {
-    staleTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS / 2, // 12 hours for right content
-    gcTime: CACHE_DURATIONS.TWENTY_FOUR_HOURS * 5, // Keep for 5 days
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    refetchInterval: false,
     retry: 1,
   },
 } as const;

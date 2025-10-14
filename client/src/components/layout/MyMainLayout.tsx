@@ -7,7 +7,6 @@ import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 import { useTranslation } from "@/contexts/LanguageContext";
-import { CacheManager } from "@/lib/cachingHelper";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -38,18 +37,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
   const { t, currentLanguage: translationLanguage } = useTranslation();
-
+  
   console.log(`🌐 [MyMainLayout] Translation language: ${translationLanguage}`);
 
-  // Optimized fixture filtering with immediate cache check
+  // Simplified fixture filtering
   const filteredFixtures = useMemo(() => {
     if (!fixtures?.length || !selectedDate || selectedDate === 'undefined') {
-      // Try to get cached data immediately
-      const cachedData = CacheManager.getCachedData([`fixtures-${selectedDate}`]);
-      if (cachedData) {
-        console.log(`⚡ [MyMainLayout] Using cached data for ${selectedDate}`);
-        return cachedData;
-      }
       console.warn('🚨 [MyMainLayout] Invalid data:', { fixturesLength: fixtures?.length, selectedDate });
       return [];
     }
@@ -69,10 +62,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
     });
 
     console.log(`✅ [MyMainLayout] Filtered to ${filtered.length} matches for ${selectedDate}`);
-
-    // Cache the filtered results
-    CacheManager.setCachedData([`fixtures-${selectedDate}`], filtered);
-
+    
     return filtered;
   }, [fixtures, selectedDate]);
 
@@ -94,7 +84,7 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
       <Header showTextOnMobile={true} />
       <div
         className={cn(
-          "py-4 mobile-main-layout overflow-y-auto overflow-x-auto min-h-screen",
+          "py-4 mobile-main-layout overflow-y-auto overflow-x-auto",
           isMobile ? "px-0" : "px-0",
         )}
         style={{
@@ -103,7 +93,6 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           marginTop: isMobile ? "100px" : "80px",
           width: isMobile ? "100vw" : "auto",
           maxWidth: isMobile ? "100vw" : "none",
-          minHeight: isMobile ? "calc(100vh - 100px)" : "calc(100vh - 80px)",
         }}
       >
         <div
@@ -148,13 +137,12 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
           {(!isMobile || selectedFixture) && (
             <div
               className={cn(
-                "space-y-4 h-full",
+                "space-y-4 ",
                 isMobile ? "col-span-1" : "lg:col-span-7",
                 isMobile && selectedFixture
                   ? "fixed inset-0 z-50 bg-white"
                   : "",
               )}
-              style={{ height: isMobile && selectedFixture ? '100vh' : '100%' }}
             >
               {selectedFixture ? (
                 <MyMainLayoutRight

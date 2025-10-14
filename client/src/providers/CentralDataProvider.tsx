@@ -1,6 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useSelector } from 'react-redux';
-import { RootState } from '@/lib/store';
+import React, { createContext, useContext, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAppDispatch } from '@/lib/store';
 import { fixturesActions } from '@/lib/store';
@@ -8,7 +6,6 @@ import { FixtureResponse } from '@/types/fixtures';
 import { CACHE_DURATIONS } from '@/lib/cacheConfig';
 import { MySmartTimeFilter } from '@/lib/MySmartTimeFilter';
 import { shouldExcludeFixture } from '@/lib/exclusionFilters';
-import { CacheManager } from '@/lib/cachingHelper';
 
 interface CentralDataContextType {
   fixtures: FixtureResponse[];
@@ -33,9 +30,6 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   // Ensure selectedDate is a valid date string, otherwise default to today
   const validDate = selectedDate || new Date().toISOString().slice(0, 10);
 
-  // State for immediate data serving
-  const [hasImmediateData, setHasImmediateData] = useState(false);
-
   // Single source of truth for date fixtures
   const {
     data: dateFixtures = [],
@@ -56,12 +50,12 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           throw new Error('No internet connection');
         }
 
-        // Set up timeout that only aborts if request is still pending - reduced to 10 seconds for better reliability
+        // Set up timeout that only aborts if request is still pending - reduced to 8 seconds for faster response
         timeoutId = setTimeout(() => {
           if (!controller.signal.aborted) {
-            controller.abort(new Error('Request timeout after 10 seconds'));
+            controller.abort('Request timeout after 8 seconds');
           }
-        }, 10000);
+        }, 8000);
 
         const response = await fetch(`/api/fixtures/date/${validDate}?all=true`, {
           signal: controller.signal,
@@ -99,9 +93,6 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         });
 
         console.log(`📊 [CentralDataProvider] After basic filtering: ${basicFiltered.length} fixtures`);
-
-        // Cache the fetched data
-        CacheManager.cacheData([`central-fixtures-${validDate}`], basicFiltered);
 
         // Update Redux store with all valid fixtures
         dispatch(fixturesActions.setFixturesByDate({
@@ -168,28 +159,23 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           return cachedData;
         }
 
-        // Only try nearby dates for current/recent dates to avoid unnecessary searches
-        const today = new Date().toISOString().slice(0, 10);
-        const isRecentDate = Math.abs(new Date(validDate).getTime() - new Date(today).getTime()) <= 3 * 24 * 60 * 60 * 1000; // Within 3 days
+        // If no cached data available, try to get data from nearby dates (expanded range)
+        const dates = [];
+        for (let i = -3; i <= 3; i++) {
+          const date = new Date(validDate);
+          date.setDate(date.getDate() + i);
+          dates.push(date.toISOString().slice(0, 10));
+        }
 
-        if (isRecentDate) {
-          const dates = [];
-          for (let i = -2; i <= 2; i++) {
-            if (i !== 0) { // Skip the current date as we already checked it
-              const date = new Date(validDate);
-              date.setDate(date.getDate() + i);
-              dates.push(date.toISOString().slice(0, 10));
-            }
-          }
+        // Try most recent dates first
+        const sortedDates = dates.sort((a, b) => {
+          const diffA = Math.abs(new Date(a).getTime() - new Date(validDate).getTime());
+          const diffB = Math.abs(new Date(b).getTime() - new Date(validDate).getTime());
+          return diffA - diffB;
+        });
 
-          // Try most recent dates first
-          const sortedDates = dates.sort((a, b) => {
-            const diffA = Math.abs(new Date(a).getTime() - new Date(validDate).getTime());
-            const diffB = Math.abs(new Date(b).getTime() - new Date(validDate).getTime());
-            return diffA - diffB;
-          });
-
-          for (const date of sortedDates) {
+        for (const date of sortedDates) {
+          if (date !== validDate) {
             const fallbackData = queryClient.getQueryData(['central-date-fixtures', date]);
             if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
               console.log(`🔄 [CentralDataProvider] Using fallback data from ${date} for ${validDate} (${fallbackData.length} fixtures)`);
@@ -198,21 +184,16 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         }
 
-        // Only use emergency fallback for recent dates
-        if (isRecentDate) {
-          const allQueries = queryClient.getQueryCache().findAll(['central-date-fixtures']);
-          for (const query of allQueries) {
-            if (query.state.data && Array.isArray(query.state.data) && query.state.data.length > 0) {
-              console.log(`🔄 [CentralDataProvider] Using emergency fallback data for ${validDate} (${query.state.data.length} fixtures)`);
-              return query.state.data;
-            }
+        // Try to get any fixture data from the cache as last resort
+        const allQueries = queryClient.getQueryCache().findAll(['central-date-fixtures']);
+        for (const query of allQueries) {
+          if (query.state.data && Array.isArray(query.state.data) && query.state.data.length > 0) {
+            console.log(`🔄 [CentralDataProvider] Using emergency fallback data for ${validDate} (${query.state.data.length} fixtures)`);
+            return query.state.data;
           }
         }
 
-        // Only warn if this is a current/recent date where we'd expect data
-        if (isRecentDate) {
-          console.log(`📅 [CentralDataProvider] No cached data available for ${validDate}, returning empty array`);
-        }
+        console.warn(`⚠️ [CentralDataProvider] No fallback data available for ${validDate}, returning empty array`);
         return [];
       }
     },
@@ -262,23 +243,6 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     throwOnError: false, // Don't throw errors to prevent unhandled rejections
     enabled: !!validDate,
   });
-
-  // Load cached data immediately on date change
-  useEffect(() => {
-    const cachedData = CacheManager.getCachedData([`central-fixtures-${validDate}`]);
-    if (cachedData) {
-      console.log(`⚡ [CentralDataProvider] Immediate cache serve for ${validDate}`);
-      // Dispatching directly to Redux here to ensure consistency if components rely on it
-      dispatch(fixturesActions.setFixturesByDate({
-        date: validDate,
-        fixtures: cachedData as any
-      }));
-      setHasImmediateData(true);
-    } else {
-      setHasImmediateData(false); // Reset if no cache found for the new date
-    }
-  }, [validDate, dispatch]);
-
 
   // Single source of truth for live fixtures
   const {
@@ -384,10 +348,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
         queryFn: async () => {
           const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
           if (!response.ok) return [];
-          const data: FixtureResponse[] = await response.json();
-          // Cache the prefetched data
-          CacheManager.cacheData([`central-fixtures-${tomorrowStr}`], data);
-          return data;
+          return response.json();
         },
         staleTime: CACHE_DURATIONS.FOUR_HOURS,
       });
@@ -399,7 +360,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
   const contextValue: CentralDataContextType = {
     fixtures: dateFixtures,
     liveFixtures,
-    isLoading: isLoadingDate && !hasImmediateData, // Only show loading if no immediate data is available
+    isLoading: isLoadingDate || isLoadingLive,
     error: dateError?.message || liveError?.message || null,
     refetchLive,
     refetchDate

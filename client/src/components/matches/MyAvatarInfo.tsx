@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { playerImageCache } from "@/lib/playerImageCache";
+import { getPlayerImage } from "@/lib/playerImageCache";
 
 interface Player {
   id: number;
@@ -22,6 +22,10 @@ interface MyAvatarInfoProps {
     playerImage?: string,
   ) => void;
 }
+
+// Simple in-memory cache to prevent duplicate requests
+const imageCache = new Map<string, string>();
+const loadingRequests = new Map<string, Promise<string>>();
 
 const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
   playerId,
@@ -61,23 +65,218 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
     return "unknown";
   }, [playerId, playerName]);
 
-  // Simple and fast image loading using the existing cache system
-  const loadPlayerImage = async (): Promise<string> => {
-    try {
-      console.log(`🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`);
-      
-      // Use the existing sophisticated cache system
-      const imageUrl = await playerImageCache.getPlayerImageWithFallback(playerId, playerName, teamId);
-      
-      console.log(`✅ [MyAvatarInfo-${componentId}] Got image: ${imageUrl}`);
-      return imageUrl || fallbackImageUrl;
-    } catch (error) {
-      console.log(`❌ [MyAvatarInfo-${componentId}] Error loading image: ${error}`);
-      return fallbackImageUrl;
-    }
+  // Helper function to check if URL is a real player photo (not a generated avatar)
+  const isRealPlayerPhoto = (url: string): boolean => {
+    if (!url || url === fallbackImageUrl) return false;
+    
+    // Exclude generated/fallback URLs
+    const excludedPatterns = [
+      "ui-avatars.com",
+      "default.png", 
+      "placeholder",
+      "fallback",
+      "Athletes:default.png", // 365scores default
+      "player-default", // common default patterns
+      "avatar-placeholder"
+    ];
+    
+    return !excludedPatterns.some(pattern => url.includes(pattern));
   };
 
-  // Optimized image loading with persistent cache
+  // Optimized image loading with caching and deduplication
+  const loadPlayerImage = async (): Promise<string> => {
+    // Check cache first
+    if (imageCache.has(cacheKey)) {
+      const cachedUrl = imageCache.get(cacheKey)!;
+      console.log(`💾 [MyAvatarInfo-${componentId}] Cache hit: ${cachedUrl}`);
+      // If cached URL is a generated avatar, treat as fallback
+      return isRealPlayerPhoto(cachedUrl) ? cachedUrl : fallbackImageUrl;
+    }
+
+    // Check if request is already in progress
+    if (loadingRequests.has(cacheKey)) {
+      console.log(
+        `⏳ [MyAvatarInfo-${componentId}] Request in progress, waiting...`,
+      );
+      const result = await loadingRequests.get(cacheKey)!;
+      return isRealPlayerPhoto(result) ? result : fallbackImageUrl;
+    }
+
+    // Create new request
+    const loadPromise = (async (): Promise<string> => {
+      try {
+        console.log(
+          `🔍 [MyAvatarInfo-${componentId}] Loading image for: ${playerName} (ID: ${playerId})`,
+        );
+
+        // Try name-based search first (fastest if available) with timeout
+        if (playerName && playerName.trim()) {
+          try {
+            const nameSearchUrl = `/api/player-photo-by-name?name=${encodeURIComponent(playerName.trim())}`;
+            console.log(`🔍 [MyAvatarInfo-${componentId}] Trying name search: ${nameSearchUrl}`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+            
+            const response = await fetch(nameSearchUrl, {
+              method: "GET",
+              headers: {
+                'Accept': 'application/json, image/*',
+                'Cache-Control': 'no-cache'
+              },
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            console.log(`📡 [MyAvatarInfo-${componentId}] Name search response:`, {
+              status: response.status,
+              statusText: response.statusText,
+              url: response.url,
+              headers: Object.fromEntries(response.headers.entries())
+            });
+
+            if (response.ok) {
+              const contentType = response.headers.get('content-type');
+              if (contentType && contentType.startsWith('image/')) {
+                // Direct image response - check if it's a real photo
+                const finalUrl = response.url;
+                console.log(`🔍 [MyAvatarInfo-${componentId}] Checking if real photo: ${finalUrl}`);
+                if (isRealPlayerPhoto(finalUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real image via name search: ${finalUrl}`);
+                  imageCache.set(cacheKey, finalUrl);
+                  return finalUrl;
+                } else {
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] Name search returned generated/default avatar, skipping`);
+                }
+              } else if (contentType && contentType.includes('json')) {
+                // JSON response with image URL
+                const data = await response.json();
+                console.log(`🔍 [MyAvatarInfo-${componentId}] JSON response data:`, data);
+                if (data.imageUrl && isRealPlayerPhoto(data.imageUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real JSON image via name search: ${data.imageUrl}`);
+                  imageCache.set(cacheKey, data.imageUrl);
+                  return data.imageUrl;
+                } else {
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] JSON response contains generated/default avatar, skipping`);
+                }
+              }
+            } else {
+              console.log(`❌ [MyAvatarInfo-${componentId}] Name search failed: ${response.status} ${response.statusText}`);
+            }
+          } catch (error) {
+            console.log(`⚠️ [MyAvatarInfo-${componentId}] Name search error:`, error);
+          }
+        }
+
+        // Try ID-based search as backup with timeout
+        if (playerId && playerId > 0) {
+          try {
+            const idSearchUrl = `/api/player-photo/${playerId}`;
+            console.log(`🔍 [MyAvatarInfo-${componentId}] Trying ID search: ${idSearchUrl}`);
+            
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+            
+            const response = await fetch(idSearchUrl, {
+              method: "GET",
+              headers: {
+                'Accept': 'application/json, image/*',
+                'Cache-Control': 'no-cache'
+              },
+              signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+
+            console.log(`📡 [MyAvatarInfo-${componentId}] ID search response:`, {
+              status: response.status,
+              statusText: response.statusText,
+              url: response.url,
+              headers: Object.fromEntries(response.headers.entries())
+            });
+
+            if (response.ok) {
+              const contentType = response.headers.get('content-type');
+              if (contentType && contentType.startsWith('image/')) {
+                // Direct image response - check if it's a real photo
+                const finalUrl = response.url;
+                console.log(`🔍 [MyAvatarInfo-${componentId}] Checking if real photo: ${finalUrl}`);
+                if (isRealPlayerPhoto(finalUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real image via ID search: ${finalUrl}`);
+                  imageCache.set(cacheKey, finalUrl);
+                  return finalUrl;
+                } else {
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] ID search returned generated/default avatar, skipping`);
+                }
+              } else if (contentType && contentType.includes('json')) {
+                // JSON response with image URL
+                const data = await response.json();
+                console.log(`🔍 [MyAvatarInfo-${componentId}] JSON response data:`, data);
+                if (data.imageUrl && isRealPlayerPhoto(data.imageUrl)) {
+                  console.log(`✅ [MyAvatarInfo-${componentId}] Found real JSON image via ID search: ${data.imageUrl}`);
+                  imageCache.set(cacheKey, data.imageUrl);
+                  return data.imageUrl;
+                } else {
+                  console.log(`🚫 [MyAvatarInfo-${componentId}] JSON response contains generated/default avatar, skipping`);
+                }
+              }
+            } else {
+              console.log(`❌ [MyAvatarInfo-${componentId}] ID search failed: ${response.status} ${response.statusText}`);
+            }
+          } catch (error) {
+            console.log(`⚠️ [MyAvatarInfo-${componentId}] ID search error:`, error);
+          }
+        }
+
+        // Try cached system as final backup (only if it returns real photos)
+        try {
+          const cachedImageUrl = await getPlayerImage(
+            playerId,
+            playerName,
+            teamId,
+          );
+
+          console.log(`🔍 [MyAvatarInfo-${componentId}] Cache system returned: ${cachedImageUrl}`);
+          if (cachedImageUrl && isRealPlayerPhoto(cachedImageUrl)) {
+            console.log(
+              `✅ [MyAvatarInfo-${componentId}] Got real image from player cache: ${cachedImageUrl}`,
+            );
+            imageCache.set(cacheKey, cachedImageUrl);
+            return cachedImageUrl;
+          } else {
+            console.log(
+              `🚫 [MyAvatarInfo-${componentId}] Cache system returned generated/default avatar, skipping`,
+            );
+          }
+        } catch (error) {
+          console.log(
+            `❌ [MyAvatarInfo-${componentId}] Cache system error: ${(error as Error)?.message || error}`,
+          );
+        }
+
+        // All methods failed, use our fallback image
+        console.log(
+          `🎨 [MyAvatarInfo-${componentId}] All sources failed, using fallback image for: ${playerName} (ID: ${playerId})`,
+        );
+        return fallbackImageUrl;
+      } catch (error) {
+        console.log(
+          `❌ [MyAvatarInfo-${componentId}] Error loading image: ${(error as Error)?.message || error}`,
+        );
+        return fallbackImageUrl;
+      } finally {
+        // Clean up loading request
+        loadingRequests.delete(cacheKey);
+      }
+    })();
+
+    // Store the promise to prevent duplicate requests
+    loadingRequests.set(cacheKey, loadPromise);
+    return await loadPromise;
+  };
+
+  // Immediate image loading without intersection observer
   useEffect(() => {
     // Validate we have meaningful player data
     if ((!playerId || playerId <= 0) && (!playerName || !playerName.trim())) {
@@ -90,12 +289,12 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
     let isCancelled = false;
 
-    const loadImageOptimized = async () => {
-      // Check the persistent cache first for instant loading
-      const cachedImage = playerImageCache.getCachedImage(playerId, playerName);
-      if (cachedImage && cachedImage.verified) {
-        console.log(`⚡ [MyAvatarInfo-${componentId}] Instant cache hit: ${cachedImage.url}`);
-        setImageUrl(cachedImage.url);
+    const loadImageImmediately = async () => {
+      // Check cache first for instant loading
+      if (imageCache.has(cacheKey)) {
+        const cachedUrl = imageCache.get(cacheKey)!;
+        console.log(`⚡ [MyAvatarInfo-${componentId}] Instant cache hit: ${cachedUrl}`);
+        setImageUrl(cachedUrl);
         setIsLoading(false);
         setIsVisible(true);
         return;
@@ -106,27 +305,20 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
       setIsLoading(false);
       setIsVisible(true);
 
-      // Skip loading if we have recent failures to avoid repeated requests
-      if (cachedImage && cachedImage.failureCount && cachedImage.failureCount >= 3) {
-        const hoursSinceLastTry = (Date.now() - cachedImage.timestamp) / (1000 * 60 * 60);
-        if (hoursSinceLastTry < 24) {
-          console.log(`⏭️ [MyAvatarInfo-${componentId}] Skipping ${playerName} - too many recent failures`);
-          return;
-        }
-      }
-
       try {
         const url = await loadPlayerImage();
         if (!isCancelled && url !== fallbackImageUrl) {
           setImageUrl(url);
         }
       } catch (error) {
-        console.log(`❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`);
+        console.log(
+          `❌ [MyAvatarInfo-${componentId}] Failed to load: ${error}`,
+        );
         // Fallback is already set, so no need to update
       }
     };
 
-    loadImageOptimized();
+    loadImageImmediately();
 
     return () => {
       isCancelled = true;
@@ -156,7 +348,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
 
   const handleClick = () => {
     if (onClick) {
-      const actualImageUrl = imageUrl !== fallbackImageUrl ? imageUrl : undefined;
+      const actualImageUrl =
+        imageUrl !== fallbackImageUrl && isRealPlayerPhoto ? isRealPlayerPhoto(imageUrl) ? imageUrl : undefined : undefined;
       onClick(playerId, teamId, playerName, actualImageUrl);
     }
   };
@@ -180,8 +373,8 @@ const MyAvatarInfo: React.FC<MyAvatarInfoProps> = ({
           );
           // Only set fallback if current URL is not already the fallback
           if (imageUrl !== fallbackImageUrl) {
-            // Mark as failed in the cache system to avoid future attempts
-            playerImageCache.setCachedImage(playerId, playerName, imageUrl, 'api', true);
+            // Remove failed URL from cache
+            imageCache.delete(cacheKey);
             setImageUrl(fallbackImageUrl);
           }
         }}

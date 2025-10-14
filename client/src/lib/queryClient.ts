@@ -176,14 +176,6 @@ export const getQueryFn: <T>(options: {
 
 // Query client with configurations
 export const queryClient = new QueryClient({
-  queryCache: new QueryCache({
-    onError: (error, query) => {
-      console.error(`❌ Query failed for key: ${query.queryKey.join('-')}`, error);
-    },
-  }),
-  mutationCache: new MutationCache({
-    onError: (error) => console.error("❌ Mutation failed:", error),
-  }),
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({
@@ -191,38 +183,41 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_DURATIONS.FIFTEEN_MINUTES, // Reduced to 15 minutes
-      gcTime: CACHE_DURATIONS.ONE_HOUR, // Reduced to 1 hour for memory efficiency
-      retry: (failureCount, error: any) => {
+      staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
+      gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
+      retry: (failureCount, error) => {
         // Don't retry timeout errors
         if (
           error?.message?.includes("timeout") ||
-          error?.message?.includes("timed out") ||
-          error?.message?.includes("429") // Rate limit
+          error?.message?.includes("timed out")
         ) {
           return false;
         }
-        // Reduce retry attempts
-        return failureCount < 1;
+        // Retry other errors up to 2 times
+        return failureCount < 2;
       },
-      retryDelay: (attemptIndex) => Math.min(2000 * 2 ** attemptIndex, 10000),
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       refetchOnMount: false,
       refetchOnReconnect: false,
+      // Prevent memory leaks
       networkMode: "online",
     },
     mutations: {
       retry: (failureCount, error) => {
+        // Don't retry timeout errors for mutations either
         if (
           error?.message?.includes("timeout") ||
-          error?.message?.includes("timed out") ||
-          error?.message?.includes("429")
+          error?.message?.includes("timed out")
         ) {
           return false;
         }
         return failureCount < 1;
       },
-      retryDelay: 3000,
+      retryDelay: 2000,
       networkMode: "online",
     },
   },
+  // Increase max query cache size to prevent excessive cleanup
+  queryCache: undefined,
+  mutationCache: undefined,
 });

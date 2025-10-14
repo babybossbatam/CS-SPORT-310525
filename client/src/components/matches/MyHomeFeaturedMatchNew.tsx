@@ -78,7 +78,7 @@ const CHAMPIONS_LEAGUE_ELITE_TEAMS = [
   157, 165, 168, // Bundesliga elite: Bayern Munich, Borussia Dortmund, Bayer Leverkusen
   489, 492, 496, 502, // Serie A elite: AC Milan, Inter, Juventus, Napoli
   81, // Ligue 1 elite: PSG
-  610, 194, // Eredivivisie elite: Ajax, PSV
+  610, 194, // Eredivisie elite: Ajax, PSV
   211, 212, 228, // Primeira Liga elite: Porto, Benfica, Sporting CP
 ];
 
@@ -179,7 +179,7 @@ const isPopularTeamMatch = (
 
   // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
-  const awayTeamLower = awayTeam.toLowerCase(); // Corrected 'away' to 'awayTeam'
+  const awayTeamLower = awayTeam.toLowerCase();
 
   const popularNamesToCheck = isChampionsLeague
     ? CHAMPIONS_LEAGUE_ELITE_TEAMS.map(
@@ -234,14 +234,14 @@ const POPULAR_LEAGUES = [
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 // Premier League (39) is prioritized first
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
+  39, 140, 135, 78, 79, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180, 67, 68, 69,
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup, National 2 - Group A
-const PRIORITY_LEAGUE_IDS = [39, 140, 78, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
+const PRIORITY_LEAGUE_IDS = [39, 140, 78, 79, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), Ligue 1 (79), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -314,22 +314,6 @@ interface DayMatches {
   matches: FeaturedMatch[];
 }
 
-// Mock enhancedApiWrapper for demonstration purposes
-// In a real application, this would be imported and properly implemented
-const enhancedApiWrapper = {
-  getCachedImage: async (key: string) => {
-    // Simulate cache lookup
-    const cachedData = localStorage.getItem(key);
-    return cachedData ? JSON.parse(cachedData) : null;
-  },
-  setCachedImage: async (key: string, data: any, ttl: number) => {
-    // Simulate cache storage
-    const expires = Date.now() + ttl;
-    localStorage.setItem(key, JSON.stringify({ data, timestamp: Date.now(), expires }));
-  },
-  // You would likely have other methods here for different types of API calls
-};
-
 const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   selectedDate,
   maxMatches = 6,
@@ -380,7 +364,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const mountedRef = useRef(false);
   const selectiveUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const componentName = "MyHomeFeaturedMatchNew"; // For consistent logging
 
   // Function to manage selective updates for matches
   const manageSelectiveUpdates = useCallback(() => {
@@ -499,7 +482,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // CRITICAL: Ensure cached date exactly matches requested date
         if (cachedDate !== date) {
           console.log(
-            `🚨 [${componentName}] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`,
+            `🚨 [MyHomeFeaturedMatchNew] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`,
           );
           localStorage.removeItem(cacheKey);
           return [];
@@ -516,14 +499,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           );
 
           console.log(
-            `✅ [${componentName}] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`,
+            `✅ [MyHomeFeaturedMatchNew] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`,
           );
           return validFixtures;
         } else {
           // Remove expired cache
           localStorage.removeItem(cacheKey);
           console.log(
-            `⏰ [${componentName}] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
+            `⏰ [MyHomeFeaturedMatchNew] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
           );
         }
       } catch (error) {
@@ -556,7 +539,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         localStorage.setItem(cacheKey, JSON.stringify(cacheData));
         console.log(
-          `💾 [${componentName}] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`,
+          `💾 [MyHomeFeaturedMatchNew] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`,
         );
       } catch (error) {
         console.error("Error caching ended matches:", error);
@@ -628,7 +611,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 if (shouldRefreshMatch) {
                   console.log(
-                    `🔄 [${componentName}] [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, ShouldStart: ${shouldHaveStarted}, Today: ${isTodaysMatch}`,
+                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, ShouldStart: ${shouldHaveStarted}, Today: ${isTodaysMatch}`,
                   );
                 }
 
@@ -660,11 +643,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const allFixtures: FeaturedMatch[] = [];
 
         console.log(
-          `🔍 [${componentName}] Starting fetch with priority leagues:`,
+          "🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:",
           priorityLeagueIds,
         );
         console.log(
-          `🔍 [${componentName}] All featured league IDs:`,
+          "🔍 [MyHomeFeaturedMatchNew] All featured league IDs:",
           FEATURED_MATCH_LEAGUE_IDS,
         );
 
@@ -703,7 +686,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         let liveFixtures: FeaturedMatch[] = [];
         try {
           console.log(
-            `🔴 [${componentName}] Fetching live matches for status transitions`,
+            "🔴 [MyHomeFeaturedMatchNew] Fetching live matches for status transitions",
           );
           const liveResponse = await apiRequest(
             "GET",
@@ -713,7 +696,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           if (Array.isArray(liveData)) {
             console.log(
-              `🔍 [${componentName}] Processing live fixtures:`,
+              "🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:",
               liveData.length,
             );
 
@@ -723,7 +706,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             );
 
             console.log(
-              `🔍 [${componentName}] Featured live fixtures:`,
+              "🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:",
               featuredLiveFixtures.length,
             );
 
@@ -732,7 +715,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 const isValid = isValidMatch(fixture);
                 if (!isValid) {
                   console.log(
-                    `❌ [${componentName}] Filtered out invalid fixture:`,
+                    "❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:",
                     {
                       home: fixture.teams?.home?.name,
                       away: fixture.teams?.away?.name,
@@ -741,7 +724,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   );
                 } else {
                   console.log(
-                    `✅ [${componentName}] Valid featured live fixture:`,
+                    "✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:",
                     {
                       home: fixture.teams?.home?.name,
                       away: fixture.teams?.away?.name,
@@ -786,11 +769,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }));
           }
           console.log(
-            `✅ [${componentName}] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
+            `✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
           );
         } catch (error) {
           console.error(
-            `❌ [${componentName}] Error fetching live matches:`,
+            "❌ [MyHomeFeaturedMatchNew] Error fetching live matches:",
             error,
           );
         }
@@ -803,7 +786,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           for (const leagueId of priorityLeagueIds) {
             try {
               console.log(
-                `🔍 [${componentName}] Fetching cached data for league ${leagueId}`,
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
               );
 
               const fixturesResponse = await apiRequest(
@@ -825,7 +808,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     const isOldEnded = isMatchOldEnded(fixture);
                     if (isOldEnded) {
                       console.log(
-                        `⏰ [${componentName}] Excluding old ended match (${fixture.fixture.status.short}):`,
+                        `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -967,7 +950,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (hasConflictingData) {
                       console.log(
-                        `🔄 [${componentName}] Excluding match with conflicting data - ${conflictReason}:`,
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1002,7 +985,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (shouldInclude) {
                       console.log(
-                        `✅ [${componentName}] Including priority league ${leagueId} fixture:`,
+                        `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1013,7 +996,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isWomensCompetition) {
                       console.log(
-                        `❌ [${componentName}] Excluding women's competition:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1021,7 +1004,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isOberligaLeague) {
                       console.log(
-                        `❌ [${componentName}] Excluding Oberliga league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1029,7 +1012,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isRegionalligaLeague) {
                       console.log(
-                        `❌ [${componentName}] Excluding Regionalliga league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1037,7 +1020,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (is3Liga) {
                       console.log(
-                        `❌ [${componentName}] Excluding 3. Liga league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1045,7 +1028,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isTerceraRFEF) {
                       console.log(
-                        `❌ [${componentName}] Excluding Tercera División RFEF league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Tercera División RFEF league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1053,7 +1036,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isSegundaRFEF) {
                       console.log(
-                        `❌ [${componentName}] Excluding Segunda División RFEF league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Segunda División RFEF league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1061,7 +1044,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isSerieD) {
                       console.log(
-                        `❌ [${componentName}] Excluding Serie D league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Serie D league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1069,7 +1052,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isSerieC) {
                       console.log(
-                        `❌ [${componentName}] Excluding Serie C league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Serie C league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1077,7 +1060,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isPrimeraRFEF) {
                       console.log(
-                        `❌ [${componentName}] Excluding Primera División RFEF league:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Primera División RFEF league:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1085,7 +1068,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       );
                     } else if (isNonLeaguePremier) {
                       console.log(
-                        `❌ [${componentName}] Excluding Non League Premier:`,
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Non League Premier:`,
                         {
                           league: fixture.league?.name,
                           leagueId: fixture.league?.id,
@@ -1141,7 +1124,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           // Fetch popular team friendlies from Friendlies Clubs league (667)
           try {
             console.log(
-              `🔍 [${componentName}] Fetching Friendlies Clubs fixtures for popular teams`,
+              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
             );
 
             const friendliesResponse = await apiRequest(
@@ -1177,7 +1160,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                   if (isPopular) {
                     console.log(
-                      `🎯 [${componentName}] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                      `🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
                     );
                     return true;
                   }
@@ -1218,7 +1201,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 }));
 
               console.log(
-                `🎯 [${componentName}] Found ${popularFriendlies.length} popular team friendlies`,
+                `🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`,
               );
               allFixtures.push(...popularFriendlies);
             }
@@ -1233,7 +1216,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           for (const dateInfo of dates) {
             try {
               console.log(
-                `🔍 [${componentName}] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
               );
 
               const response = await apiRequest(
@@ -1276,7 +1259,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     ].includes(status);
                     if (isCurrentlyLive) {
                       console.log(
-                        `🔴 [${componentName}] Preserving live match in date-based search:`,
+                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in date-based search:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1405,7 +1388,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (hasConflictingData) {
                       console.log(
-                        `🔄 [${componentName}] Excluding match with conflicting data - ${conflictReason}:`,
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1475,13 +1458,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                         if (isPopular) {
                           console.log(
-                            `✅ [${componentName}] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                            `✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
                           );
                           return true;
                         }
 
                         console.log(
-                          `❌ [${componentName}] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                          `❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
                         );
                         return false;
                       }
@@ -1544,7 +1527,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
             } catch (error) {
               console.error(
-                `❌ [${componentName}] Error fetching cached data for ${dateInfo.label}:`,
+                `❌ [MyHomeFeaturedMatchNew] Error fetching cached data for ${dateInfo.label}:`,
                 error,
               );
             }
@@ -1554,7 +1537,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         // If we still don't have enough fixtures, expand search to all popular leagues
         if (allFixtures.length < 3) {
           console.log(
-            `🔄 [${componentName}] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
+            `🔄 [MyHomeFeaturedMatchNew] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
           );
 
           for (const dateInfo of dates) {
@@ -1599,7 +1582,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     ].includes(status);
                     if (isCurrentlyLive) {
                       console.log(
-                        `🔴 [${componentName}] Preserving live match in expanded search:`,
+                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in expanded search:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1729,7 +1712,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (hasConflictingData) {
                       console.log(
-                        `🔄 [${componentName}] Excluding expanded search match with conflicting data - ${conflictReason}:`,
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1796,7 +1779,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }
             } catch (error) {
               console.error(
-                `❌ [${componentName}] Error in expanded search for ${dateInfo.label}:`,
+                `❌ [MyHomeFeaturedMatchNew] Error in expanded search for ${dateInfo.label}:`,
                 error,
               );
             }
@@ -1811,7 +1794,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         );
 
         console.log(
-          `📋 [${componentName}] Total unique fixtures found:`,
+          `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
           allUniqueFixtures.length,
         );
 
@@ -1819,13 +1802,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         try {
           learnFromFixtures(allUniqueFixtures);
           console.log(
-            `📚 [${componentName}] Learning from ${allUniqueFixtures.length} fixtures for translation improvement`,
+            `📚 [MyHomeFeaturedMatchNew] Learning from ${allUniqueFixtures.length} fixtures for translation improvement`,
           );
 
           // Additional league-specific learning for comprehensive coverage
           smartLeagueCountryTranslation.learnFromFixtures(allUniqueFixtures);
           console.log(
-            `🎓 [${componentName}] Enhanced league learning from ${allUniqueFixtures.length} fixtures for better coverage`,
+            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${allUniqueFixtures.length} fixtures for better coverage`,
           );
         } catch (error) {
           console.warn("Error learning from fixtures:", error);
@@ -1843,7 +1826,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }));
 
         console.log(
-          `📋 [${componentName}] Fixture details with League IDs:`,
+          `📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`,
           fixtureDetails,
         );
 
@@ -2263,7 +2246,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             .slice(0, Math.max(5, Math.floor(maxMatches / dates.length)));
 
           console.log(
-            `✅ [${componentName}] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
+            `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
           );
 
           allMatches.push({
@@ -2295,14 +2278,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
         setFixturesByLeague(leagueMap);
 
-        // Update state with the new matches using standings-like preservation logic
+        // Update state with the new matches
         setFeaturedMatches((prevMatches) => {
           // Compare match IDs for efficiency instead of full JSON stringify
           const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
-          const newIds = uniqueFixtures.map(m => m.fixture.id).sort();
+          const newIds = uniqueFixtures.flatMap(m => m.fixture.id).sort();
 
           if (prevIds.join(',') !== newIds.join(',')) {
-            console.log(`🔄 [${componentName}] Match IDs changed, updating state`);
+            console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
             // Trigger selective update management after state update
             setTimeout(() => manageSelectiveUpdates(), 100);
             return allMatches;
@@ -2324,17 +2307,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           );
 
           if (hasStatusChanges) {
-            console.log(`⚽ [${componentName}] Match status/score changes detected, updating state`);
+            console.log(`⚽ [MyHomeFeaturedMatchNew] Match status/score changes detected, updating state`);
             // Trigger selective update management after state update
             setTimeout(() => manageSelectiveUpdates(), 100);
             return allMatches;
           }
 
-          console.log(`✅ [${componentName}] No changes detected, preserving existing state like standings cache`);
+          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, keeping existing state`);
           return prevMatches;
         });
       } catch (error) {
-        console.error(`❌ [${componentName}] Error:`, error);
+        console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -2537,61 +2520,61 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       refreshInterval = 15000; // 15 seconds for live matches
       shouldRefresh = true;
       console.log(
-        `🔴 [${componentName}] ${analysis.liveMatches} live matches - using aggressive refresh (15s)`,
+        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using aggressive refresh (15s)`,
       );
     } else if (todayEndedMatches > 0) {
       // Aggressive for today's ended matches to get final stats
       refreshInterval = 30000; // 30 seconds
       shouldRefresh = true;
       console.log(
-        `📊 [${componentName}] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
+        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
       );
     } else if (analysis.staleMatches > 0) {
       // Very aggressive: Stale matches that should have started
       refreshInterval = 20000; // 20 seconds for status transitions
       shouldRefresh = true;
       console.log(
-        `🟡 [${componentName}] ${analysis.staleMatches} stale matches detected - using very aggressive refresh (20s)`,
+        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using very aggressive refresh (20s)`,
       );
     } else if (analysis.imminentMatches > 0) {
       // Frequent: Matches starting within 30 minutes
       refreshInterval = 60000; // 1 minute
       shouldRefresh = true;
       console.log(
-        `🟠 [${componentName}] ${analysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
+        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
       );
     } else if (analysis.upcomingMatches > 0) {
       // Moderate: Matches starting within 2 hours
       refreshInterval = 120000; // 2 minutes
       shouldRefresh = true;
       console.log(
-        `🟢 [${componentName}] ${analysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
+        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
       );
     } else {
       // Standard: No urgent matches
       refreshInterval = 300000; // 5 minutes
       shouldRefresh = false;
       console.log(
-        `⏸️ [${componentName}] No urgent matches - using standard refresh (5min)`,
+        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`,
       );
     }
 
     if (!shouldRefresh) {
-      console.log(`⭕ [${componentName}] No active refresh needed`);
+      console.log(`⭕ [MyHomeFeaturedMatchNew] No active refresh needed`);
       return;
     }
 
     // Prevent double intervals by checking if one is already running
     const intervalId = setInterval(() => {
       console.log(
-        `🔄 [${componentName}] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
+        `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
       );
       fetchFeaturedMatches(false); // Background refresh without loading state
     }, refreshInterval);
 
     return () => {
       clearInterval(intervalId);
-      console.log(`🧹 [${componentName}] Cleaned up refresh interval`);
+      console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
     };
   }, [featuredMatches, fetchFeaturedMatches, manageSelectiveUpdates]); // Depend on featuredMatches to re-evaluate interval
 
@@ -2938,10 +2921,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const handleMatchClick = useCallback((fixture: FeaturedMatch) => { // Changed parameter to fixture
     if (onMatchCardClick) {
       console.log(
-        `🎯 [${componentName}] Selecting match for Details tab:`,
+        `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
         fixture.fixture.id,
       );
-      onMatchCardClick(fixture); // Pass the entire fixture object like standings
+      onMatchCardClick(fixture.fixture); // Pass the fixture object
     } else {
       navigate(`/match/${fixture.fixture.id}`);
     }

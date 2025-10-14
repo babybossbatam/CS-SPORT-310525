@@ -1,3 +1,4 @@
+
 import { apiRequest } from './queryClient';
 import { logApiCall, logCacheOperation } from './centralizedDebugCache';
 
@@ -7,65 +8,11 @@ export interface ApiWrapperOptions {
   enableDebug?: boolean;
 }
 
-interface RequestOptions extends RequestInit {
-  timeout?: number;
-}
-
 export class EnhancedApiWrapper {
-  private cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
-  private requestQueue: Array<() => Promise<void>> = [];
-  private isProcessing = false;
-  private pendingRequests = new Map<string, Promise<any>>();
-  private requestCounts = new Map<string, number>();
+  private cache: Map<string, { data: any; timestamp: number; expires: number }> = new Map();
   private readonly defaultCacheDuration = 5 * 60 * 1000; // 5 minutes
-  private readonly maxRequestsPerSecond = 2;
-  private lastRequestTime = 0;
 
   async fetchWithDebug<T>(
-    endpoint: string,
-    options: ApiWrapperOptions,
-    cacheDuration: number = this.defaultCacheDuration
-  ): Promise<T> {
-    // Queue requests to prevent overwhelming the server
-    return this.queueRequest(() => this.executeRequest(endpoint, options, cacheDuration));
-  }
-
-  private async queueRequest<T>(requestFn: () => Promise<T>): Promise<T> {
-    return new Promise((resolve, reject) => {
-      this.requestQueue.push({ resolve, reject, request: requestFn });
-      this.processQueue();
-    });
-  }
-
-  private async processQueue(): Promise<void> {
-    if (this.isProcessing || this.requestQueue.length === 0) return;
-
-    this.isProcessing = true;
-
-    while (this.requestQueue.length > 0) {
-      const now = Date.now();
-      const timeSinceLastRequest = now - this.lastRequestTime;
-      const minInterval = 1000 / this.maxRequestsPerSecond; // 500ms between requests
-
-      if (timeSinceLastRequest < minInterval) {
-        await new Promise(resolve => setTimeout(resolve, minInterval - timeSinceLastRequest));
-      }
-
-      const { resolve, reject, request } = this.requestQueue.shift()!;
-      this.lastRequestTime = Date.now();
-
-      try {
-        const result = await request();
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    }
-
-    this.isProcessing = false;
-  }
-
-  private async executeRequest<T>(
     endpoint: string,
     options: ApiWrapperOptions,
     cacheDuration: number = this.defaultCacheDuration
@@ -81,7 +28,7 @@ export class EnhancedApiWrapper {
 
       if (cached && now < cached.expires) {
         const responseTime = Date.now() - startTime;
-
+        
         if (enableDebug) {
           logApiCall(componentName, {
             endpoint,
@@ -91,7 +38,7 @@ export class EnhancedApiWrapper {
             cacheKey: fullCacheKey,
             dataSize: JSON.stringify(cached.data).length
           });
-
+          
           logCacheOperation(componentName, 'hit', fullCacheKey, JSON.stringify(cached.data).length);
         }
 
@@ -130,7 +77,7 @@ export class EnhancedApiWrapper {
       return data;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-
+      
       if (enableDebug) {
         logApiCall(componentName, {
           endpoint,

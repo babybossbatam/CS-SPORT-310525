@@ -20,9 +20,9 @@ const BrandedLoading: React.FC<BrandedLoadingProps> = ({
           src="/CSSPORT_1_updated.png"
           alt="CS Sport Logo"
           className="w-[85px] h-[65px]"
-          loading="eager"
         />
       </div>
+      <div className="text-center"></div>
     </div>
   );
 };

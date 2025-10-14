@@ -1,3 +1,4 @@
+
 import { apiRequest } from './queryClient';
 
 interface CacheItem {
@@ -9,47 +10,25 @@ interface CacheItem {
 class BackgroundCache {
   private cache = new Map<string, CacheItem>();
   private prefetchQueue = new Set<string>();
-  private maxCacheSize = 5000; // Further increased cache size
-  private defaultTTL = 30 * 60 * 1000; // 30 minutes for better performance
-  private requestQueue: string[] = [];
-  private processingQueue = false;
-  private cleanupInterval: NodeJS.Timeout | null = null; // Added for interval management
-  private memoryThreshold: number = 50 * 1024 * 1024; // 50MB threshold (added)
+  private maxCacheSize = 2000; // Increased cache size
+  private defaultTTL = 10 * 60 * 1000; // 10 minutes for better performance
 
   constructor() {
     // Cleanup expired items every 2 minutes instead of 1
-    this.cleanupInterval = setInterval(() => this.cleanup(), 120000);
+    setInterval(() => this.cleanup(), 120000);
   }
 
   async get(key: string): Promise<any> {
     const item = this.cache.get(key);
-    if (item) {
-      // Return data immediately, even if slightly expired (for better UX)
-      const isExpired = Date.now() >= item.expires;
-      if (isExpired) {
-        console.log(`⚡ [BackgroundCache] Serving expired cache for immediate UX: ${key}`);
-        // Trigger background refresh
-        setTimeout(() => this.backgroundRefresh(key), 100);
-      }
+    if (item && Date.now() < item.expires) {
       return item.data;
     }
     return null;
   }
 
-  private async backgroundRefresh(key: string): Promise<void> {
-    try {
-      console.log(`🔄 [BackgroundCache] Background refresh for: ${key}`);
-      // This would typically refetch the data
-      // Implementation depends on your specific API structure
-    } catch (error) {
-      console.warn('Background refresh failed:', error);
-    }
-  }
-
   set(key: string, data: any, ttl = this.defaultTTL): void {
-    // Check cache size limits (added)
     if (this.cache.size >= this.maxCacheSize) {
-      this.cleanup(true); // Force cleanup
+      this.evictOldest();
     }
 
     this.cache.set(key, {
@@ -57,12 +36,6 @@ class BackgroundCache {
       timestamp: Date.now(),
       expires: Date.now() + ttl
     });
-
-    // Estimate memory usage (added)
-    const estimatedSize = JSON.stringify(data).length * 2; // Rough estimate
-    if (estimatedSize > this.memoryThreshold) {
-      console.warn(`⚠️ [BackgroundCache] Large cache entry: ${key} (~${Math.round(estimatedSize / 1024 / 1024)}MB)`);
-    }
   }
 
   async prefetch(endpoint: string, priority: 'high' | 'normal' | 'low' = 'normal'): Promise<void> {
@@ -88,21 +61,12 @@ class BackgroundCache {
     }
   }
 
-  private cleanup(force = false): void {
+  private cleanup(): void {
     const now = Date.now();
-    let evictedCount = 0;
     for (const [key, item] of this.cache.entries()) {
       if (now >= item.expires) {
         this.cache.delete(key);
-        evictedCount++;
       }
-    }
-    if (force && this.cache.size > 0) {
-      this.evictOldest();
-      evictedCount++;
-    }
-    if (evictedCount > 0) {
-      console.log(`🧹 [BackgroundCache] Cleaned up ${evictedCount} expired or excess items. Cache size: ${this.cache.size}`);
     }
   }
 
@@ -125,10 +89,6 @@ class BackgroundCache {
   clear(): void {
     this.cache.clear();
     this.prefetchQueue.clear();
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.cleanupInterval = null;
-    }
   }
 
   getStats() {
@@ -149,22 +109,18 @@ export const backgroundCache = new BackgroundCache();
 
 // Helper functions for common prefetch patterns
 export const prefetchMatchData = async (fixtureId: number) => {
-  try {
-    const endpoints = [
-      `/api/fixtures/${fixtureId}`,
-      `/api/fixtures/${fixtureId}/lineups`,
-      `/api/fixtures/${fixtureId}/statistics`,
-      `/api/fixtures/${fixtureId}/events`
-    ];
+  const endpoints = [
+    `/api/fixtures/${fixtureId}`,
+    `/api/fixtures/${fixtureId}/lineups`,
+    `/api/fixtures/${fixtureId}/statistics`,
+    `/api/fixtures/${fixtureId}/events`
+  ];
 
-    const promises = endpoints.map(endpoint =>
-      backgroundCache.prefetch(endpoint, 'normal')
-    );
+  const promises = endpoints.map(endpoint => 
+    backgroundCache.prefetch(endpoint, 'normal')
+  );
 
-    await Promise.allSettled(promises);
-  } catch (error) {
-    console.warn('Error prefetching match data:', error);
-  }
+  await Promise.allSettled(promises);
 };
 
 export const prefetchLeagueData = async (leagueId: number, season: number) => {
@@ -174,7 +130,7 @@ export const prefetchLeagueData = async (leagueId: number, season: number) => {
     `/api/leagues/${leagueId}/topscorers?season=${season}`
   ];
 
-  const promises = endpoints.map(endpoint =>
+  const promises = endpoints.map(endpoint => 
     backgroundCache.prefetch(endpoint, 'high') // Changed to high priority
   );
 
@@ -191,7 +147,7 @@ export const prefetchTodayData = async () => {
     `/api/fixtures/live`
   ];
 
-  const promises = endpoints.map(endpoint =>
+  const promises = endpoints.map(endpoint => 
     backgroundCache.prefetch(endpoint, 'high')
   );
 

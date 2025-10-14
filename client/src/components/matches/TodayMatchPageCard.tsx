@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback, Suspense, memo } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { ChevronLeft, ChevronRight, ChevronDown, Clock } from "lucide-react";
 import { Card, CardHeader, CardContent } from "../ui/card";
 import { Filter, Activity } from "lucide-react";
@@ -28,7 +28,6 @@ import {
 } from "@/lib/MyPopularLeagueExclusion";
 import { useDeviceInfo } from '@/hooks/use-mobile';
 import MyRightContent from '@/components/layout/MyRightContent';
-import { CacheManager } from '@/lib/cachingHelper';
 
 
 interface TodayMatchPageCardProps {
@@ -37,11 +36,11 @@ interface TodayMatchPageCardProps {
   onMatchCardClick?: (fixture: any) => void;
 }
 
-const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
+export const TodayMatchPageCard = ({
   fixtures,
   onMatchClick,
   onMatchCardClick,
-}) => {
+}: TodayMatchPageCardProps) => {
   const [timeFilterActive, setTimeFilterActive] = useState(false);
   const [liveFilterActive, setLiveFilterActive] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -50,32 +49,6 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
   const { t } = useTranslation();
   const { currentLanguage } = useLanguage();
   const { isMobile } = useDeviceInfo();
-
-  const [cachedFixtures, setCachedFixtures] = useState<any[]>([]);
-
-  // Load cached data immediately on mount
-  useEffect(() => {
-    const cachedData = CacheManager.getCachedData([`today-matches-${selectedDate}`]);
-    if (cachedData) {
-      console.log(`⚡ [TodayMatchPageCard] Loaded cached fixtures for ${selectedDate}`);
-      setCachedFixtures(cachedData);
-    }
-  }, [selectedDate]);
-
-  // Update cache when new fixtures arrive
-  useEffect(() => {
-    if (fixtures?.length) {
-      CacheManager.setCachedData([`today-matches-${selectedDate}`], fixtures);
-      setCachedFixtures(fixtures);
-    }
-  }, [fixtures, selectedDate]);
-
-  // Use cached fixtures if available, fallback to props - memoized
-  const displayFixtures = useMemo(() => 
-    fixtures?.length ? fixtures : cachedFixtures, 
-    [fixtures, cachedFixtures]
-  );
-
 
   // Calendar translation helpers
   const getMonthName = (monthIndex: number): string => {
@@ -132,33 +105,33 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
     }
   }, [selectedDate, liveFilterActive, timeFilterActive]);
 
-  // Date navigation handlers - memoized
-  const goToPreviousDay = useCallback(() => {
+  // Date navigation handlers
+  const goToPreviousDay = () => {
     const newDate = format(subDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
     setSelectedDate(newDate);
-  }, [selectedDate]);
+  };
 
-  const goToNextDay = useCallback(() => {
+  const goToNextDay = () => {
     const newDate = format(addDays(parseISO(selectedDate), 1), "yyyy-MM-dd");
     setSelectedDate(newDate);
-  }, [selectedDate]);
+  };
 
-  const handleDateSelect = useCallback((date: Date | undefined) => {
+  const handleDateSelect = (date: Date | undefined) => {
     if (date) {
       const selectedDateString = formatYYYYMMDD(date);
       setSelectedDate(selectedDateString);
       setIsCalendarOpen(false);
     }
-  }, []);
+  };
 
-  const goToToday = useCallback(() => {
+  const goToToday = () => {
     const today = getCurrentUTCDateString();
     setSelectedDate(today);
     setIsCalendarOpen(false);
-  }, []);
+  };
 
-  // Dedicated date display function for match page - memoized
-  const getDateDisplayName = useMemo(() => {
+  // Dedicated date display function for match page
+  const getDateDisplayName = () => {
     const today = getCurrentUTCDateString();
     const yesterday = format(subDays(parseISO(today), 1), "yyyy-MM-dd");
     const tomorrow = format(addDays(parseISO(today), 1), "yyyy-MM-dd");
@@ -197,7 +170,7 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
         return `${dayOfWeek}, ${day}${ordinalSuffix} ${month}`;
       }
     }
-  }, [selectedDate, currentLanguage, t]);
+  };
 
   // Helper function for ordinal suffix (1st, 2nd, 3rd, etc.)
   const getOrdinalSuffix = (day: number): string => {
@@ -220,18 +193,18 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
       console.log(`Received ${data.length} shared live fixtures`);
       return data;
     },
-    staleTime: 2 * 60 * 1000, // 2 minutes for live content only
-    gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
-    enabled: liveFilterActive,
-    refetchOnWindowFocus: false, // Disable aggressive refetching
-    refetchOnMount: false,
+    staleTime: 30000,
+    gcTime: 2 * 60 * 1000,
+    enabled: liveFilterActive, // Only fetch when live filter is active
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: liveFilterActive ? 2 * 60 * 1000 : false, // Only refresh every 2 minutes for live
+    refetchInterval: 30000,
   });
 
   console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);
 
-  const handleMatchCardClick = useCallback((fixture: any) => {
+  const handleMatchCardClick = (fixture: any) => {
     console.log('🎯 [TodayMatchPageCard] Match card clicked:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -242,9 +215,9 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
       source: 'TodayMatchPageCard'
     });
     onMatchCardClick?.(fixture);
-  }, [onMatchCardClick]);
+  };
 
-  const handleLiveMatchClick = useCallback((fixture: any) => {
+  const handleLiveMatchClick = (fixture: any) => {
     console.log('🔴 [TodayMatchPageCard] LIVE Match card clicked from LiveMatchForAllCountry:', {
       fixtureId: fixture.fixture?.id,
       teams: `${fixture.teams?.home?.name} vs ${fixture.teams?.away?.name}`,
@@ -254,7 +227,7 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
       source: 'LiveMatchForAllCountry'
     });
     onMatchCardClick?.(fixture);
-  }, [onMatchCardClick]);
+  };
 
   // Using native UTC methods instead of date-fns to avoid timezone conversion
 
@@ -303,7 +276,7 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
               className="flex items-center gap-3 px-3 py-4   h-full"
             >
               <span className={`font-medium ${currentLanguage.startsWith('zh') ? 'font-sans' : ''}`}>
-                {getDateDisplayName}
+                {getDateDisplayName()}
               </span>
               <ChevronDown
                 className={`h-4 w-4 transition-transform ${isCalendarOpen ? "rotate-180" : ""}`}
@@ -400,7 +373,7 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
         <div className="flex items-center justify-between px-4 pb-4 mt-[20px] text-[110.25%] h-9">
           {/* Live button */}
           <button
-            onClick={useCallback(() => {
+            onClick={() => {
               if (!liveFilterActive) {
                 // Activating live filter
                 setLiveFilterActive(true);
@@ -424,7 +397,7 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
                   setTimeFilterActive(true);
                 }
               }
-            }, [liveFilterActive, timeFilterActive])}
+            }}
             className={`flex items-center justify-center gap-1 px-0.5 py-0.5 rounded-full text-xs font-medium w-fit transition-colors duration-200 ${
               liveFilterActive
                 ? "bg-red-500 text-white hover:bg-red-600"
@@ -514,43 +487,35 @@ const TodayMatchPageCard = memo<TodayMatchPageCardProps>(({
           selectedDate={selectedDate}
           timeFilterActive={timeFilterActive}
           liveFilterActive={liveFilterActive}
-          fixtures={displayFixtures} // Use displayFixtures which includes cached data
+          fixtures={sharedAllFixtures} // Pass shared fixtures
         />
       ) : (
         // Neither filter active - show default view
         <>
-          <Suspense fallback={<div className="h-32 bg-gray-100 animate-pulse rounded-lg" />}>
-            <MyNewLeague2
-              selectedDate={selectedDate}
-              timeFilterActive={false}
-              showTop10={false}
-              liveFilterActive={liveFilterActive}
-              onMatchCardClick={handleMatchCardClick}
-              onFixturesLoad={setSharedAllFixtures}
-              useUTCOnly={true}
-            />
-          </Suspense>
+          <MyNewLeague2
+            selectedDate={selectedDate}
+            timeFilterActive={false}
+            showTop10={false}
+            liveFilterActive={liveFilterActive}
+            onMatchCardClick={handleMatchCardClick}
+            onFixturesLoad={setSharedAllFixtures} // Pass callback to receive fixtures
+            useUTCOnly={true}
+          />
 
-          <Suspense fallback={<div className="h-24 bg-gray-100 animate-pulse rounded-lg" />}>
-            <TodaysMatchesByCountryNew
-              selectedDate={selectedDate}
-              liveFilterActive={liveFilterActive}
-              timeFilterActive={timeFilterActive}
-              onMatchCardClick={handleMatchCardClick}
-            />
-          </Suspense>
+          <TodaysMatchesByCountryNew
+            selectedDate={selectedDate}
+            liveFilterActive={liveFilterActive}
+            timeFilterActive={timeFilterActive}
+            onMatchCardClick={handleMatchCardClick}
+          />
           {isMobile && (
-            <Suspense fallback={<div className="h-48 bg-gray-100 animate-pulse rounded-lg" />}>
-              <MyRightContent />
-            </Suspense>
+            <MyRightContent />
           )}
         </>
-      )}
-    </>
+      )
+    }
+</>
   );
-});
+};
 
-TodayMatchPageCard.displayName = 'TodayMatchPageCard';
-
-export { TodayMatchPageCard };
 export default TodayMatchPageCard;

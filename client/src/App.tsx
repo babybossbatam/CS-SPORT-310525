@@ -19,9 +19,6 @@ import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
-import { memoryCleanup } from './lib/memoryCleanup';
-import { cacheCleanupManager } from './lib/comprehensiveCacheCleanup';
-import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
@@ -158,11 +155,8 @@ function App() {
     setupGlobalErrorHandlers();
     const refreshInterval = setupCacheRefresh();
 
-    // Initialize comprehensive cache cleanup
-    cacheCleanupManager.init();
-    
-    // Initialize memory cleanup
-    memoryCleanup.init();
+    // Clear all logo caches on app initialization
+    clearAllLogoCaches();
 
     // Start performance monitoring
     console.log('🚀 Starting performance monitoring...');
@@ -174,19 +168,66 @@ function App() {
         preloadData();
       }, { timeout: 2000 });
       
-      // Simplified font loading strategy
-      if (document.fonts && document.fonts.load) {
-        document.fonts.load('12px Inter').catch(() => {
-          console.log('🔧 Font preload failed, using fallback');
+      // Optimize font loading strategy
+      const optimizeFontLoading = () => {
+        // Create multiple font display elements to trigger immediate usage
+        const triggerElements = [
+          document.createElement('span'),
+          document.createElement('div'),
+          document.createElement('p')
+        ];
+        
+        triggerElements.forEach((element, index) => {
+          element.style.fontFamily = 'Inter, sans-serif';
+          element.style.position = 'fixed';
+          element.style.top = '-100px';
+          element.style.left = '-100px';
+          element.style.fontSize = '12px';
+          element.style.visibility = 'hidden';
+          element.style.pointerEvents = 'none';
+          element.textContent = 'Inter font trigger';
+          element.setAttribute('aria-hidden', 'true');
+          
+          document.body.appendChild(element);
+          
+          // Remove after font is registered
+          setTimeout(() => {
+            if (document.body.contains(element)) {
+              document.body.removeChild(element);
+            }
+          }, 50 + (index * 10));
         });
-      }
+      };
+
+      // Preload font with immediate usage
+      const fontPreload = document.createElement('link');
+      fontPreload.rel = 'preload';
+      fontPreload.href = '/fonts/Inter-Regular.woff2';
+      fontPreload.as = 'font';
+      fontPreload.type = 'font/woff2';
+      fontPreload.crossOrigin = 'anonymous';
+      
+      fontPreload.onload = () => {
+        // Immediate font usage
+        optimizeFontLoading();
+      };
+      
+      fontPreload.onerror = () => {
+        console.log('🔧 Font preload failed, using fallback');
+      };
+      
+      document.head.appendChild(fontPreload);
+      
+      // Also trigger font usage immediately for safety
+      requestAnimationFrame(() => {
+        optimizeFontLoading();
+      });
     } else {
       preloadData();
     }
 
     return () => {
       cleanupCacheRefresh(refreshInterval);
-      memoryCleanup.destroy();
     };
   }, []);
 
@@ -200,10 +241,6 @@ function App() {
       event.reason?.message?.includes("unknown runtime error") ||
       event.reason?.message?.includes("sendError") ||
       event.reason?.message?.includes("Too many re-renders") ||
-      event.reason?.message?.includes("timeout") ||
-      event.reason?.message?.includes("AbortError") ||
-      event.reason?.message?.includes("background.js") ||
-      event.reason?.message?.includes("workspace_iframe") ||
       event.reason?.toString()?.includes("riker.replit.dev") ||
       event.reason?.toString()?.includes("plugin:runtime-error-plugin") ||
       (typeof event.reason === "string" &&
@@ -287,9 +324,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary>
-        <AppWithLanguageRouting />
-      </ErrorBoundary>
+      <AppWithLanguageRouting />
     </QueryClientProvider>
   );
 }

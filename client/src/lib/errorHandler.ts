@@ -395,23 +395,33 @@ export const setupGlobalErrorHandlers = () => {
     originalConsoleWarn.apply(console, args);
   };
 
-  // Set max listeners for various browser objects
+  // Increase EventEmitter max listeners to prevent warnings
+  if (typeof process !== 'undefined' && process.setMaxListeners) {
+    process.setMaxListeners(100);
+  }
+
+  // Set max listeners for various global objects
   if (typeof window !== 'undefined') {
-    // Set reasonable limits for browser event handling
-    try {
-      (window as any).maxListeners = 100;
-      (document as any).maxListeners = 100;
-    } catch (e) {
-      // Ignore errors for browser compatibility
+    if (window.addEventListener && window.setMaxListeners) {
+      (window as any).setMaxListeners?.(100);
+    }
+    if (document.addEventListener && document.setMaxListeners) {
+      (document as any).setMaxListeners?.(100);
+    }
+
+    // Set max listeners for global EventEmitter if available
+    if ((window as any).EventEmitter) {
+      (window as any).EventEmitter.defaultMaxListeners = 100;
     }
   }
 
-  // Set EventEmitter-like default max listeners globally for browser
-  if (typeof window !== 'undefined') {
+  // Set EventEmitter default max listeners globally
+  if (typeof require !== 'undefined') {
     try {
-      (window as any).defaultMaxListeners = 100;
+      const EventEmitter = require('events');
+      EventEmitter.defaultMaxListeners = 100;
     } catch (e) {
-      // Ignore errors in browser context
+      // EventEmitter not available in browser context
     }
   }
 
@@ -688,26 +698,26 @@ export const safeJsonParse = async (response: Response) => {
   if (!contentType || !contentType.includes('application/json')) {
     const text = await response.text();
     console.warn('⚠️ Non-JSON response received:', text.substring(0, 100) + '...');
-
+    
     // Check if it's an HTML error page
     if (text.includes('<!DOCTYPE') || text.includes('<html')) {
       throw new Error('Server returned HTML error page instead of JSON');
     }
-
+    
     throw new Error(`Expected JSON but received: ${contentType || 'unknown content type'}`);
   }
-
+  
   try {
     return await response.json();
   } catch (error) {
     const text = await response.text();
     console.error('❌ JSON parsing failed. Response text:', text.substring(0, 100) + '...');
-
+    
     // Check if the response text looks like HTML
     if (text.includes('<!DOCTYPE') || text.includes('<html')) {
       throw new Error('Server returned HTML error page - please check server logs');
     }
-
+    
     throw new Error('Invalid JSON response');
   }
 };
@@ -716,7 +726,7 @@ export const safeJsonParse = async (response: Response) => {
 export const safeSmsRequest = async (url: string, options?: RequestInit) => {
   try {
     const response = await fetch(url, options);
-
+    
     // Check content type before parsing
     const contentType = response.headers.get('content-type');
     if (!contentType || !contentType.includes('application/json')) {
@@ -726,20 +736,20 @@ export const safeSmsRequest = async (url: string, options?: RequestInit) => {
         contentType,
         text: text.substring(0, 200)
       });
-
+      
       if (text.includes('<!DOCTYPE') || text.includes('<html')) {
         throw new Error('SMS service temporarily unavailable - server error');
       }
-
+      
       throw new Error('SMS service returned invalid response format');
     }
-
+    
     const data = await response.json();
-
+    
     if (!response.ok) {
       throw new Error(data.error || `SMS request failed with status ${response.status}`);
     }
-
+    
     return data;
   } catch (error) {
     console.error(`🌐 SMS request error for ${url}:`, error);
@@ -751,11 +761,11 @@ export const safeSmsRequest = async (url: string, options?: RequestInit) => {
 export const safeFetch = async (url: string, options?: RequestInit) => {
   try {
     const response = await fetch(url, options);
-
+    
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
-
+    
     return await safeJsonParse(response);
   } catch (error) {
     console.error(`🌐 Fetch error for ${url}:`, error);
