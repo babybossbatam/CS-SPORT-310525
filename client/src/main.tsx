@@ -22,61 +22,24 @@ if (isDarkMode) {
   document.documentElement.classList.add('dark');
 }
 
-// Filter out known Replit/browser warnings in development
+// Minimal warning suppression for Replit environment
 if (import.meta.env.DEV) {
   const originalWarn = console.warn;
-  const originalError = console.error;
-
   console.warn = (...args) => {
     const message = args.join(' ');
-    if (
-      message.includes('sandbox') ||
-      message.includes('Unrecognized feature') ||
-      message.includes('Allow attribute will take precedence')
-    ) {
-      return; // Suppress these warnings
+    if (message.includes('MaxListenersExceededWarning') || message.includes('sandbox')) {
+      return;
     }
     originalWarn.apply(console, args);
   };
-
-  console.error = (...args) => {
-    const message = args.join(' ');
-    if (
-      message.includes('sandbox') ||
-      message.includes('Invalid or unexpected token') && message.includes('background.js')
-    ) {
-      return; // Suppress these errors
-    }
-    originalError.apply(console, args);
-  };
 }
 
-// Make debugging functions available globally in development
-if (import.meta.env.DEV) {
-  (window as any).printMissingCountriesReport = printMissingCountriesReport;
-}
-
-// Initialize flag cache persistence
+// Initialize flag cache persistence (lightweight)
 initializeFlagCachePersistence();
 
-// Initialize storage monitoring
-StorageMonitor.getInstance().init();
-
-// Simplified EventEmitter management
+// Lightweight EventEmitter setup
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(100);
-}
-
-// Simple console warning suppression for EventEmitter issues
-if (typeof window !== 'undefined') {
-  const originalConsoleWarn = console.warn;
-  console.warn = (...args) => {
-    const message = args.join(' ');
-    if (message.includes('MaxListenersExceededWarning')) {
-      return; // Suppress EventEmitter warnings
-    }
-    originalConsoleWarn.apply(console, args);
-  };
+  process.setMaxListeners(50); // Reduced from 100
 }
 
 // Setup global error handlers
