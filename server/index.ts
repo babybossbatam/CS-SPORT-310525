@@ -42,8 +42,8 @@ const monitorMemory = () => {
   }
 };
 
-// Check memory every 5 minutes to reduce overhead
-setInterval(monitorMemory, 300000);
+// Check memory every 10 minutes to reduce overhead
+setInterval(monitorMemory, 600000);
 
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(8000);
@@ -81,14 +81,14 @@ process.on('warning', (warning) => {
   console.warn('Process Warning:', warning.message);
 });
 
-// Monitor process uptime and stability - reduced frequency
+// Monitor process uptime and stability - minimal frequency  
 let startTime = Date.now();
 setInterval(() => {
   const uptime = Math.floor((Date.now() - startTime) / 1000);
-  if (uptime % 600 === 0) { // Every 10 minutes
+  if (uptime % 1800 === 0) { // Every 30 minutes
     console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
   }
-}, 60000); // Check every 60 seconds for less overhead
+}, 300000); // Check every 5 minutes
 
 
 
