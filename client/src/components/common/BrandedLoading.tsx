@@ -13,7 +13,7 @@ const BrandedLoading: React.FC<BrandedLoadingProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center space-y-2 min-h-[200px] w-full ${className}`}
+      className={`flex flex-col items-center justify-center space-y-4 min-h-screen w-full h-full ${className}`}
     >
       <div className="animate-pulse">
         <img
