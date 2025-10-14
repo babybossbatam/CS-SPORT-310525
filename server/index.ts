@@ -50,22 +50,26 @@ const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
 
-  if (heapUsedMB > 1500) { // Warning at 1.5GB
+  if (heapUsedMB > 1200) { // Lower threshold for earlier intervention
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
 
-    if (memoryWarningCount > 5) {
+    if (memoryWarningCount > 3) { // More aggressive cleanup
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
         global.gc();
         memoryWarningCount = 0;
       }
+      
+      // Clear request throttling cache
+      requestCounts.clear();
+      console.log('🧹 Cleared request throttling cache');
     }
   }
 };
 
-// Check memory every 30 seconds
-setInterval(monitorMemory, 30000);
+// Check memory every 15 seconds for more responsive monitoring
+setInterval(monitorMemory, 15000);
 
 // Set higher limits to prevent EventEmitter warnings
 process.setMaxListeners(8000);

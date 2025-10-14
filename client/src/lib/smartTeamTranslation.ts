@@ -33,7 +33,7 @@ class SmartTeamTranslation {
   private cleanCorruptedLearnedMappings(): void {
     let cleanedCount = 0;
     const toDelete: string[] = [];
-    
+
     this.learnedTeamMappings.forEach((mapping, teamName) => {
       Object.entries(mapping).forEach(([lang, translation]) => {
         if (typeof translation === 'string' && this.isCorruptedTranslation(translation, teamName)) {
@@ -42,11 +42,11 @@ class SmartTeamTranslation {
         }
       });
     });
-    
+
     toDelete.forEach(teamName => {
       this.learnedTeamMappings.delete(teamName);
     });
-    
+
     if (cleanedCount > 0) {
       this.saveLearnedMappings();
       console.log(`🧹 [SmartTranslation] Cleaned ${cleanedCount} corrupted learned mappings`);
@@ -1727,7 +1727,7 @@ class SmartTeamTranslation {
 
     // AUTOMATED TEAM MAPPINGS - Enhanced with proper translations where available
     // Generated from leagues: 38, 15, 2, 4, 10, 11, 848, 886, 1022, 772, 71, 3, 5, 531, 22, etc.
-    
+
     // MLS Teams (enhanced)
     'Austin': {
       'zh': '奥斯汀', 'zh-hk': '奧斯汀', 'zh-tw': '奧斯汀',
@@ -1829,7 +1829,7 @@ class SmartTeamTranslation {
     },
 
     // Additional European Teams
-    
+
     'FK Crvena Zvezda': {
       'zh': '贝尔格莱德红星', 'zh-hk': '貝爾格萊德紅星', 'zh-tw': '貝爾格萊德紅星',
       'es': 'FK Crvena Zvezda', 'de': 'FK Roter Stern Belgrad', 'it': 'FK Stella Rossa Belgrado', 'pt': 'FK Estrela Vermelha'
@@ -1852,23 +1852,23 @@ class SmartTeamTranslation {
       'zh': '开罗国民', 'zh-hk': '開羅國民', 'zh-tw': '開羅國民',
       'es': 'Al Ahly', 'de': 'Al Ahly', 'it': 'Al Ahly', 'pt': 'Al Ahly'
     },
-    
-    
+
+
     // AUTOMATED TEAM MAPPINGS - merged from generateCompleteTeamMapping
     // These provide broad coverage but manual translations above take priority
-    
+
     // Only add teams not already covered by manual translations above
-   
+
     'Vila Nova': {
       'zh': '维拉诺瓦', 'zh-hk': '維拉諾瓦', 'zh-tw': '維拉諾瓦',
       'es': 'Vila Nova', 'de': 'Vila Nova', 'it': 'Vila Nova', 'pt': 'Vila Nova'
     },
-    
+
     'San Diego': {
       'zh': '圣迭戈', 'zh-hk': '聖迭戈', 'zh-tw': '聖迭戈',
       'es': 'San Diego', 'de': 'San Diego', 'it': 'San Diego', 'pt': 'San Diego'
     },
-    
+
     'Sporting Kansas City': {
       'zh': '堪萨斯城体育', 'zh-hk': '堪薩斯城體育', 'zh-tw': '堪薩斯城體育',
       'es': 'Sporting Kansas City', 'de': 'Sporting Kansas City', 'it': 'Sporting Kansas City', 'pt': 'Sporting Kansas City'
@@ -2207,16 +2207,16 @@ class SmartTeamTranslation {
   async initializeTeamTranslations(language: string): Promise<void> {
     try {
       console.log(`🔄 [SmartTranslation] Initializing team translations for language: ${language}`);
-      
+
       // Load cached mappings
       this.loadLearnedMappings();
-      
+
       // Load automated mappings
       await this.loadAutomatedMappings();
-      
+
       // Clear any stale cache entries
       this.clearStaleCache();
-      
+
       console.log(`✅ [SmartTranslation] Successfully initialized for ${language} with ${this.learnedTeamMappings.size} learned mappings`);
     } catch (error) {
       console.error(`❌ [SmartTranslation] Failed to initialize for ${language}:`, error);
@@ -2327,7 +2327,7 @@ class SmartTeamTranslation {
     teams.forEach(team => {
       const cacheKey = `${team.toLowerCase()}_${language}`;
       this.teamCache.delete(cacheKey);
-      
+
       // Check if learned mapping is corrupted and remove it
       const learnedMapping = this.learnedTeamMappings.get(team);
       if (learnedMapping) {
@@ -2337,13 +2337,13 @@ class SmartTeamTranslation {
           this.learnedTeamMappings.delete(team);
         }
       }
-      
+
       // Clear any corrupted localStorage entries
       localStorage.removeItem(`smart_translation_${team}_${language}`);
-      
+
       console.log(`🔄 [SmartTranslation] Force refreshed: ${team} for ${language}`);
     });
-    
+
     // Save changes after cleanup
     this.saveLearnedMappings();
   }
@@ -2482,7 +2482,7 @@ class SmartTeamTranslation {
 
     let phoneticTranslation = '';
     const cleanName = teamName.replace(/[^a-zA-Z]/g, '').toLowerCase();
-    
+
     for (let i = 0; i < Math.min(cleanName.length, 6); i++) { // Limit to 6 characters
       const char = cleanName[i];
       if (phoneticMap[char]) {
@@ -2609,9 +2609,9 @@ class SmartTeamTranslation {
     try {
       const automatedData = localStorage.getItem('automatedTeamMapping');
       if (automatedData) {
-        const data = JSON.parse(automatedData);
+        const data = JSON.JSON.parse(automatedData);
         console.log(`🤖 [SmartTranslation] Found automated mappings for ${data.teams || 0} teams`);
-        
+
         // Store reference to automated data for quick access
         this.automatedMappingsCache = data;
         console.log(`✅ [SmartTranslation] Integrated automated mappings cache`);
@@ -2622,7 +2622,7 @@ class SmartTeamTranslation {
       if (completeMapping) {
         const completeData = JSON.parse(completeMapping);
         console.log(`📋 [SmartTranslation] Found complete team mapping data with ${completeData.totalTeams || 0} teams`);
-        
+
         // Merge with existing learned mappings
         if (completeData.allTeamsSortedByFrequency) {
           completeData.allTeamsSortedByFrequency.forEach((team: any) => {
@@ -2639,7 +2639,7 @@ class SmartTeamTranslation {
               });
             }
           });
-          
+
           this.saveLearnedMappings();
           console.log(`🎓 [SmartTranslation] Integrated ${completeData.allTeamsSortedByFrequency.length} teams from complete mapping`);
         }
@@ -2652,7 +2652,7 @@ class SmartTeamTranslation {
   // Method to bulk update translations from automated mappings
   bulkUpdateFromAutomatedMappings(automatedMappings: Record<string, any>): void {
     let updatedCount = 0;
-    
+
     Object.entries(automatedMappings).forEach(([teamName, translations]) => {
       if (typeof translations === 'object' && translations !== null) {
         // Only update if we don't already have a high-quality manual translation
@@ -2662,7 +2662,7 @@ class SmartTeamTranslation {
         }
       }
     });
-    
+
     if (updatedCount > 0) {
       this.saveLearnedMappings();
       console.log(`📦 [SmartTranslation] Bulk updated ${updatedCount} team translations`);
@@ -2887,12 +2887,12 @@ class SmartTeamTranslation {
     if (!translation.match(/[\u4e00-\u9fff]/)) {
       return false;
     }
-    
+
     // If translation is much longer than reasonable for a team name, likely corrupted
     if (translation.length > original.length * 2 && translation.length > 8) {
       return true;
     }
-    
+
     // Check for known corrupted patterns
     const corruptedPatterns = [
       /^[阿卡埃纳维拉马塔巴]{4,}$/, // Repeated phonetic characters
@@ -2900,7 +2900,7 @@ class SmartTeamTranslation {
       /阿拉加埃纳塔/, // Known corrupted translation
       /维埃纳埃扎乌/ // Known corrupted translation
     ];
-    
+
     return corruptedPatterns.some(pattern => pattern.test(translation));
   }
 

@@ -15,14 +15,19 @@ class PerformanceOptimizer {
 
   // Debounce API requests to prevent overwhelming the server
   debounceRequest<T>(key: string, requestFn: () => Promise<T>, delay = 300): Promise<T> {
-    return new Promise((resolve, reject) => {
-      // Cancel existing request with same key
-      if (this.requestQueue.has(key)) {
-        clearTimeout(this.batchTimer);
-      }
+    // Check if we already have a pending request for this key
+    if (this.requestQueue.has(key)) {
+      return this.requestQueue.get(key)!;
+    }
 
+    const promise = new Promise<T>((resolve, reject) => {
       // Add to pending requests
       this.pendingRequests.push({key, resolve, reject});
+
+      // Clear existing timer and set new one
+      if (this.batchTimer) {
+        clearTimeout(this.batchTimer);
+      }
 
       // Set timer to batch process requests
       this.batchTimer = setTimeout(async () => {
@@ -43,12 +48,19 @@ class PerformanceOptimizer {
           try {
             const result = await requestFn();
             requests.forEach(req => req.resolve(result));
+            // Remove from queue after completion
+            this.requestQueue.delete(requestKey);
           } catch (error) {
             requests.forEach(req => req.reject(error));
+            this.requestQueue.delete(requestKey);
           }
         }
       }, delay);
     });
+
+    // Store the promise to prevent duplicates
+    this.requestQueue.set(key, promise);
+    return promise;
   }
 
   // Optimize localStorage usage
