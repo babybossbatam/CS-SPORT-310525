@@ -36,42 +36,14 @@ export class WorkflowManager {
     this.intervalHandles.forEach(handle => clearInterval(handle));
     this.intervalHandles = [];
     
-    // More aggressive timeout clearing
-    const highestTimeoutId = setTimeout(() => {}, 0);
-    for (let i = 1; i < highestTimeoutId + 1000; i++) {
-      try {
-        clearTimeout(i);
-        clearInterval(i);
-      } catch (e) {
-        // Ignore errors
-      }
-    }
-
-    // Clear all active fetch requests
-    this.abortAllRequests();
-
-    // Trigger memory cleanup
-    const memoryManager = (window as any).MemoryManager?.getInstance();
-    if (memoryManager) {
-      memoryManager.performAggressiveCleanup?.();
+    // Clear all timeouts
+    let timeoutId = setTimeout(() => {}, 0);
+    for (let i = 1; i < timeoutId; i++) {
+      clearTimeout(i);
     }
 
     this.isRunning = false;
-    console.log('✅ Workflow stopped with cleanup');
-  }
-
-  private abortAllRequests(): void {
-    try {
-      // Abort any ongoing fetch requests
-      if ((window as any).activeControllers) {
-        (window as any).activeControllers.forEach((controller: AbortController) => {
-          controller.abort();
-        });
-        (window as any).activeControllers = [];
-      }
-    } catch (error) {
-      console.warn('Request abortion error:', error);
-    }
+    console.log('✅ Workflow stopped');
   }
 
   private addStopHandler(): void {

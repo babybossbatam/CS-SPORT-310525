@@ -3,7 +3,6 @@ export class MemoryManager {
   private static instance: MemoryManager;
   private memoryCheckInterval: NodeJS.Timeout | null = null;
   private lastMemoryUsage: number = 0;
-  private cleanupInterval: NodeJS.Timeout | null = null;
 
   static getInstance(): MemoryManager {
     if (!MemoryManager.instance) {
@@ -13,17 +12,12 @@ export class MemoryManager {
   }
 
   init(): void {
-    // Check memory every 15 seconds for faster response
+    // Check memory every 30 seconds
     this.memoryCheckInterval = setInterval(() => {
       this.checkMemoryUsage();
-    }, 15 * 1000);
+    }, 30 * 1000);
 
-    // Aggressive cleanup every 5 minutes
-    this.cleanupInterval = setInterval(() => {
-      this.performAggressiveCleanup();
-    }, 5 * 60 * 1000);
-
-    console.log('🧠 Enhanced memory manager initialized');
+    console.log('🧠 Memory manager initialized');
   }
 
   private checkMemoryUsage(): void {
@@ -56,79 +50,31 @@ export class MemoryManager {
 
   private emergencyCleanup(): void {
     try {
-      this.performAggressiveCleanup();
-      
-      // Force multiple garbage collections
+      // Force garbage collection if available
       if ((window as any).gc) {
         (window as any).gc();
-        setTimeout(() => (window as any).gc(), 1000);
       }
 
-      console.log('🚨 Emergency memory cleanup completed');
-    } catch (error) {
-      console.error('Emergency cleanup failed:', error);
-    }
-  }
-
-  private performAggressiveCleanup(): void {
-    try {
-      // Clear all temporary caches
+      // Clear unnecessary caches
       if (typeof localStorage !== 'undefined') {
         const keysToRemove: string[] = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
-          if (key && (
-            key.includes('cache') || 
-            key.includes('debug') || 
-            key.includes('temp') ||
-            key.includes('query-') ||
-            key.startsWith('tanstack')
-          )) {
+          if (key && (key.includes('cache') || key.includes('debug'))) {
             keysToRemove.push(key);
           }
         }
         keysToRemove.forEach(key => localStorage.removeItem(key));
-        console.log(`🧹 Aggressive cleanup: removed ${keysToRemove.length} cache entries`);
+        console.log(`🧹 Emergency cleanup: removed ${keysToRemove.length} cache entries`);
       }
 
-      // Clear session storage
-      if (typeof sessionStorage !== 'undefined') {
-        const sessionKeys = Object.keys(sessionStorage).filter(key => 
-          key.includes('temp') || key.includes('cache')
-        );
-        sessionKeys.forEach(key => sessionStorage.removeItem(key));
-      }
+      // Remove unused DOM elements
+      const unusedElements = document.querySelectorAll('[data-unused], .unused');
+      unusedElements.forEach(el => el.remove());
 
-      // Remove unused DOM elements aggressively
-      const unusedSelectors = [
-        '[data-unused]', '.unused', '.stale-cache', 
-        '[data-stale]', '.error-overlay', '[data-error-overlay]',
-        '.runtime-error-overlay', 'vite-error-overlay'
-      ];
-      
-      unusedSelectors.forEach(selector => {
-        const elements = document.querySelectorAll(selector);
-        elements.forEach(el => el.remove());
-      });
-
-      // Clear any lingering event listeners
-      this.clearEventListeners();
-
-      console.log('🧹 Aggressive cleanup completed');
+      console.log('✅ Emergency memory cleanup completed');
     } catch (error) {
-      console.error('Aggressive cleanup failed:', error);
-    }
-  }
-
-  private clearEventListeners(): void {
-    try {
-      // Remove any hanging event listeners
-      const elements = document.querySelectorAll('[data-has-listeners]');
-      elements.forEach(el => {
-        el.removeAttribute('data-has-listeners');
-      });
-    } catch (error) {
-      console.warn('Event listener cleanup error:', error);
+      console.error('Emergency cleanup failed:', error);
     }
   }
 
@@ -137,13 +83,6 @@ export class MemoryManager {
       clearInterval(this.memoryCheckInterval);
       this.memoryCheckInterval = null;
     }
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.cleanupInterval = null;
-    }
-    
-    // Final cleanup on destroy
-    this.performAggressiveCleanup();
   }
 }
 

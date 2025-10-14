@@ -17,7 +17,6 @@ import { StorageMonitor } from './lib/storageMonitor';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './lib/memoryManager'
 import './lib/workflowManager'
-import './lib/workflowStopManager'
 import { ResourceMonitor } from './lib/resourceMonitor'
 
 // Initialize resource monitoring
