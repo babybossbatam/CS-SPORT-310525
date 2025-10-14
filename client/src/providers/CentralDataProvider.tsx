@@ -211,8 +211,6 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
 
         // Only warn if this is a current/recent date where we'd expect data
         if (isRecentDate) {
-        
-        if (isRecentDate) {
           console.log(`📅 [CentralDataProvider] No cached data available for ${validDate}, returning empty array`);
         }
         return [];
