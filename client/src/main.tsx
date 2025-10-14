@@ -111,7 +111,11 @@ if (typeof window !== 'undefined') {
   }
 }
 
-// Enhanced EventEmitter management for Replit
+// Enhanced EventEmitter management for Replit - Browser Compatible
+import { setGlobalEventEmitterLimits } from './lib/eventEmitterUtils';
+
+// Set enhanced limits for Replit environment
+setGlobalEventEmitterLimits(200);
 if (typeof window !== 'undefined') {
   // Handle uncaught promise rejections
   window.addEventListener('unhandledrejection', (event) => {
