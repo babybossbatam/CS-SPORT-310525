@@ -36,7 +36,7 @@ class CentralizedDebugCache {
   private componentStats: Map<string, ComponentCacheStats> = new Map();
   private apiLogs: ApiDebugInfo[] = [];
   private logoLogs: LogoDebugInfo[] = [];
-  private maxLogSize = 1000;
+  private maxLogSize = 100; // Reduced from 1000 to improve performance
 
   // Component registration and stats tracking
   registerComponent(componentName: string): void {

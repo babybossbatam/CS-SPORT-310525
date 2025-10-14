@@ -395,33 +395,15 @@ export const setupGlobalErrorHandlers = () => {
     originalConsoleWarn.apply(console, args);
   };
 
-  // Increase EventEmitter max listeners to prevent warnings
+  // Set reasonable EventEmitter max listeners
   if (typeof process !== 'undefined' && process.setMaxListeners) {
-    process.setMaxListeners(100);
+    process.setMaxListeners(20);
   }
 
-  // Set max listeners for various global objects
+  // Set max listeners for browser objects
   if (typeof window !== 'undefined') {
-    if (window.addEventListener && window.setMaxListeners) {
-      (window as any).setMaxListeners?.(100);
-    }
-    if (document.addEventListener && document.setMaxListeners) {
-      (document as any).setMaxListeners?.(100);
-    }
-
-    // Set max listeners for global EventEmitter if available
     if ((window as any).EventEmitter) {
-      (window as any).EventEmitter.defaultMaxListeners = 100;
-    }
-  }
-
-  // Set EventEmitter default max listeners globally
-  if (typeof require !== 'undefined') {
-    try {
-      const EventEmitter = require('events');
-      EventEmitter.defaultMaxListeners = 100;
-    } catch (e) {
-      // EventEmitter not available in browser context
+      (window as any).EventEmitter.defaultMaxListeners = 20;
     }
   }
 

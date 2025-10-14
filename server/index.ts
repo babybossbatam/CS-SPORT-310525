@@ -8,6 +8,31 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Add request throttling middleware
+const requestCounts = new Map();
+const maxRequestsPerMinute = 100;
+
+const throttleMiddleware = (req, res, next) => {
+  const clientIP = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  const windowStart = now - 60000; // 1 minute window
+
+  if (!requestCounts.has(clientIP)) {
+    requestCounts.set(clientIP, []);
+  }
+
+  const requests = requestCounts.get(clientIP);
+  const recentRequests = requests.filter(time => time > windowStart);
+
+  if (recentRequests.length >= maxRequestsPerMinute) {
+    return res.status(429).json({ error: 'Too many requests' });
+  }
+
+  recentRequests.push(now);
+  requestCounts.set(clientIP, recentRequests);
+  next();
+};
+
 // Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
@@ -24,11 +49,11 @@ let memoryWarningCount = 0;
 const monitorMemory = () => {
   const usage = process.memoryUsage();
   const heapUsedMB = usage.heapUsed / 1024 / 1024;
-  
+
   if (heapUsedMB > 1500) { // Warning at 1.5GB
     memoryWarningCount++;
     console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
-    
+
     if (memoryWarningCount > 5) {
       console.log('🧹 Forcing garbage collection...');
       if (global.gc) {
@@ -121,6 +146,9 @@ app.use((req, res, next) => {
 
 (async () => {
   const server = await registerRoutes(app);
+
+  // Apply throttling middleware to all API routes
+  app.use('/api', throttleMiddleware);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
