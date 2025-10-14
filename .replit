@@ -146,10 +146,10 @@ args = "cd client && npm run dev"
 
 [[ports]]
 localPort = 5000
+externalPort = 6800
 
 [[ports]]
 localPort = 5001
-externalPort = 6800
 
 [[ports]]
 localPort = 5002
