@@ -176,6 +176,14 @@ export const getQueryFn: <T>(options: {
 
 // Query client with configurations
 export const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: (error, query) => {
+      console.error(`❌ Query failed for key: ${query.queryKey.join('-')}`, error);
+    },
+  }),
+  mutationCache: new MutationCache({
+    onError: (error) => console.error("❌ Mutation failed:", error),
+  }),
   defaultOptions: {
     queries: {
       queryFn: getQueryFn({
@@ -185,7 +193,7 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
       gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
-      retry: (failureCount, error) => {
+      retry: (failureCount, error: any) => {
         // Don't retry timeout errors
         if (
           error?.message?.includes("timeout") ||

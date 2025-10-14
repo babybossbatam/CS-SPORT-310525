@@ -1084,8 +1084,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       );
 
       // Process leagues in batches to avoid overwhelming the API
-      const batchSize = 3; // Reduced batch size
-      const totalBatches = Math.ceil(leagueIds.length / batchSize);
+      const BATCH_SIZE = 2; // Process 2 leagues at a time to reduce load
+      const BATCH_DELAY = 2000; // 2 second delay between batches
+      const totalBatches = Math.ceil(leagueIds.length / BATCH_SIZE);
 
       const results: Array<{
         leagueId: number;
@@ -1096,9 +1097,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         timeout?: boolean;
       }> = [];
 
-      for (let i = 0; i < leagueIds.length; i += batchSize) {
-        const batch = leagueIds.slice(i, i + batchSize);
-        const batchIndex = i / batchSize;
+      for (let i = 0; i < leagueIds.length; i += BATCH_SIZE) {
+        const batch = leagueIds.slice(i, i + BATCH_SIZE);
+        const batchIndex = i / BATCH_SIZE;
         console.log(
           `🔄 [MyNewLeague2] Processing batch ${batchIndex + 1}/${totalBatches}: leagues ${batch.join(", ")}`,
         );
@@ -1266,7 +1267,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Wait between batches to prevent overwhelming the API
         if (batchIndex < totalBatches - 1) {
-          const delay = Math.min(1000 + (batchIndex * 200), 3000); // Increasing delay, max 3s
+          const delay = Math.min(BATCH_DELAY + (batchIndex * 200), 3000); // Increasing delay, max 3s
           console.log(`⏳ [MyNewLeague2] Waiting ${delay}ms before next batch...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
@@ -2537,7 +2538,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                     }}
                   >
                     {(() => {
-                      // Use API country data first, only use mapping as fallback for missing/invalid data
+                      // Use API country data first, only mapping as fallback for missing/invalid data
                       const originalCountry = league.country;
 
                       // Handle World competitions
@@ -3504,10 +3505,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       )
                                       .replace(
                                         "im Elfmeterschießen",
-                                        penaltyScore + " " + onPenaltiesText,
-                                      )
-                                      .replace(
-                                        "ai rigori",
                                         penaltyScore + " " + onPenaltiesText,
                                       )
                                       .replace(

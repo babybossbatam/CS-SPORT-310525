@@ -19,6 +19,7 @@ import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
 import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
+import { memoryCleanup } from './lib/memoryCleanup';
 
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
@@ -157,6 +158,9 @@ function App() {
 
     // Clear all logo caches on app initialization
     clearAllLogoCaches();
+    
+    // Initialize memory cleanup
+    memoryCleanup.init();
 
     // Start performance monitoring
     console.log('🚀 Starting performance monitoring...');
@@ -180,6 +184,7 @@ function App() {
 
     return () => {
       cleanupCacheRefresh(refreshInterval);
+      memoryCleanup.destroy();
     };
   }, []);
 
