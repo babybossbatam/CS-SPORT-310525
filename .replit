@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Ultra Lightweight Server"
+runButton = "Fixed Lightweight Server"
 
 [[workflows.workflow]]
 name = "Project"
@@ -139,6 +139,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn --max-semi-concurrent-compilers=1' tsx --watch=false --transpile-only --no-experimental-repl-await server/index.ts"
+
+[[workflows.workflow]]
+name = "Fixed Lightweight Server"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn' tsx --watch=false --transpile-only server/index.ts"
 
 [[ports]]
 localPort = 5000
