@@ -21,6 +21,7 @@ import { clearAllLogoCaches } from './lib/logoCache';
 import { usePagePreload } from './hooks/usePagePreload';
 import { memoryCleanup } from './lib/memoryCleanup';
 import { cacheCleanupManager } from './lib/comprehensiveCacheCleanup';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 // Preload critical pages
 const Home = lazy(() => import(/* webpackChunkName: "home" */ "@/pages/Home"));
