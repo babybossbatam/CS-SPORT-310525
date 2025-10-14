@@ -115,7 +115,7 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --max-semi-
 
 [[ports]]
 localPort = 5000
-externalPort = 6800
+externalPort = 3000
 
 [[ports]]
 localPort = 5001
