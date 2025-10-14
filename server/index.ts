@@ -2,17 +2,25 @@ import express, { type Request, Response, NextFunction } from "express";
 import logoRoutes from './routes/logoRoutes';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { apiCircuitBreaker } from './utils/circuitBreaker';
 import path from "path";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Add request throttling middleware
+// Add request throttling middleware with more aggressive limits
 const requestCounts = new Map();
-const maxRequestsPerMinute = 100;
+const maxRequestsPerMinute = 60; // Reduced from 100
+const maxConcurrentRequests = 10;
+let currentRequests = 0;
 
 const throttleMiddleware = (req, res, next) => {
+  // Check concurrent request limit
+  if (currentRequests >= maxConcurrentRequests) {
+    return res.status(429).json({ error: 'Server busy, please try again' });
+  }
+
   const clientIP = req.ip || req.connection.remoteAddress;
   const now = Date.now();
   const windowStart = now - 60000; // 1 minute window
@@ -25,11 +33,17 @@ const throttleMiddleware = (req, res, next) => {
   const recentRequests = requests.filter(time => time > windowStart);
 
   if (recentRequests.length >= maxRequestsPerMinute) {
-    return res.status(429).json({ error: 'Too many requests' });
+    return res.status(429).json({ error: 'Rate limit exceeded' });
   }
 
   recentRequests.push(now);
   requestCounts.set(clientIP, recentRequests);
+  
+  currentRequests++;
+  res.on('finish', () => {
+    currentRequests--;
+  });
+  
   next();
 };
 

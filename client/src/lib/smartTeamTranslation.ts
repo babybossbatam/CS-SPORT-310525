@@ -20,13 +20,16 @@ class SmartTeamTranslation {
   private isLoading = false;
 
   constructor() {
-    // Clear cache on initialization to ensure updated translations are used
-    this.clearCache();
-    this.fixCorruptedCache();
+    // Reduce initialization overhead
     this.loadLearnedMappings(); // Load existing learned mappings from localStorage
-    this.cleanCorruptedLearnedMappings(); // Clean any corrupted learned mappings
-    this.integrateAutomatedMappings(); // Automatically integrate any generated mappings
-    console.log('🔄 [SmartTranslation] Initialized with cache cleared for fresh translations and automated mappings integrated');
+    
+    // Defer heavy operations
+    setTimeout(() => {
+      this.cleanCorruptedLearnedMappings(); // Clean any corrupted learned mappings
+      this.integrateAutomatedMappings(); // Automatically integrate any generated mappings
+    }, 1000);
+    
+    console.log('🔄 [SmartTranslation] Initialized with deferred heavy operations');
   }
 
   // Clean corrupted learned mappings

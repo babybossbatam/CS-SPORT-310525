@@ -120,7 +120,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=3072 --gc-interval=100 --optimize-for-size' tsx --watch=false server/index.ts"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=3072' tsx --watch=false server/index.ts"
 
 [[ports]]
 localPort = 5000

@@ -135,9 +135,9 @@ class PerformanceOptimizer {
 
 export const performanceOptimizer = PerformanceOptimizer.getInstance();
 
-// Auto-start memory monitoring
+// Auto-start memory monitoring with reduced frequency
 if (typeof window !== 'undefined') {
   setInterval(() => {
     performanceOptimizer.checkMemoryUsage();
-  }, 30000); // Check every 30 seconds
+  }, 60000); // Check every 60 seconds (reduced from 30)
 }
