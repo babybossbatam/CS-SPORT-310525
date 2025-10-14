@@ -19,68 +19,29 @@ import { cn } from "@/lib/utils";
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
   const [showAllLeagues, setShowAllLeagues] = useState(false);
-  const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
 
-  const handleMatchCardClick = (fixture: any) => {
-    console.log("🎯 [MyRightContent] Match selected:", {
-      fixtureId: fixture?.fixture?.id,
-      teams: `${fixture?.teams?.home?.name} vs ${fixture?.teams?.away?.name}`,
-      league: fixture?.league?.name,
-    });
-    setSelectedFixture(fixture);
-  };
-
-  const handleCloseDetails = () => {
-    console.log("🎯 [MyRightContent] Closing match details - triggering slide animation");
-    // This triggers the CSS transform animation by changing the conditional class
-    // Main content slides back in (translateX(0)) and detail view slides out (translateX(100%))
-    setSelectedFixture(null);
-  };
-
   return (
-    <div className="h-full min-h-0 relative">
-      {/* Main content - always rendered, keeps state active */}
-      <div 
-        className={cn(
-          "h-full min-h-0 overflow-y-auto space-y-4 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out",
-          selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
-        )}
-      >
-        {/* Featured Match Section - Hidden on mobile */}
-        {!isMobile && (
-          <MyHomeFeaturedMatchNew
-            selectedDate={selectedDate}
-            maxMatches={8}
-            onMatchCardClick={handleMatchCardClick}
-          />
-        )}
+    <div className="h-full min-h-0 overflow-y-auto space-y-4 pb-4">
+      {/* Featured Match Section - Hidden on mobile */}
+      {!isMobile && (
+        <MyHomeFeaturedMatchNew selectedDate={selectedDate} maxMatches={8} />
+      )}
 
-        <HomeTopScorersList />
+      <HomeTopScorersList />
 
-        <LeagueStandingsFilter />
-        <MyInfo />
-        {/* Popular Leagues and All League List sections */}
-        <div className="grid grid-cols-2 gap-4 ">
-          <div className="space-y-4">
-            <PopularLeaguesList />
-            <PopularTeamsList />
-          </div>
-          <MyAllLeague onMatchCardClick={handleMatchCardClick} />
+      <LeagueStandingsFilter />
+
+      {/* CS SPORT Information Card */}
+      <MyInfo />
+
+      {/* Popular Leagues and All League List sections */}
+      <div className="grid grid-cols-2 gap-4 ">
+        <div className="space-y-4">
+          <PopularLeaguesList />
+          <PopularTeamsList />
         </div>
-      </div>
-
-      {/* Match details overlay - always mounted, visibility controlled by CSS */}
-      <div 
-        className={cn(
-          "absolute inset-0 bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out",
-          selectedFixture ? "z-10 transform translate-x-0" : "z-0 transform translate-x-full pointer-events-none"
-        )}
-      >
-        <MyMainLayoutRight
-          selectedFixture={selectedFixture}
-          onClose={handleCloseDetails}
-        />
+        <MyAllLeague />
       </div>
     </div>
   );

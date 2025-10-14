@@ -393,7 +393,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
       if (!selectedDate) return [];
 
       console.log(`🔄 [TodaysMatchesByCountryNew] Fetching fresh data for ${selectedDate}`);
-
+      
       const response = await apiRequest(
         "GET",
         `/api/fixtures/date/${selectedDate}?all=true`,
@@ -405,12 +405,12 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
       const data = await response.json();
       const fixtures = Array.isArray(data) ? data : [];
-
+      
       console.log(`✅ [TodaysMatchesByCountryNew] Fetched ${fixtures.length} fixtures for ${selectedDate}`);
-
+      
       // Store in shared cache for other components to use
       sharedFixtureCache.setFixtures(selectedDate, fixtures, 'TodaysMatchesByCountryNew');
-
+      
       return fixtures;
     },
     {
@@ -622,22 +622,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
             if (window.requestIdleCallback) {
               window.requestIdleCallback(processBatch, { timeout: 100 });
             } else {
-              // This is the line that needs to be updated from 500ms to 200ms
-              // The original code might have a similar delay or log message.
-              // This is a placeholder for the actual delay reduction.
-              // If the original code had "⏳ [MyNewLeague2] Waiting 500ms before next batch...",
-              // it would be replaced here.
-              // For this specific optimization, assuming the logic that batches
-              // processing and has a delay is located here or a similar mechanism.
-              // Since the provided changes only mention a specific log message,
-              // and that log message is not present in the original code,
-              // I will infer that the intent is to reduce delays in background processing batches.
-              // The `setTimeout(processBatch, 10)` is a common pattern for batch processing.
-              // If the original code had a `setTimeout` with a larger delay, this is where it would be changed.
-              // Based on the user's intention to "Reduce concurrent operations and batch delays"
-              // and the specific change provided, I'll assume the delay reduction
-              // applies to the batch processing loop.
-              setTimeout(processBatch, 50); // Balanced delay for stability
+              setTimeout(processBatch, 10);
             }
           };
 
@@ -662,10 +647,10 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
     // Countries are already sorted by priority during processing
     // Just maintain the processing order for consistent display
     const worldCountries = countries.filter(c => c === "World");
-    const popularCountries = countries.filter(c =>
+    const popularCountries = countries.filter(c => 
       c !== "World" && processedCountryData[c]?.hasPopularLeague
     );
-    const otherCountries = countries.filter(c =>
+    const otherCountries = countries.filter(c => 
       c !== "World" && !processedCountryData[c]?.hasPopularLeague
     );
 
@@ -2390,7 +2375,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           )}
         </div>
       </CardHeader>
-
+      
       {/* Only show CardContent when not loading */}
       {!shouldShowLoadingContent && (
         <CardContent className="p-0 dark:bg-gray-800">

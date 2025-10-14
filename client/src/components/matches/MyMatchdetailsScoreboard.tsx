@@ -11,10 +11,6 @@ import { isNationalTeam } from "@/lib/teamLogoSources";
 import MatchCountdownTimer from "./MatchCountdownTimer";
 import MyMatchStats from "./MyMatchStats";
 import { getTeamColor } from "@/lib/colorExtractor";
-import { useLanguage, useTranslation } from "@/contexts/LanguageContext";
-import { smartTeamTranslation } from "@/lib/smartTeamTranslation";
-import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
-import { smartCountryTranslation } from "@/lib/countryNameMapping";
 
 
 // Add CSS for cleaner pulse effect
@@ -68,46 +64,6 @@ const MyMatchdetailsScoreboard = ({
   activeTab: externalActiveTab,
   onTabChange,
 }: MyMatchdetailsScoreboardProps) => {
-  const {
-    translateLeagueName: contextTranslateLeagueName,
-    translateTeamName,
-    currentLanguage,
-  } = useLanguage();
-  const { t } = useTranslation();
-
-  // Add league name translation (same as MyNewLeague2)
-  const translateLeagueName = (originalLeague: string): string => {
-    if (!originalLeague) return "";
-
-    // Use smart league translation
-    const translated = smartLeagueTranslation.translateLeague(
-      originalLeague,
-      currentLanguage,
-    );
-    if (translated !== originalLeague) {
-      return translated;
-    }
-
-    // Fallback to context translation
-    return contextTranslateLeagueName(originalLeague);
-  };
-
-  // Use the enhanced country translation function (same as MyNewLeague2)
-  const translateEnhancedCountryName = (originalCountry: string): string => {
-    if (!originalCountry) return "";
-
-    // Use smart country translation
-    const translated = smartCountryTranslation.translateCountry(
-      originalCountry,
-      currentLanguage,
-    );
-    if (translated !== originalCountry) {
-      return translated;
-    }
-
-    // Fallback to context translation for untranslated countries
-    return contextTranslateLeagueName(originalCountry);
-  };
 
   const [liveElapsed, setLiveElapsed] = useState<number | null>(null);
   const [liveScores, setLiveScores] = useState<{home: number | null, away: number | null} | null>(null);
@@ -503,9 +459,7 @@ const MyMatchdetailsScoreboard = ({
 
     // Check if it's a finished match and determine the appropriate label
     const getFinishedLabel = () => {
-      if (!["FT", "AET", "PEN"].includes(currentStatus)) {
-        return t('finished') || "Finished";
-      }
+      if (!["FT", "AET", "PEN"].includes(currentStatus)) return "Finished";
 
       try {
         const matchDate = new Date(displayMatch.fixture.date);
@@ -514,9 +468,9 @@ const MyMatchdetailsScoreboard = ({
           (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
 
         // If finished less than 1 hour ago, show "Just Finished"
-        return hoursElapsed <= 1 ? (t('just_finished') || "Just Finished") : (t('ended') || "Ended");
+        return hoursElapsed <= 1 ? "Just Finished" : "Ended";
       } catch (error) {
-        return t('ended') || "Ended";
+        return "Ended";
       }
     };
 
@@ -571,11 +525,11 @@ const MyMatchdetailsScoreboard = ({
     }
 
     const statusConfig = {
-      NS: { label: t('upcoming') || "Upcoming", variant: "default" as const },
+      NS: { label: "Upcoming", variant: "default" as const },
       FT: { label: getFinishedLabel(), variant: "default" as const },
       AET: { label: getFinishedLabel(), variant: "default" as const },
       PEN: { label: getFinishedLabel(), variant: "default" as const },
-      HT: { label: t('halftime') || "Half Time", variant: "outline" as const },
+      HT: { label: "Half Time", variant: "outline" as const },
     };
 
     const config = statusConfig[currentStatus as keyof typeof statusConfig] || {
@@ -616,29 +570,36 @@ const MyMatchdetailsScoreboard = ({
       {onClose && (
         <button
           onClick={() => {
-            console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked - triggering slide animation only");
-            
-            // Clean up any visual selection states
-            const selectedMatches = document.querySelectorAll('.selected-match');
-            selectedMatches.forEach(match => {
-              match.classList.remove('selected-match');
-            });
+            console.log("🔴 [MyMatchdetailsScoreboard] Close button clicked");
 
-            // ONLY trigger the CSS transform animation
-            // This will slide the detail view out and main content back in
-            // without clearing any state or re-rendering
-            onClose();
+            // Clear the selected match first
+            if (onMatchCardClick) {
+              onMatchCardClick(null);
+            }
+
+            // Remove selected-match CSS class from all match containers with a slight delay
+            setTimeout(() => {
+              const selectedMatches = document.querySelectorAll('.selected-match');
+              selectedMatches.forEach(match => {
+                match.classList.remove('selected-match');
+              });
+            }, 10);
+
+            // Then call the close callback
+            if (onClose) {
+              onClose();
+            }
           }}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl font-semibold w-8 h-8 flex items-center justify-center z-10 rounded-full hover:bg-gray-100 transition-colors duration-200"
+          className="absolute top-2 right-2 text-gray-500 text-xl font-semi-bold w-6 h-6 flex items-center justify-center z-10"
           aria-label="Close"
         >
-          ×
+          x
         </button>
       )}
       <CardTitle className="text-md font-normal text-gray-900 dark:text-white text-center pt-2">
-        {translateTeamName(displayMatch.teams.home.name)} vs {translateTeamName(displayMatch.teams.away.name)}
+        {displayMatch.teams.home.name} vs {displayMatch.teams.away.name}
         <div className="text-xs text-gray-400 dark:text-gray-300 font-normal text-center">
-          {translateEnhancedCountryName(displayMatch.league.country)}, {translateLeagueName(displayMatch.league.name)}
+          {displayMatch.league.country}, {displayMatch.league.name}
         </div>
       </CardTitle>
       <CardHeader className="text-center"></CardHeader>
@@ -683,7 +644,7 @@ const MyMatchdetailsScoreboard = ({
               />
             )}
             <span className="text-md font-medium text-center ">
-              {translateTeamName(displayMatch.teams.home.name)}
+              {displayMatch.teams.home.name}
             </span>
           </div>
 
@@ -794,29 +755,7 @@ const MyMatchdetailsScoreboard = ({
                   {`${displayMatch.goals?.home ?? 0} - ${displayMatch.goals?.away ?? 0}`}
                 </div>
                 <div className="text-sm text-gray-900 font-semi-bold">
-                  {(() => {
-                    try {
-                      const matchDate = new Date(displayMatch.fixture.date);
-                      
-                      // Format date based on current language
-                      if (currentLanguage.startsWith('zh')) {
-                        // Chinese format: M月d日
-                        return format(matchDate, 'M月d日');
-                      } else if (currentLanguage === 'en-us') {
-                        // US format: MM/dd
-                        return format(matchDate, 'MM/dd');
-                      } else if (['de', 'it', 'pt', 'es'].includes(currentLanguage)) {
-                        // European format: dd.MM or dd/MM
-                        return format(matchDate, 'dd.MM');
-                      } else {
-                        // Default format: dd/MM
-                        return format(matchDate, 'dd/MM');
-                      }
-                    } catch (error) {
-                      console.error('Error formatting match date:', error);
-                      return format(new Date(displayMatch.fixture.date), "dd/MM");
-                    }
-                  })()}
+                  {format(new Date(displayMatch.fixture.date), "dd/MM")}
                 </div>
               </div>
             )}
@@ -859,7 +798,7 @@ const MyMatchdetailsScoreboard = ({
               />
             )}
             <span className="text-md font-medium text-center mb-4">
-              {translateTeamName(displayMatch.teams.away.name)}
+              {displayMatch.teams.away.name}
             </span>
           </div>
         </div>
@@ -871,33 +810,33 @@ const MyMatchdetailsScoreboard = ({
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'match' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
           onClick={() => handleTabChange("match")}
           >
-            {t('match_page') || 'Match'}
+            Match
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'lineups' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("lineups")}
           >
             <span className="hidden sm:inline">
               {displayMatch.fixture.status.short === "NS"
-                ? (t('probable_lineups') || 'Probable Lineups')
-                : (t('lineups') || 'Lineups')}
+                ? "Probable Lineups"
+                : "Lineups"}
             </span>
-            <span className="sm:hidden">{t('lineups') || 'Lineups'}</span>
+            <span className="sm:hidden">Lineups</span>
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'stats' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("stats")}
           >
-            {t('stats') || 'Stats'}
+            Stats
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'trends' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("trends")}
           >
-            {t('trends') || 'Trends'}
+            Trends
           </button>
           <button className={`flex-shrink-0 py-2 px-2 sm:px-4 text-xs sm:text-sm font-normal whitespace-nowrap ${activeTab === 'h2h' ? 'text-gray-900 dark:text-white border-b-2 border-blue-500' : 'text-gray-600 dark:text-white hover:text-gray-800 dark:hover:text-gray-200'} transition-colors duration-200`}
            onClick={() => handleTabChange("h2h")}
           >
-            <span className="hidden sm:inline">{t('head_to_head') || 'Head to Head'}</span>
-            <span className="sm:hidden">{t('h2h') || 'H2H'}</span>
+            <span className="hidden sm:inline">Head to Head</span>
+            <span className="sm:hidden">H2H</span>
           </button>
           {activeTab === 'highlights' && (
               <MyHighlights

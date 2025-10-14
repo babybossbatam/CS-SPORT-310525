@@ -1,34 +1,91 @@
 import express, { type Request, Response, NextFunction } from "express";
 import logoRoutes from './routes/logoRoutes';
-import playerVerificationRoutes from './routes/playerVerificationRoutes.js';
-import headtoheadRoutes from './routes/headtoheadRoutes.js';
-import verificationRoutes from './routes/verificationRoutes.js';
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import path from "path";
 
 const app = express();
-app.use(express.json({ limit: '1mb' }));
-app.use(express.urlencoded({ extended: false, limit: '1mb' }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-// Improved error handling
+// Global error handlers to prevent crashes
 process.on('uncaughtException', (error) => {
   console.error('Uncaught Exception:', error.message);
-  // Don't exit, let it continue
+  // Log but don't exit to prevent restarts
 });
 
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection:', reason);
-  // Don't exit, let it continue
+  // Prevent unhandled rejections from crashing the process
 });
 
-// Set reasonable timeout for requests
-app.use((req, res, next) => {
-  // Set timeout to 30 seconds
-  req.setTimeout(30000);
-  res.setTimeout(30000);
-  next();
+// Memory monitoring to prevent OOM crashes
+let memoryWarningCount = 0;
+const monitorMemory = () => {
+  const usage = process.memoryUsage();
+  const heapUsedMB = usage.heapUsed / 1024 / 1024;
+  
+  if (heapUsedMB > 1500) { // Warning at 1.5GB
+    memoryWarningCount++;
+    console.warn(`⚠️ High memory usage: ${heapUsedMB.toFixed(2)}MB (Warning #${memoryWarningCount})`);
+    
+    if (memoryWarningCount > 5) {
+      console.log('🧹 Forcing garbage collection...');
+      if (global.gc) {
+        global.gc();
+        memoryWarningCount = 0;
+      }
+    }
+  }
+};
+
+// Check memory every 30 seconds
+setInterval(monitorMemory, 30000);
+
+// Set higher limits to prevent EventEmitter warnings
+process.setMaxListeners(8000);
+import { EventEmitter } from 'events';
+EventEmitter.defaultMaxListeners = 8000;
+
+// Set max listeners for common event emitters
+if (typeof process !== 'undefined' && process.stdout) {
+  process.stdout.setMaxListeners(8000);
+}
+if (typeof process !== 'undefined' && process.stderr) {
+  process.stderr.setMaxListeners(8000);
+}
+if (typeof process !== 'undefined' && process.stdin) {
+  process.stdin.setMaxListeners(500);
+}
+
+// Graceful shutdown handling
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received, shutting down gracefully');
+  process.exit(0);
 });
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received, shutting down gracefully');
+  process.exit(0);
+});
+
+// Prevent exit on warnings
+process.on('warning', (warning) => {
+  if (warning.name === 'MaxListenersExceededWarning') {
+    // Suppress these warnings instead of logging
+    return;
+  }
+  console.warn('Process Warning:', warning.message);
+});
+
+// Monitor process uptime and stability
+let startTime = Date.now();
+setInterval(() => {
+  const uptime = Math.floor((Date.now() - startTime) / 1000);
+  if (uptime % 300 === 0) { // Every 5 minutes
+    console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
+  }
+}, 1000);
 
 
 
@@ -97,9 +154,6 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
 
   // API routes
   app.use('/api', logoRoutes);
-  app.use('/api', playerVerificationRoutes);
-  app.use('/api', headtoheadRoutes);
-  app.use('/api/verification', verificationRoutes);
 
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.

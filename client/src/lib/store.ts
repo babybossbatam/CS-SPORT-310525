@@ -10,7 +10,6 @@ interface UserState {
   username: string | null;
   email: string | null;
   isAuthenticated: boolean;
-  isLoading: boolean;
   preferences: {
     favoriteTeams: string[];
     favoriteLeagues: string[];
@@ -71,7 +70,6 @@ const initialUserState: UserState = {
   username: null,
   email: null,
   isAuthenticated: false,
-  isLoading: false,
   preferences: {
     favoriteTeams: [],
     favoriteLeagues: [],
@@ -146,18 +144,11 @@ const userSlice = createSlice({
   name: 'user',
   initialState: initialUserState,
   reducers: {
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setAuthenticated: (state, action: PayloadAction<boolean>) => {
-      state.isAuthenticated = action.payload;
-    },
     setUser: (state, action: PayloadAction<{ id: number; username: string; email: string }>) => {
       state.id = action.payload.id;
       state.username = action.payload.username;
       state.email = action.payload.email;
       state.isAuthenticated = true;
-      state.isLoading = false;
     },
     setUserPreferences: (state, action: PayloadAction<UserState['preferences']>) => {
       state.preferences = action.payload;
@@ -196,20 +187,7 @@ const userSlice = createSlice({
       state.preferences.region = action.payload;
     },
     logout: (state) => {
-      // Clear all user-related state and persist the cleared state
-      localStorage.removeItem('cs_sport_user');
-      localStorage.removeItem('cs_sport_preferences');
-      state.id = null;
-      state.username = null;
-      state.email = null;
-      state.isAuthenticated = false;
-      state.isLoading = false;
-      state.preferences = {
-        favoriteTeams: [],
-        favoriteLeagues: [],
-        favoriteMatches: [],
-        region: 'global',
-      };
+      return initialUserState;
     },
   },
 });

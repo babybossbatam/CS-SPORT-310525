@@ -1,6 +1,6 @@
 // EventEmitter utilities for managing listeners and preventing memory leaks
 
-export const setGlobalEventEmitterLimits = (limit: number = 50) => {
+export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
   if (typeof window === 'undefined') return;
 
   try {
@@ -99,10 +99,31 @@ export const setGlobalEventEmitterLimits = (limit: number = 50) => {
         }
       });
 
-      // Simple EventEmitter limit setting
-      if (typeof process !== 'undefined' && process.setMaxListeners) {
-        process.setMaxListeners(limit);
-      }
+      // More aggressive detection of all EventEmitter-like objects
+      const searchForEventEmitters = (obj: any, path: string = '', depth: number = 0) => {
+        if (depth > 3 || !obj || typeof obj !== 'object') return;
+
+        try {
+          // Check if this object has setMaxListeners method
+          if (typeof obj.setMaxListeners === 'function') {
+            obj.setMaxListeners(limit);
+            console.log(`🔧 Set max listeners for: ${path}`);
+          }
+
+          // Recursively search common properties that might contain EventEmitters
+          const searchProps = ['fs', 'fileWatcher', 'textFileWatcher', 'watcher', 'emitter'];
+          searchProps.forEach(prop => {
+            if (obj[prop] && typeof obj[prop] === 'object') {
+              searchForEventEmitters(obj[prop], `${path}.${prop}`, depth + 1);
+            }
+          });
+        } catch (e) {
+          // Ignore access errors
+        }
+      };
+
+      // Search through window for any EventEmitter-like objects
+      searchForEventEmitters(window, 'window');
 
       // Handle any EventEmitter objects in the global scope that might be Replit-related
       Object.keys(window).forEach(key => {
@@ -218,9 +239,21 @@ export const cleanupEventListeners = () => {
         }
       });
 
+      // Remove excessive listeners from any Replit-related EventEmitters
+      Object.keys(window).forEach(key => {
+        const obj = (window as any)[key];
+        if (obj && typeof obj.removeAllListeners === 'function' && key.includes('replit')) {
+          try {
+            obj.removeAllListeners();
+          } catch (e) {
+            // Ignore individual cleanup errors
+          }
+        }
+      });
+
     } catch (e) {
-      // Minimal cleanup
-      console.log('🔧 Basic cleanup completed');
+      // Ignore Replit cleanup errors
+      console.log('🔧 EventEmitter cleanup completed');
     }
   }
 };
@@ -255,11 +288,7 @@ if (typeof window !== 'undefined') {
       message.includes('EventEmitter memory leak detected') ||
       message.includes('watchTextFile') ||
       message.includes('Use emitter.setMaxListeners()') ||
-      message.includes('Possible EventEmitter memory leak') ||
-      message.includes('Request timeout for') ||
-      message.includes('LCP is slow') ||
-      message.includes('CLS is high') ||
-      message.includes('FID is slow')
+      message.includes('Possible EventEmitter memory leak')
     ) {
       return; // Suppress these warnings
     }
@@ -267,20 +296,34 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Initialize with reasonable limits for Replit environment
-setGlobalEventEmitterLimits(50);
+// Initialize with higher limits for Replit environment - increased for heavy file watching
+setGlobalEventEmitterLimits(8000);
 
 // Set up periodic cleanup to prevent memory leaks
 if (typeof window !== 'undefined') {
-  // Lightweight cleanup for development environment
+  // More frequent cleanup for development environment
   setInterval(() => {
     try {
       cleanupEventListeners();
-      setGlobalEventEmitterLimits(50); // Keep limits reasonable
+      // Re-apply higher limits in case they were reset
+      setGlobalEventEmitterLimits(8000);
+
+      // Specifically handle the file watchers that are causing warnings
+      const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher', 'fileSavedChanged'];
+      changesTargets.forEach(target => {
+        if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
+          (window as any)[target].setMaxListeners(8000);
+        }
+        // Also check in replit namespace
+        if ((window as any).replit && (window as any).replit[target] &&
+            typeof (window as any).replit[target].setMaxListeners === 'function') {
+          (window as any).replit[target].setMaxListeners(8000);
+        }
+      });
     } catch (e) {
       // Ignore cleanup errors
     }
-  }, 60000); // Every minute instead of 15 seconds
+  }, 15000); // Every 15 seconds for more aggressive monitoring
 
   // Also set up immediate cleanup on page visibility change
   document.addEventListener('visibilitychange', () => {

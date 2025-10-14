@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useId } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Video, AlertCircle, Loader2 } from "lucide-react";
-import { useTranslation } from '@/contexts/LanguageContext';
 
 interface MyHighlightsProps {
   homeTeam?: string;
@@ -45,7 +44,6 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
   homeTeamData,
   awayTeamData
 }) => {
-  const { t } = useTranslation();
   // Check match status to determine if we should render
   const status = matchStatus || match?.fixture?.status?.short;
 
@@ -1105,7 +1103,7 @@ const MyHighlights: React.FC<MyHighlightsProps> = ({
       <CardHeader className="py-2 px-2">
         <CardTitle className="text-base font-md flex items-center justify-between text-sm text-gray-800">
           <div className="flex items-center">
-            {t('official_highlights')}
+            Official Highlights
           </div>
           {currentSource && !loading  }
         </CardTitle>

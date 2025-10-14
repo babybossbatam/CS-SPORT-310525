@@ -3,8 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { HelpCircle, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useTranslation } from '@/contexts/LanguageContext';
-import { smartTeamTranslation } from '@/lib/smartTeamTranslation';
 
 interface TeamInfo {
   id?: number;
@@ -54,7 +52,6 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   leagueId,
   season,
 }) => {
-  const { t, currentLanguage } = useTranslation();
   const [isLoading, setIsLoading] = useState(true);
   const [predictionData, setPredictionData] = useState<PredictionData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -73,11 +70,11 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
   // More robust team data validation
   if (!homeTeam || !awayTeam || !homeTeam.name || !awayTeam.name) {
-    console.warn('❌ [MatchPrediction] Missing team data:', {
-      homeTeam: homeTeam ? { name: homeTeam.name, logo: homeTeam.logo } : null,
-      awayTeam: awayTeam ? { name: awayTeam.name, logo: awayTeam.logo } : null
+    console.warn('❌ [MatchPrediction] Missing team data:', { 
+      homeTeam: homeTeam ? { name: homeTeam.name, logo: homeTeam.logo } : null, 
+      awayTeam: awayTeam ? { name: awayTeam.name, logo: awayTeam.logo } : null 
     });
-
+    
     // Try to show basic prediction even with incomplete data
     if (homeTeam?.name && awayTeam?.name) {
       console.log('✅ [MatchPrediction] Found team names, proceeding with basic prediction');
@@ -85,14 +82,14 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
       return (
         <Card className="w-full shadow-md">
           <CardHeader className="pb-2">
-            <CardTitle className="text-lg font-bold">{t('matchPrediction') || 'Match Prediction'}</CardTitle>
+            <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-center h-32">
               <div className="text-center">
-                <p className="text-sm text-gray-500">{t('teamDataNotAvailable') || 'Team data not available'}</p>
+                <p className="text-sm text-gray-500">Team data not available</p>
                 <p className="text-xs text-gray-400 mt-1">
-                  {t('homeTeam') || 'Home'}: {homeTeam?.name || 'Unknown'} | {t('awayTeam') || 'Away'}: {awayTeam?.name || 'Unknown'}
+                  Home: {homeTeam?.name || 'Unknown'} | Away: {awayTeam?.name || 'Unknown'}
                 </p>
               </div>
             </div>
@@ -148,7 +145,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
 
       try {
         setError(null);
-
+        
         // Fetch team statistics and odds in parallel
         const fetchPromises = [
           fetch(`/api/teams/${homeTeam.id}/statistics?league=${leagueId}&season=${season || new Date().getFullYear()}`),
@@ -215,19 +212,19 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               console.warn('❌ [MatchPrediction] Predictions API returned non-JSON response, skipping');
               throw new Error('Non-JSON response from predictions API');
             }
-
+            
             const predictionsData = await predictionsResponse.json();
             console.log('📊 [MatchPrediction] RapidAPI Predictions response:', predictionsData);
-
+            
             // Handle new API response format with response array
             if (predictionsData.response && Array.isArray(predictionsData.response) && predictionsData.response.length > 0) {
               const prediction = predictionsData.response[0];
-
+              
               if (prediction.predictions && prediction.predictions.percent) {
                 const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
                 const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
                 const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
-
+                
                 // Only use predictions if we have valid data (not all zeros)
                 if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
                   apiPredictions = {
@@ -237,7 +234,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                     confidence: 95, // High confidence for RapidAPI predictions
                     source: 'rapidapi-predictions'
                   };
-
+                  
                   console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
                 }
               }
@@ -245,12 +242,12 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
             // Fallback to old format for backward compatibility
             else if (predictionsData.success && predictionsData.data && predictionsData.data.length > 0) {
               const prediction = predictionsData.data[0];
-
+              
               if (prediction.predictions && prediction.predictions.percent) {
                 const homePercent = parseInt(prediction.predictions.percent.home?.replace('%', '') || '0');
                 const drawPercent = parseInt(prediction.predictions.percent.draw?.replace('%', '') || '0');
                 const awayPercent = parseInt(prediction.predictions.percent.away?.replace('%', '') || '0');
-
+                
                 // Only use predictions if we have valid data (not all zeros)
                 if (homePercent > 0 || drawPercent > 0 || awayPercent > 0) {
                   apiPredictions = {
@@ -260,7 +257,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                     confidence: 95, // High confidence for RapidAPI predictions
                     source: 'rapidapi-predictions'
                   };
-
+                  
                   console.log('✅ [MatchPrediction] Using RapidAPI predictions:', apiPredictions);
                 }
               }
@@ -320,7 +317,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           // No prediction data available - set to null instead of fallback values
           setPredictionData(null);
         }
-
+        
       } catch (error) {
         console.error('❌ [MatchPrediction] Error fetching prediction data:', error);
         setError('Failed to load prediction data');
@@ -381,7 +378,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
       <Card className="w-full shadow-md">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg font-bold flex items-center">
-            {t('matchPrediction') || 'Match Prediction'}
+            Match Prediction
             <Loader2 className="h-4 w-4 ml-2 animate-spin" />
           </CardTitle>
         </CardHeader>
@@ -389,7 +386,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           <div className="flex items-center justify-center h-32">
             <div className="text-center">
               <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2" />
-              <p className="text-sm text-gray-500">{t('loadingPredictionData') || 'Loading prediction data...'}</p>
+              <p className="text-sm text-gray-500">Loading prediction data...</p>
             </div>
           </div>
         </CardContent>
@@ -401,13 +398,13 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     return (
       <Card className="w-full shadow-md">
         <CardHeader className="pb-2">
-          <CardTitle className="text-lg font-bold">{t('matchPrediction') || 'Match Prediction'}</CardTitle>
+          <CardTitle className="text-lg font-bold">Match Prediction</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center h-32">
             <div className="text-center">
               <p className="text-sm text-red-500 mb-2">{error}</p>
-              <p className="text-xs text-gray-500">{t('usingFallbackData') || 'Using fallback data'}</p>
+              <p className="text-xs text-gray-500">Using fallback data</p>
             </div>
           </div>
         </CardContent>
@@ -423,18 +420,18 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
     return (
       <Card className="w-full shadow-md bg-white">
         <CardHeader className="pb-3">
-          <CardTitle className="text-sm text-gray-600 font-normal">{t('predictions') || 'Predictions'}</CardTitle>
+          <CardTitle className="text-sm text-gray-600 font-normal">Predictions</CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <div className="text-center mb-6">
-            <h3 className="text-2xl font-semibold text-gray-800 mb-4">{t('whoWillWin') || 'Who will win?'}</h3>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
             <div className="flex flex-col items-center justify-center py-8">
               <div className="text-gray-500 mb-2">📊</div>
               <p className="text-gray-500 text-sm">
-                {t('predictionDataNotAvailable') || 'Prediction data not available for this match'}
+                Prediction data not available for this match
               </p>
               <p className="text-gray-400 text-xs mt-1">
-                {!fixtureId ? t('noFixtureIdProvided') || 'No fixture ID provided' : t('noPredictionDataFound') || 'No prediction data found from RapidAPI'}
+                {!fixtureId ? 'No fixture ID provided' : 'No prediction data found from RapidAPI'}
               </p>
             </div>
           </div>
@@ -446,55 +443,37 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
   return (
     <Card className="w-full shadow-md bg-white">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm text-gray-600 dark:text-white font-normal">{t('predictions') || 'Predictions'}</CardTitle>
+        <CardTitle className="text-sm text-gray-600 dark:text-white font-normal">Predictions</CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
         <div className="text-center mb-6">
-          <h3 className="text-2xl font-semibold text-gray-800 mb-4">{t('whoWillWin') || 'Who will win?'}</h3>
-
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">Who will win?</h3>
+          
           {/* Total Votes */}
           <div className="text-sm text-gray-500 mb-4">
-            {(() => {
-              const voteCount = predictionData?.confidence ? Math.round(predictionData.confidence * 50) : '3,495';
-              const totalVotesText = t('totalVotes') || 'Total Votes';
-              
-              // Format the translation naturally for each language
-              if (currentLanguage === 'zh' || currentLanguage === 'zh-hk' || currentLanguage === 'zh-tw') {
-                return `${totalVotesText}：${voteCount}`;
-              } else if (currentLanguage === 'es') {
-                return `${totalVotesText}: ${voteCount}`;
-              } else if (currentLanguage === 'de') {
-                return `${totalVotesText}: ${voteCount}`;
-              } else if (currentLanguage === 'it') {
-                return `${totalVotesText}: ${voteCount}`;
-              } else if (currentLanguage === 'pt') {
-                return `${totalVotesText}: ${voteCount}`;
-              } else {
-                return `${totalVotesText}: ${voteCount}`;
-              }
-            })()}
+            Total Votes: {predictionData?.confidence ? Math.round(predictionData.confidence * 50) : '3,495'}
           </div>
 
           {/* Horizontal Prediction Bar */}
           <div className="relative mb-6">
             <div className="flex h-2 rounded-full overflow-hidden bg-gray-200">
               {/* Home Team Bar */}
-              <div
+              <div 
                 className="bg-blue-600 h-full"
                 style={{ width: `${homeWinProbability}%` }}
               />
               {/* Draw Bar */}
-              <div
+              <div 
                 className="bg-gray-400 h-full"
                 style={{ width: `${drawProbability}%` }}
               />
               {/* Away Team Bar */}
-              <div
+              <div 
                 className="bg-gray-600 h-full"
                 style={{ width: `${awayWinProbability}%` }}
               />
             </div>
-
+            
             {/* Percentages and Team Names */}
             <div className="flex justify-between items-center mt-3">
               {/* Home Team */}
@@ -502,10 +481,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 <div className="text-lg font-semibold text-blue-600">{homeWinProbability}%</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-blue-600 truncate max-w-[100px]">
-                    {(() => {
-                      const translatedName = homeTeam?.name ? smartTeamTranslation.translateTeamName(homeTeam.name, currentLanguage) : (t('homeTeam') || 'Home Team');
-                      return translatedName && translatedName.length > 12 ? `${translatedName.substring(0, 12)}...` : translatedName;
-                    })()}
+                    {homeTeam?.name && homeTeam.name.length > 12 ? `${homeTeam.name.substring(0, 12)}...` : homeTeam?.name || 'Home Team'}
                   </span>
                 </div>
               </div>
@@ -513,7 +489,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
               {/* Draw */}
               <div className="flex flex-col items-center">
                 <div className="text-lg font-semibold text-gray-800">{drawProbability}%</div>
-                <span className="text-sm text-gray-600">{t('draw') || 'Draw'}</span>
+                <span className="text-sm text-gray-600">Draw</span>
               </div>
 
               {/* Away Team */}
@@ -521,10 +497,7 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
                 <div className="text-lg font-semibold text-gray-800">{awayWinProbability}%</div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm text-gray-600 truncate max-w-[100px]">
-                    {(() => {
-                      const translatedName = awayTeam?.name ? smartTeamTranslation.translateTeamName(awayTeam.name, currentLanguage) : (t('awayTeam') || 'Away Team');
-                      return translatedName && translatedName.length > 12 ? `${translatedName.substring(0, 12)}...` : translatedName;
-                    })()}
+                    {awayTeam?.name && awayTeam.name.length > 12 ? `${awayTeam.name.substring(0, 12)}...` : awayTeam?.name || 'Away Team'}
                   </span>
                 </div>
               </div>
@@ -534,12 +507,12 @@ const MatchPrediction: React.FC<MatchPredictionProps> = ({
           {/* Data source indicator */}
           <div className="flex justify-center">
             <div className="text-xs text-gray-400">
-              {predictionData ?
-                `${t('data_from') || 'Data from'} ${
-                  (predictionData as any).source === 'rapidapi-predictions' ? t('rapidapi_predictions') || 'RapidAPI Predictions' :
-                  t('team_statistics') || 'Team Statistics'
+              {predictionData ? 
+                `Data from ${
+                  (predictionData as any).source === 'rapidapi-predictions' ? 'RapidAPI Predictions' :
+                  'Team Statistics'
                 }` :
-                t('data_from_team_statistics') || 'Data from Team Statistics'
+                'Data from RapidAPI Predictions'
               }
             </div>
           </div>

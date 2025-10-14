@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Development Server"
+runButton = "Start Dev Server (No Auto Restart)"
 
 [[workflows.workflow]]
 name = "Project"
@@ -103,91 +103,6 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048' tsx server/index.ts"
-
-[[workflows.workflow]]
-name = "Stable Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048 --unhandled-rejections=warn' tsx --watch=false server/index.ts"
-
-[[workflows.workflow]]
-name = "Ultra Stable Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=2048 --unhandled-rejections=warn' tsx --watch=false --no-experimental-repl-await server/index.ts"
-
-[[workflows.workflow]]
-name = "Lightweight Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn' tsx --watch=false --inspect=0 server/index.ts"
-
-[[workflows.workflow]]
-name = "Ultra Lightweight Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=512 --unhandled-rejections=warn' tsx --no-warnings --transpile-only server/index.ts"
-
-[[workflows.workflow]]
-name = "Fixed Lightweight Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn' tsx --watch=false --transpile-only server/index.ts"
-
-[[workflows.workflow]]
-name = "Working Lightweight Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn' tsx --no-warnings server/index.ts"
-
-[[workflows.workflow]]
-name = "Simple Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --unhandled-rejections=warn' tsx server/index.ts"
-
-[[workflows.workflow]]
-name = "Development Server"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-
-[[workflows.workflow]]
-name = "Production Build"
-author = 42256231
-mode = "sequential"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run build"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run start"
 
 [[ports]]
 localPort = 5000

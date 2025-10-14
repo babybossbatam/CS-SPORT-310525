@@ -22,25 +22,178 @@ if (isDarkMode) {
   document.documentElement.classList.add('dark');
 }
 
-// Minimal warning suppression for Replit environment
+// Filter out known Replit/browser warnings in development
 if (import.meta.env.DEV) {
   const originalWarn = console.warn;
+  const originalError = console.error;
+
   console.warn = (...args) => {
     const message = args.join(' ');
-    if (message.includes('MaxListenersExceededWarning') || message.includes('sandbox')) {
-      return;
+    if (
+      message.includes('sandbox') ||
+      message.includes('Unrecognized feature') ||
+      message.includes('Allow attribute will take precedence')
+    ) {
+      return; // Suppress these warnings
     }
     originalWarn.apply(console, args);
   };
+
+  console.error = (...args) => {
+    const message = args.join(' ');
+    if (
+      message.includes('sandbox') ||
+      message.includes('Invalid or unexpected token') && message.includes('background.js')
+    ) {
+      return; // Suppress these errors
+    }
+    originalError.apply(console, args);
+  };
 }
 
-// Initialize flag cache persistence (lightweight)
+// Make debugging functions available globally in development
+if (import.meta.env.DEV) {
+  (window as any).printMissingCountriesReport = printMissingCountriesReport;
+}
+
+// Initialize flag cache persistence
 initializeFlagCachePersistence();
 
-// Lightweight EventEmitter setup
+// Initialize storage monitoring
+StorageMonitor.getInstance().init();
+
+// Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(50); // Reduced from 100
+  process.setMaxListeners(8000);
 }
+
+// Set higher limits immediately for browser environment
+if (typeof window !== 'undefined') {
+  // Aggressively set limits before any other code runs
+  const setLimitsImmediately = () => {
+    // Set for common EventEmitter locations
+    if ((window as any).EventEmitter) {
+      (window as any).EventEmitter.defaultMaxListeners = 8000;
+    }
+
+    if ((window as any).events && (window as any).events.EventEmitter) {
+      (window as any).events.EventEmitter.defaultMaxListeners = 8000;
+    }
+
+    // Target file watching specifically
+    const fileWatchTargets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileWatcher'];
+    fileWatchTargets.forEach(target => {
+      if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
+        (window as any)[target].setMaxListeners(8000);
+      }
+    });
+  };
+
+  setLimitsImmediately();
+  // Run again after a brief delay to catch any late-loading EventEmitters
+  setTimeout(setLimitsImmediately, 100);
+}
+
+// Set default max listeners for EventEmitter globally
+if (typeof window !== 'undefined') {
+  // Try to set high limits on any existing EventEmitter classes
+  try {
+    if ((window as any).EventEmitter) {
+      (window as any).EventEmitter.defaultMaxListeners = 2000;
+    }
+
+    // Set on global object if available
+    if ((window as any).events && (window as any).events.EventEmitter) {
+      (window as any).events.EventEmitter.defaultMaxListeners = 2000;
+    }
+  } catch (e) {
+    // Ignore
+  }
+}
+
+// Enhanced EventEmitter management for Replit
+if (typeof window !== 'undefined') {
+  // Suppress stallwart and fsError warnings
+  const originalConsoleWarn = console.warn;
+  console.warn = (...args) => {
+    const message = args.join(' ');
+    if (
+      message.includes('MaxListenersExceededWarning') ||
+      message.includes('fsError listeners') ||
+      message.includes('stallwart') ||
+      message.includes('failed ping') ||
+      message.includes('changes listeners added') ||
+      message.includes('watchTextFile') ||
+      message.includes('Possible EventEmitter memory leak')
+    ) {
+      return; // Suppress these warnings
+    }
+    originalConsoleWarn.apply(console, args);
+  };
+
+  // Handle Replit's file watching EventEmitter warnings
+  if (typeof process !== 'undefined' && process.emitWarning) {
+    const originalProcessEmitWarning = process.emitWarning;
+    process.emitWarning = function(warning, type, code, ctor) {
+      if (type === 'MaxListenersExceededWarning' && 
+          (warning.toString().includes('changes listeners') || 
+           warning.toString().includes('watchTextFile'))) {
+        return; // Suppress Replit file watching warnings
+      }
+      return originalProcessEmitWarning.call(this, warning, type, code, ctor);
+    };
+  }
+}
+
+// Set EventEmitter default max listeners globally
+if (typeof window !== 'undefined') {
+  // Increase max listeners for browser environment
+  (window as any).maxEventListeners = 100;
+
+  // If EventEmitter is available globally, set its default
+  if ((window as any).EventEmitter) {
+    (window as any).EventEmitter.defaultMaxListeners = 100;
+  }
+}
+
+// Set up a more aggressive initial application
+  const immediateSetup = () => {
+    setGlobalEventEmitterLimits(8000);
+
+    // Specifically handle the changes listeners that are causing the warning
+    if (typeof window !== 'undefined') {
+      const targets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileWatcher', 'textFileWatcher'];
+      targets.forEach(target => {
+        const searchPaths = [
+          (window as any)[target],
+          (window as any).replit?.[target],
+          document[target as any],
+          (window as any).global?.[target],
+          (window as any)._replit?.[target],
+          (window as any).__replit?.[target]
+        ];
+
+        searchPaths.forEach(obj => {
+          if (obj && typeof obj.setMaxListeners === 'function') {
+            obj.setMaxListeners(8000);
+            console.log(`🔧 [Immediate] Set max listeners for ${target}: 8000`);
+          }
+        });
+      });
+
+      // Set limits on any existing EventEmitter instances
+      Object.keys(window).forEach(key => {
+        const obj = (window as any)[key];
+        if (obj && typeof obj === 'object' && typeof obj.setMaxListeners === 'function') {
+          try {
+            obj.setMaxListeners(8000);
+          } catch (e) {
+            // Ignore errors
+          }
+        }
+      });
+    }
+  };
 
 // Setup global error handlers
 setupGlobalErrorHandlers();

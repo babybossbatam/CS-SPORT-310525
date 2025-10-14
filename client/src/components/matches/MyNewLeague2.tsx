@@ -632,11 +632,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   );
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
-  const [dynamicCacheConfig, setDynamicCacheConfig] = useState<any>({}); // State for dynamic cache config
 
   // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    32, 39, 38, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
+    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
     307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
     850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
@@ -941,38 +940,25 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     [getCacheKey, isMatchOldEnded, checkStorageQuota],
   );
 
-  // Lightweight caching for better performance
-  const getDynamicCacheConfig = useCallback(() => {
+  // Smart cache configuration based on live match detection
+  const [dynamicCacheConfig, setDynamicCacheConfig] = useState(() => {
     const today = new Date().toISOString().slice(0, 10);
     const isToday = selectedDate === today;
 
-    if (!isToday) {
-      // Historical or future dates - minimal cache, quick load
-      return {
-        staleTime: 30 * 60 * 1000, // 30 minutes fresh
-        cacheTime: 60 * 60 * 1000, // 1 hour in memory
-        refetchInterval: false,
-        refetchOnWindowFocus: false,
-        refetchOnReconnect: false,
-        refetchOnMount: false,
-      };
-    }
-
-    // Today's matches - balanced approach
-    return {
-      staleTime: 5 * 60 * 1000, // 5 minutes fresh
-      cacheTime: 30 * 60 * 1000, // 30 minutes in memory
-      refetchInterval: false,
-      refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
-      refetchOnMount: false,
-    };
-  }, [selectedDate]);
-
-  // Apply dynamic cache configuration
-  useEffect(() => {
-    setDynamicCacheConfig(getDynamicCacheConfig());
-  }, [getDynamicCacheConfig]);
+    return isToday
+      ? {
+          staleTime: 5 * 60 * 1000, // 5 minutes - default for today
+          refetchInterval: 60 * 1000, // 1 minute - default for today
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: true,
+        }
+      : {
+          staleTime: 60 * 60 * 1000, // 1 hour - for past/future dates
+          refetchInterval: false,
+          refetchOnWindowFocus: false,
+          refetchOnReconnect: false,
+        };
+  });
 
   // Get query client for cache management
   const queryClient = useQueryClient();
@@ -1098,8 +1084,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       );
 
       // Process leagues in optimized batches
-      const batchSize = 5; // Reasonable batch size
-      const delayBetweenBatches = 100; // Reduced delay for better responsiveness
+      const batchSize = 5; // Increase concurrent requests for priority leagues
       const results: Array<{
         leagueId: number;
         fixtures: FixtureData[];
@@ -1117,8 +1102,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         const batchPromises = batch.map(async (leagueId, index) => {
           // Minimal delay only for large batches
-          if (index > 1) { // Reduced delay for earlier items in batch
-            await delay(5); // Reduced to 5ms delay
+          if (index > 2) {
+            await delay(10); // Reduced to 10ms delay
           }
 
           try {
@@ -1269,8 +1254,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting ${delayBetweenBatches}ms before next batch...`);
-          await delay(delayBetweenBatches);
+          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
+          await delay(25);
         }
       }
 
@@ -1337,7 +1322,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     },
     // Apply dynamic cache configuration
     staleTime: dynamicCacheConfig.staleTime,
-    cacheTime: dynamicCacheConfig.cacheTime,
     refetchInterval: dynamicCacheConfig.refetchInterval,
     refetchOnWindowFocus: dynamicCacheConfig.refetchOnWindowFocus,
     refetchOnReconnect: dynamicCacheConfig.refetchOnReconnect,
@@ -2392,9 +2376,8 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         .sort(([aId], [bId]) => {
           // Define priority order - same as MyNewLeague
           const priorityOrder = [
-            32, 39, 38, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
-            307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
-            850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
+            32, 38, 39, 29, 850, 15, 78, 140, 135, 79, 61, 2, 5, 22, 10, 11,
+            1022, 772, 307, 71, 72, 667, 301, 3, 848, 73, 75, 239, 233, 253,
           ];
 
           const aIndex = priorityOrder.indexOf(Number(aId));
@@ -2779,7 +2762,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                         908: "World", // UEFA Europa League
                         1169: "World", // UEFA Nations League Women
                         23: "Italy", // Serie A Italy
-                        1077: "World", // UEFA Champions League Women
+                        1077: "World", // UEFA Nations League Women
                         253: "USA", // MLS
                         850: "World", // UEFA Champions League Women
                         893: "World", // UEFA Europa League Women
@@ -3508,6 +3491,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       )
                                       .replace(
                                         "im Elfmeterschießen",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )
+                                      .replace(
+                                        "ai rigori",
                                         penaltyScore + " " + onPenaltiesText,
                                       )
                                       .replace(
