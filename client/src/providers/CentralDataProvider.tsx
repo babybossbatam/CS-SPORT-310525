@@ -168,23 +168,28 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           return cachedData;
         }
 
-        // If no cached data available, try to get data from nearby dates (expanded range)
-        const dates = [];
-        for (let i = -3; i <= 3; i++) {
-          const date = new Date(validDate);
-          date.setDate(date.getDate() + i);
-          dates.push(date.toISOString().slice(0, 10));
-        }
+        // Only try nearby dates for current/recent dates to avoid unnecessary searches
+        const today = new Date().toISOString().slice(0, 10);
+        const isRecentDate = Math.abs(new Date(validDate).getTime() - new Date(today).getTime()) <= 3 * 24 * 60 * 60 * 1000; // Within 3 days
+        
+        if (isRecentDate) {
+          const dates = [];
+          for (let i = -2; i <= 2; i++) {
+            if (i !== 0) { // Skip the current date as we already checked it
+              const date = new Date(validDate);
+              date.setDate(date.getDate() + i);
+              dates.push(date.toISOString().slice(0, 10));
+            }
+          }
 
-        // Try most recent dates first
-        const sortedDates = dates.sort((a, b) => {
-          const diffA = Math.abs(new Date(a).getTime() - new Date(validDate).getTime());
-          const diffB = Math.abs(new Date(b).getTime() - new Date(validDate).getTime());
-          return diffA - diffB;
-        });
+          // Try most recent dates first
+          const sortedDates = dates.sort((a, b) => {
+            const diffA = Math.abs(new Date(a).getTime() - new Date(validDate).getTime());
+            const diffB = Math.abs(new Date(b).getTime() - new Date(validDate).getTime());
+            return diffA - diffB;
+          });
 
-        for (const date of sortedDates) {
-          if (date !== validDate) {
+          for (const date of sortedDates) {
             const fallbackData = queryClient.getQueryData(['central-date-fixtures', date]);
             if (fallbackData && Array.isArray(fallbackData) && fallbackData.length > 0) {
               console.log(`🔄 [CentralDataProvider] Using fallback data from ${date} for ${validDate} (${fallbackData.length} fixtures)`);
@@ -193,16 +198,24 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
           }
         }
 
-        // Try to get any fixture data from the cache as last resort
-        const allQueries = queryClient.getQueryCache().findAll(['central-date-fixtures']);
-        for (const query of allQueries) {
-          if (query.state.data && Array.isArray(query.state.data) && query.state.data.length > 0) {
-            console.log(`🔄 [CentralDataProvider] Using emergency fallback data for ${validDate} (${query.state.data.length} fixtures)`);
-            return query.state.data;
+        // Only use emergency fallback for recent dates
+        if (isRecentDate) {
+          const allQueries = queryClient.getQueryCache().findAll(['central-date-fixtures']);
+          for (const query of allQueries) {
+            if (query.state.data && Array.isArray(query.state.data) && query.state.data.length > 0) {
+              console.log(`🔄 [CentralDataProvider] Using emergency fallback data for ${validDate} (${query.state.data.length} fixtures)`);
+              return query.state.data;
+            }
           }
         }
 
-        console.warn(`⚠️ [CentralDataProvider] No fallback data available for ${validDate}, returning empty array`);
+        // Only warn if this is a current/recent date where we'd expect data
+        const today = new Date().toISOString().slice(0, 10);
+        const isRecentDate = Math.abs(new Date(validDate).getTime() - new Date(today).getTime()) <= 3 * 24 * 60 * 60 * 1000; // Within 3 days
+        
+        if (isRecentDate) {
+          console.log(`📅 [CentralDataProvider] No cached data available for ${validDate}, returning empty array`);
+        }
         return [];
       }
     },
