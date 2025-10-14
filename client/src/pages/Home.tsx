@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Header from "@/components/layout/Header";
 import SportsCategoryTabs from "@/components/layout/SportsCategoryTabs";
 import TournamentHeader from "@/components/layout/TournamentHeader";
@@ -6,8 +6,6 @@ import MyMainLayout from "@/components/layout/MyMainLayout";
 import Footer from "@/components/layout/Footer";
 import RegionModal from "@/components/modals/RegionModal";
 import { Trophy } from "lucide-react";
-import TodayPopularFootballLeaguesNew from "@/components/matches/TodayPopularFootballLeaguesNew";
-import TodaysMatchesByCountryNew from "@/components/matches/TodaysMatchesByCountryNew";
 
 const Home = () => {
   const [selectedDate, setSelectedDate] = React.useState(() => {
@@ -35,11 +33,7 @@ const Home = () => {
       />
 
       <div className="flex-1 h-full" style={{ marginTop: "52px", marginBottom: "-34px" }}>
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        </div>}>
-          <MyMainLayout fixtures={[]} />
-        </Suspense>
+        <MyMainLayout fixtures={[]} />
       </div>
 
       <div className="mt-10">

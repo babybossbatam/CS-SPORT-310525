@@ -13,16 +13,16 @@ const BrandedLoading: React.FC<BrandedLoadingProps> = ({
 }) => {
   return (
     <div
-      className={`flex flex-col items-center justify-center space-y-4 min-h-screen w-full h-full ${className}`}
+      className={`flex flex-col items-center justify-center space-y-2 min-h-[200px] w-full ${className}`}
     >
       <div className="animate-pulse">
         <img
           src="/CSSPORT_1_updated.png"
           alt="CS Sport Logo"
           className="w-[85px] h-[65px]"
+          loading="eager"
         />
       </div>
-      <div className="text-center"></div>
     </div>
   );
 };
