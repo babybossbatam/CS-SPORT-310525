@@ -6,7 +6,6 @@ import { Loader2 } from 'lucide-react';
 // Lazy load analytics components
 const PlayerHeatMap = lazy(() => import('./PlayerHeatMap'));
 const ShotMapVisualization = lazy(() => import('./ShotMapVisualization'));
-const FootballChatbot = lazy(() => import('../ai/FootballChatbot'));
 
 // Loading fallback component
 const AnalyticsLoader = () => (
@@ -20,7 +19,7 @@ const AnalyticsLoader = () => (
 
 // Memoized analytics wrapper
 interface LazyAnalyticsProps {
-  type: 'heatmap' | 'shotmap' | 'chatbot';
+  type: 'heatmap' | 'shotmap';
   playerId?: number;
   matchId?: number;
   playerName?: string;
@@ -56,8 +55,6 @@ const LazyAnalytics: React.FC<LazyAnalyticsProps> = memo(({
             eventData={eventData || []}
           />
         );
-      case 'chatbot':
-        return <FootballChatbot />;
       default:
         return <div>Unknown analytics type</div>;
     }
