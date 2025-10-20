@@ -63,20 +63,26 @@ const MyMainLayout: React.FC<MyMainLayoutProps> = ({
   onTabChange,
   selectedDate
 }) => {
-  // Validate selectedDate prop - only warn for clearly invalid formats
-  if (selectedDate && selectedDate !== 'today' && selectedDate && !/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
+  // Reduce validation overhead - only validate in development
+  if (process.env.NODE_ENV === 'development' && selectedDate && selectedDate !== 'today' && selectedDate && !/^\d{4}-\d{2}-\d{2}$/.test(selectedDate)) {
     console.warn(`🚨 [MyMainLayout] Invalid selectedDate format: ${selectedDate}`);
   }
 
   const [internalActiveTab, setInternalActiveTab] = useState<string>("match");
   const currentActiveTab = activeTab || internalActiveTab;
 
-  // Immediate mobile check to prevent flash
-  const [isMobileImmediate] = useState(getIsMobileImmediate);
+  // Optimize mobile detection to prevent blocking
+  const [isMobileImmediate] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  });
   const { isMobile } = useDeviceInfo();
 
-  // Use immediate detection first, then hook result
-  const actualIsMobile = isMobile !== undefined ? isMobile : isMobileImmediate;
+  // Use memoized mobile detection
+  const actualIsMobile = useMemo(() => 
+    isMobile !== undefined ? isMobile : isMobileImmediate,
+    [isMobile, isMobileImmediate]
+  );
 
   const handleTabChange = (tab: string) => {
     if (onTabChange) {

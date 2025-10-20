@@ -145,89 +145,48 @@ const preloadData = () => {
 
 function App() {
   useEffect(() => {
-    // Force mobile-first layout immediately
+    // Only essential initialization - defer everything else
     const isMobileCheck = window.innerWidth < 768;
     if (isMobileCheck) {
       document.documentElement.classList.add("mobile-device");
       document.body.classList.add("mobile-body");
     }
 
-    setupGlobalErrorHandlers();
-    const refreshInterval = setupCacheRefresh();
-
-    // Clear all logo caches on app initialization
-    clearAllLogoCaches();
-
-    // Start performance monitoring
-    console.log('🚀 Starting performance monitoring...');
-
-    // Optimize performance for initial load
-    if (typeof window !== 'undefined') {
-      // Reduce initial bundle size impact
-      requestIdleCallback(() => {
-        preloadData();
-      }, { timeout: 2000 });
+    // Defer heavy operations to prevent blocking
+    const deferredInit = () => {
+      setupGlobalErrorHandlers();
       
-      // Optimize font loading strategy
-      const optimizeFontLoading = () => {
-        // Create multiple font display elements to trigger immediate usage
-        const triggerElements = [
-          document.createElement('span'),
-          document.createElement('div'),
-          document.createElement('p')
-        ];
-        
-        triggerElements.forEach((element, index) => {
-          element.style.fontFamily = 'Inter, sans-serif';
-          element.style.position = 'fixed';
-          element.style.top = '-100px';
-          element.style.left = '-100px';
-          element.style.fontSize = '12px';
-          element.style.visibility = 'hidden';
-          element.style.pointerEvents = 'none';
-          element.textContent = 'Inter font trigger';
-          element.setAttribute('aria-hidden', 'true');
-          
-          document.body.appendChild(element);
-          
-          // Remove after font is registered
-          setTimeout(() => {
-            if (document.body.contains(element)) {
-              document.body.removeChild(element);
-            }
-          }, 50 + (index * 10));
-        });
-      };
+      // Delay cache operations to prevent initial blocking
+      setTimeout(() => {
+        clearAllLogoCaches();
+        console.log('🚀 Performance monitoring started (deferred)');
+      }, 1000);
 
-      // Preload font with immediate usage
+      // Defer data preloading significantly
+      if (typeof window !== 'undefined') {
+        requestIdleCallback(() => {
+          preloadData();
+        }, { timeout: 5000 }); // Increased timeout
+      }
+    };
+
+    // Use requestIdleCallback for all heavy initialization
+    requestIdleCallback(deferredInit, { timeout: 2000 });
+
+    // Simplified font loading - no immediate DOM manipulation
+    if (typeof window !== 'undefined') {
       const fontPreload = document.createElement('link');
       fontPreload.rel = 'preload';
       fontPreload.href = '/fonts/Inter-Regular.woff2';
       fontPreload.as = 'font';
       fontPreload.type = 'font/woff2';
       fontPreload.crossOrigin = 'anonymous';
-      
-      fontPreload.onload = () => {
-        // Immediate font usage
-        optimizeFontLoading();
-      };
-      
-      fontPreload.onerror = () => {
-        console.log('🔧 Font preload failed, using fallback');
-      };
-      
       document.head.appendChild(fontPreload);
-      
-      // Also trigger font usage immediately for safety
-      requestAnimationFrame(() => {
-        optimizeFontLoading();
-      });
-    } else {
-      preloadData();
     }
 
+    // Minimal cleanup
     return () => {
-      cleanupCacheRefresh(refreshInterval);
+      // Cleanup will be handled by individual components
     };
   }, []);
 

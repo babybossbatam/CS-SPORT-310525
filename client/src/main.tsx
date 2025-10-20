@@ -19,54 +19,56 @@ import './lib/memoryManager'
 import './lib/workflowManager'
 import { ResourceMonitor } from './lib/resourceMonitor'
 
-// Initialize resource monitoring
-ResourceMonitor.getInstance().init()
+// Defer resource monitoring initialization
+requestIdleCallback(() => {
+  ResourceMonitor.getInstance().init();
+}, { timeout: 3000 });
 
-// Initialize dark mode from localStorage
+// Initialize dark mode from localStorage (keep this immediate for UI)
 const isDarkMode = localStorage.getItem('darkMode') === 'true';
 if (isDarkMode) {
   document.documentElement.classList.add('dark');
 }
 
-// Filter out known Replit/browser warnings in development
+// Defer console filtering to prevent blocking
 if (import.meta.env.DEV) {
-  const originalWarn = console.warn;
-  const originalError = console.error;
+  requestIdleCallback(() => {
+    const originalWarn = console.warn;
+    const originalError = console.error;
 
-  console.warn = (...args) => {
-    const message = args.join(' ');
-    if (
-      message.includes('sandbox') ||
-      message.includes('Unrecognized feature') ||
-      message.includes('Allow attribute will take precedence')
-    ) {
-      return; // Suppress these warnings
-    }
-    originalWarn.apply(console, args);
-  };
+    console.warn = (...args) => {
+      const message = args.join(' ');
+      if (
+        message.includes('sandbox') ||
+        message.includes('Unrecognized feature') ||
+        message.includes('Allow attribute will take precedence')
+      ) {
+        return;
+      }
+      originalWarn.apply(console, args);
+    };
 
-  console.error = (...args) => {
-    const message = args.join(' ');
-    if (
-      message.includes('sandbox') ||
-      message.includes('Invalid or unexpected token') && message.includes('background.js')
-    ) {
-      return; // Suppress these errors
-    }
-    originalError.apply(console, args);
-  };
+    console.error = (...args) => {
+      const message = args.join(' ');
+      if (
+        message.includes('sandbox') ||
+        message.includes('Invalid or unexpected token') && message.includes('background.js')
+      ) {
+        return;
+      }
+      originalError.apply(console, args);
+    };
+
+    // Make debugging functions available
+    (window as any).printMissingCountriesReport = printMissingCountriesReport;
+  });
 }
 
-// Make debugging functions available globally in development
-if (import.meta.env.DEV) {
-  (window as any).printMissingCountriesReport = printMissingCountriesReport;
-}
-
-// Initialize flag cache persistence
-initializeFlagCachePersistence();
-
-// Initialize storage monitoring
-StorageMonitor.getInstance().init();
+// Defer cache and storage initialization
+requestIdleCallback(() => {
+  initializeFlagCachePersistence();
+  StorageMonitor.getInstance().init();
+}, { timeout: 2000 });
 
 // Set EventEmitter limits early for Replit environment
 if (typeof process !== 'undefined' && process.setMaxListeners) {
