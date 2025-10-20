@@ -300,8 +300,8 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Initialize with higher limits for Replit environment - increased for heavy file watching
-setGlobalEventEmitterLimits(8000);
+// Initialize with lower limits to prevent overwhelming Replit Assistant
+setGlobalEventEmitterLimits(50);
 
 // Set up periodic cleanup to prevent memory leaks
 if (typeof window !== 'undefined') {

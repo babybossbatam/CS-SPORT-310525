@@ -70,9 +70,9 @@ requestIdleCallback(() => {
   StorageMonitor.getInstance().init();
 }, { timeout: 2000 });
 
-// Set EventEmitter limits early for Replit environment
+// Set conservative EventEmitter limits to avoid overwhelming Replit Assistant
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(8000);
+  process.setMaxListeners(20);
 }
 
 // Simple EventEmitter setup for Replit

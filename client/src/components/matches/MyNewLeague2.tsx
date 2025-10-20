@@ -1254,7 +1254,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         // Add delay between batches to be more API-friendly
         if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 500ms before next batch...`);
+          console.log(`⏳ [MyNewLeague2] Waiting 2000ms before next batch...`);
           await delay(25);
         }
       }
