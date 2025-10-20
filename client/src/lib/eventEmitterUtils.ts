@@ -1,30 +1,14 @@
-// EventEmitter utilities for managing listeners and preventing memory leaks
-
-export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
+// EventEmitter utilities optimized for Replit Assistant compatibility
+export const setGlobalEventEmitterLimits = (limit: number = 15) => {
   if (typeof window === 'undefined') return;
 
   try {
-    // Set higher limits for common EventEmitter targets
+    // Set CONSERVATIVE limits - high limits overwhelm Replit Assistant
     const emitterTargets = [
       'EventEmitter',
       'process',
       'emitter',
-      'events',
-      'watchTextFile',
-      'textFile',
-      'fileWatcher',
-      'changes',
-      'cursor',
-      'removeCursor',
-      'fileSavedChanged',
-      'error',
-      'fsError',
-      'transparentReconnect',
-      'commitComplete',
-      'fileDirty',
-      'fileClean',
-      'commitStart',
-      'promptUserReconnect'
+      'events'
     ];
 
     emitterTargets.forEach(target => {
@@ -32,148 +16,25 @@ export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
         (window as any)[target].setMaxListeners(limit);
       }
 
-      // Also check in global scope
       if ((globalThis as any)[target] && typeof (globalThis as any)[target].setMaxListeners === 'function') {
         (globalThis as any)[target].setMaxListeners(limit);
       }
     });
   } catch (e) {
-    // Ignore errors during setup
-    console.log('🔧 EventEmitter setup encountered minor issues.');
+    // Silently handle errors to prevent console spam
   }
 
-  // Set process max listeners if available
+  // Set conservative process limits
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(limit);
   }
 
-  // Set EventEmitter default max listeners for browser
+  // Set conservative browser EventEmitter limits
   if (typeof window !== 'undefined') {
     (window as any).maxEventListeners = limit;
 
     if ((window as any).EventEmitter) {
       (window as any).EventEmitter.defaultMaxListeners = limit;
-    }
-
-    // Override Node.js EventEmitter in browser context if available
-    if ((window as any).require) {
-      try {
-        const events = (window as any).require('events');
-        if (events && events.EventEmitter) {
-          events.EventEmitter.defaultMaxListeners = limit;
-        }
-      } catch (e) {
-        // Ignore if not available
-      }
-    }
-
-    // Handle Replit-specific EventEmitters with enhanced detection
-    try {
-      // Set limits for Replit file system watchers
-      if ((window as any).replit && (window as any).replit.fs) {
-        const fs = (window as any).replit.fs;
-        if (fs.setMaxListeners) {
-          fs.setMaxListeners(limit);
-        }
-      }
-
-      // Handle other Replit EventEmitters that might cause warnings
-      if ((window as any).stallwart && (window as any).stallwart.setMaxListeners) {
-        (window as any).stallwart.setMaxListeners(limit);
-      }
-
-      // Handle Replit file watching EventEmitters specifically
-      const replitEventEmitters = [
-        '__replitFileWatcher',
-        '__replitTextFileWatcher',
-        '__replitChangesWatcher',
-        'watchTextFile'
-      ];
-
-      replitEventEmitters.forEach(emitterName => {
-        if ((window as any)[emitterName]) {
-          const emitter = (window as any)[emitterName];
-          if (typeof emitter.setMaxListeners === 'function') {
-            emitter.setMaxListeners(limit);
-          }
-        }
-      });
-
-      // More aggressive detection of all EventEmitter-like objects
-      const searchForEventEmitters = (obj: any, path: string = '', depth: number = 0) => {
-        if (depth > 3 || !obj || typeof obj !== 'object') return;
-
-        try {
-          // Check if this object has setMaxListeners method
-          if (typeof obj.setMaxListeners === 'function') {
-            obj.setMaxListeners(limit);
-            console.log(`🔧 Set max listeners for: ${path}`);
-          }
-
-          // Recursively search common properties that might contain EventEmitters
-          const searchProps = ['fs', 'fileWatcher', 'textFileWatcher', 'watcher', 'emitter'];
-          searchProps.forEach(prop => {
-            if (obj[prop] && typeof obj[prop] === 'object') {
-              searchForEventEmitters(obj[prop], `${path}.${prop}`, depth + 1);
-            }
-          });
-        } catch (e) {
-          // Ignore access errors
-        }
-      };
-
-      // Search through window for any EventEmitter-like objects
-      searchForEventEmitters(window, 'window');
-
-      // Handle any EventEmitter objects in the global scope that might be Replit-related
-      Object.keys(window).forEach(key => {
-        const obj = (window as any)[key];
-        if (obj && typeof obj.setMaxListeners === 'function') {
-          obj.setMaxListeners(limit);
-        }
-
-        // Also check if the key suggests it's related to file watching
-        if (key.toLowerCase().includes('file') ||
-            key.toLowerCase().includes('watch') ||
-            key.toLowerCase().includes('replit') ||
-            key.toLowerCase().includes('text') ||
-            key.toLowerCase().includes('change') ||
-            key.toLowerCase().includes('hook') ||
-            key.toLowerCase().includes('listener')) {
-          searchForEventEmitters(obj, key);
-        }
-      });
-
-      // Specifically target the file watching system that's causing the warning
-      const fileWatchingTargets = [
-        'watchTextFile',
-        'changes',
-        'hook',
-        'fileWatcher',
-        'textFileWatcher',
-        'fileSavedChanged'
-      ];
-
-      fileWatchingTargets.forEach(target => {
-        // Check in window
-        if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
-          (window as any)[target].setMaxListeners(limit);
-          console.log(`🔧 Set max listeners for window.${target}: ${limit}`);
-        }
-
-        // Check in various common locations
-        const locations = [window, document, (window as any).replit, (window as any).global];
-        locations.forEach(location => {
-          if (location && location[target] && typeof location[target].setMaxListeners === 'function') {
-            location[target].setMaxListeners(limit);
-            console.log(`🔧 Set max listeners for ${target} in location: ${limit}`);
-          }
-        });
-      });
-
-    } catch (e) {
-      // Ignore Replit-specific setup errors
-      console.log('🔧 EventEmitter setup for Replit environment completed with minor issues');
     }
   }
 
@@ -189,199 +50,66 @@ export const setGlobalEventEmitterLimits = (limit: number = 10000) => {
 };
 
 export const cleanupEventListeners = () => {
-  // Clean up any global event listeners if needed
+  // Minimal cleanup to prevent conflicts with Replit's monitoring
   if (typeof window !== 'undefined') {
-    // Remove excessive event listeners from common objects
-    const commonElements = [window, document];
-
-    commonElements.forEach(element => {
-      if (element && typeof element.removeAllListeners === 'function') {
-        try {
-          element.removeAllListeners();
-        } catch (e) {
-          // Ignore cleanup errors
-        }
-      }
-    });
-
-    // Clean up Replit-specific listeners with enhanced detection
     try {
-      // Remove stallwart-related listeners if they exist
-      if ((window as any).stallwart) {
-        (window as any).stallwart.removeAllListeners?.();
-      }
-
-      // Clean up file watching listeners
-      if ((window as any).replit && (window as any).replit.fs) {
-        const fs = (window as any).replit.fs;
-        if (fs.removeAllListeners) {
-          fs.removeAllListeners('fsError');
-          fs.removeAllListeners('changes');
-          fs.removeAllListeners('watchTextFile');
-          fs.removeAllListeners('fileSavedChanged');
-        }
-      }
-
-      // Clean up specific Replit file watching EventEmitters
-      const replitEventEmitters = [
-        '__replitFileWatcher',
-        '__replitTextFileWatcher',
-        '__replitChangesWatcher',
-        'watchTextFile'
-      ];
-
-      replitEventEmitters.forEach(emitterName => {
-        if ((window as any)[emitterName]) {
-          const emitter = (window as any)[emitterName];
-          if (typeof emitter.removeAllListeners === 'function') {
-            emitter.removeAllListeners();
-          }
+      // Only clean up our own event listeners, not Replit's
+      const customElements = document.querySelectorAll('[data-cleanup="true"]');
+      customElements.forEach(el => {
+        if (el && typeof (el as any).removeAllListeners === 'function') {
+          (el as any).removeAllListeners();
         }
       });
-
-      // Remove excessive listeners from any Replit-related EventEmitters
-      Object.keys(window).forEach(key => {
-        const obj = (window as any)[key];
-        if (obj && typeof obj.removeAllListeners === 'function' && key.includes('replit')) {
-          try {
-            obj.removeAllListeners();
-          } catch (e) {
-            // Ignore individual cleanup errors
-          }
-        }
-      });
-
     } catch (e) {
-      // Ignore Replit cleanup errors
-      console.log('🔧 EventEmitter cleanup completed');
+      // Ignore cleanup errors
     }
   }
 };
 
-// Suppress process warnings for Replit environment
+// Suppress warnings that conflict with Replit Assistant monitoring
 if (typeof process !== 'undefined') {
   const originalEmitWarning = process.emitWarning;
   process.emitWarning = function(warning, type, code, ctor) {
-    // Suppress MaxListenersExceededWarning for file watching
+    // Only suppress file system related warnings that conflict with Replit
     if (type === 'MaxListenersExceededWarning' &&
         (warning.toString().includes('changes listeners') ||
          warning.toString().includes('fileSavedChanged listeners') ||
          warning.toString().includes('watchTextFile') ||
-         warning.toString().includes('fsError') ||
-         warning.toString().includes('textFile') ||
-         warning.toString().includes('replit'))) {
+         warning.toString().includes('fsError'))) {
       return; // Suppress these specific warnings
     }
     return originalEmitWarning.call(this, warning, type, code, ctor);
   };
 }
 
-// Enhanced browser console warning suppression
+// Browser console warning suppression for Replit compatibility
 if (typeof window !== 'undefined') {
   const originalConsoleWarn = console.warn;
   console.warn = (...args) => {
     const message = args.join(' ');
     if (
       message.includes('MaxListenersExceededWarning') ||
-      message.includes('changes listeners added') ||
-      message.includes('fileSavedChanged listeners added') ||
       message.includes('EventEmitter memory leak detected') ||
+      message.includes('fileSavedChanged listeners added') ||
       message.includes('watchTextFile') ||
-      message.includes('Use emitter.setMaxListeners()') ||
-      message.includes('Possible EventEmitter memory leak') ||
-      message.includes('Request timeout for') ||
-      message.includes('LCP is slow') ||
-      message.includes('CLS is high') ||
-      message.includes('FID is slow')
+      message.includes('Use emitter.setMaxListeners()')
     ) {
-      return; // Suppress these warnings
+      return; // Suppress warnings that interfere with Replit Assistant
     }
     originalConsoleWarn.apply(console, args);
   };
 }
 
-// Initialize with lower limits to prevent overwhelming Replit Assistant
-setGlobalEventEmitterLimits(50);
+// Initialize with CONSERVATIVE limits for Replit compatibility
+setGlobalEventEmitterLimits(15);
 
-// Set up periodic cleanup to prevent memory leaks
+// Set up cleanup only when page unloads
 if (typeof window !== 'undefined') {
-  // More frequent cleanup for development environment
-  setInterval(() => {
+  window.addEventListener('beforeunload', () => {
     try {
       cleanupEventListeners();
-      // Re-apply higher limits in case they were reset
-      setGlobalEventEmitterLimits(8000);
-
-      // Specifically handle the file watchers that are causing warnings
-      const changesTargets = ['changes', 'watchTextFile', 'textFile', 'fileWatcher', 'fileSavedChanged'];
-      changesTargets.forEach(target => {
-        if ((window as any)[target] && typeof (window as any)[target].setMaxListeners === 'function') {
-          (window as any)[target].setMaxListeners(8000);
-        }
-        // Also check in replit namespace
-        if ((window as any).replit && (window as any).replit[target] &&
-            typeof (window as any).replit[target].setMaxListeners === 'function') {
-          (window as any).replit[target].setMaxListeners(8000);
-        }
-      });
     } catch (e) {
-      // Ignore cleanup errors
-    }
-  }, 15000); // Every 15 seconds for more aggressive monitoring
-
-  // Also set up immediate cleanup on page visibility change
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') {
-      try {
-        cleanupEventListeners();
-        setGlobalEventEmitterLimits(2000);
-      } catch (e) {
-        // Ignore cleanup errors
-      }
+      // Ignore cleanup errors during unload
     }
   });
-
-  // Additional monitoring for when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        setGlobalEventEmitterLimits(8000); // Even higher for DOM ready state
-      }, 1000);
-    });
-  } else {
-    // DOM is already ready
-    setTimeout(() => {
-      setGlobalEventEmitterLimits(8000);
-    }, 100);
-  }
-
-  // Set up a more aggressive initial application
-  const immediateSetup = () => {
-    setGlobalEventEmitterLimits(8000);
-
-    // Specifically handle the file watching listeners that are causing warnings
-    if (typeof window !== 'undefined') {
-      const targets = ['watchTextFile', 'changes', 'hook', 'textFile', 'fileSavedChanged'];
-      targets.forEach(target => {
-        const searchPaths = [
-          (window as any)[target],
-          (window as any).replit?.[target],
-          document[target as any],
-          (window as any).global?.[target]
-        ];
-
-        searchPaths.forEach(obj => {
-          if (obj && typeof obj.setMaxListeners === 'function') {
-            obj.setMaxListeners(8000);
-            console.log(`🔧 [Immediate] Set max listeners for ${target}: 8000`);
-          }
-        });
-      });
-    }
-  };
-
-  // Run immediately and then periodically
-  immediateSetup();
-  setTimeout(immediateSetup, 500);
-  setTimeout(immediateSetup, 2000);
 }

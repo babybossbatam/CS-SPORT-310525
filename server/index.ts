@@ -1,3 +1,4 @@
+
 import express, { type Request, Response, NextFunction } from "express";
 import logoRoutes from './routes/logoRoutes';
 import playerVerificationRoutes from './routes/playerVerificationRoutes.js';
@@ -45,20 +46,20 @@ const monitorMemory = () => {
 // Check memory every 30 seconds
 setInterval(monitorMemory, 30000);
 
-// Set reasonable limits to prevent EventEmitter warnings
-process.setMaxListeners(50);
+// Set CONSERVATIVE limits for Replit Assistant compatibility
+process.setMaxListeners(10); // Reduced from 50
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 50;
+EventEmitter.defaultMaxListeners = 10; // Reduced from 50
 
-// Set max listeners for common event emitters
+// Set max listeners for common event emitters - CONSERVATIVE
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(50);
+  process.stdout.setMaxListeners(10); // Reduced from 50
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(50);
+  process.stderr.setMaxListeners(10); // Reduced from 50
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(20);
+  process.stdin.setMaxListeners(5); // Reduced from 20
 }
 
 // Graceful shutdown handling
@@ -72,10 +73,10 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-// Prevent exit on warnings
+// Suppress warnings that interfere with Replit Assistant
 process.on('warning', (warning) => {
   if (warning.name === 'MaxListenersExceededWarning') {
-    // Suppress these warnings instead of logging
+    // Suppress these warnings to prevent Replit Assistant interference
     return;
   }
   console.warn('Process Warning:', warning.message);
@@ -89,8 +90,6 @@ setInterval(() => {
     console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
   }
 }, 1000);
-
-
 
 app.use((req, res, next) => {
   const start = Date.now();

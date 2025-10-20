@@ -1,3 +1,4 @@
+
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
@@ -17,12 +18,9 @@ import { StorageMonitor } from './lib/storageMonitor';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './lib/memoryManager'
 import './lib/workflowManager'
-import { ResourceMonitor } from './lib/resourceMonitor'
 
-// Defer resource monitoring initialization
-requestIdleCallback(() => {
-  ResourceMonitor.getInstance().init();
-}, { timeout: 3000 });
+// Remove resource monitor to prevent conflicts with Replit Assistant
+// ResourceMonitor.getInstance().init(); // REMOVED
 
 // Initialize dark mode from localStorage (keep this immediate for UI)
 const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -70,20 +68,19 @@ requestIdleCallback(() => {
   StorageMonitor.getInstance().init();
 }, { timeout: 2000 });
 
-// Set conservative EventEmitter limits to avoid overwhelming Replit Assistant
+// Set CONSERVATIVE EventEmitter limits for Replit Assistant compatibility
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(20);
+  process.setMaxListeners(10); // Reduced from 20
 }
 
-// Simple EventEmitter setup for Replit
+// Simple EventEmitter setup for Replit - MUCH lower limits
 if (typeof window !== 'undefined') {
-  // Set reasonable limits for EventEmitters
   if ((window as any).EventEmitter) {
-    (window as any).EventEmitter.defaultMaxListeners = 50;
+    (window as any).EventEmitter.defaultMaxListeners = 10; // Reduced from 50
   }
 
   if ((window as any).events?.EventEmitter) {
-    (window as any).events.EventEmitter.defaultMaxListeners = 50;
+    (window as any).events.EventEmitter.defaultMaxListeners = 10; // Reduced from 50
   }
 }
 
