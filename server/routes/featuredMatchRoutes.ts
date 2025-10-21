@@ -80,7 +80,7 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
 featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
-    const { skipFilter, season, date } = req.query;
+    const { skipFilter, season } = req.query;
     
     // Calculate current season
     const currentDate = new Date();
@@ -94,24 +94,11 @@ featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Respo
       return res.status(400).json({ message: 'Invalid league ID' });
     }
 
-    console.log(`🎯 [FeaturedMatch] Fetching league ${id} fixtures${date ? ` for date ${date}` : ''} with skipFilter=${skipFilter}`);
+    console.log(`🎯 [FeaturedMatch] Fetching league ${id} fixtures with skipFilter=${skipFilter}`);
 
-    // Use API-Football directly
-    const allFixtures = await rapidApiService.getFixturesByLeague(id, seasonYear);
-    
-    // Filter by date if provided
-    let fixtures = allFixtures;
-    if (date) {
-      const requestedDate = date as string;
-      fixtures = allFixtures.filter((fixture: any) => {
-        const fixtureDate = new Date(fixture.fixture.date);
-        const fixtureDateString = fixtureDate.toISOString().split('T')[0];
-        return fixtureDateString === requestedDate;
-      });
-      console.log(`✅ [FeaturedMatch] Filtered ${allFixtures.length} fixtures to ${fixtures.length} for date ${date}`);
-    } else {
-      console.log(`✅ [FeaturedMatch] Retrieved ${fixtures ? fixtures.length : 0} fixtures for league ${id} (NO DATE FILTER)`);
-    }
+    // Use API-Football directly without filtering
+    const fixtures = await rapidApiService.getFixturesByLeague(id, seasonYear);
+    console.log(`✅ [FeaturedMatch] Retrieved ${fixtures ? fixtures.length : 0} fixtures for league ${id} (NO FILTERING)`);
 
     res.json(fixtures);
   } catch (error) {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import MyHomeFeaturedMatchNew from "@/components/matches/MyHomeFeaturedMatchNew";
@@ -21,18 +21,6 @@ const MyRightContent: React.FC = () => {
   const [showAllLeagues, setShowAllLeagues] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<any>(null);
   const { isMobile } = useDeviceInfo();
-
-  // Delay mounting featured matches to prevent browser freeze
-  const [shouldMountFeatured, setShouldMountFeatured] = useState(false);
-
-  useEffect(() => {
-    // Delay mounting MyHomeFeaturedMatchNew to allow page to load first
-    const timer = setTimeout(() => {
-      setShouldMountFeatured(true);
-    }, 1500); // 1.5 second delay (slightly after leagues)
-
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleMatchCardClick = (fixture: any) => {
     console.log("🎯 [MyRightContent] Match selected:", {
@@ -62,7 +50,7 @@ const MyRightContent: React.FC = () => {
         style={{ height: '100%', minHeight: '100%' }}
       >
         {/* Featured Match Section - Hidden on mobile */}
-        {!isMobile && shouldMountFeatured && (
+        {!isMobile && (
         <MyHomeFeaturedMatchNew
           selectedDate={selectedDate}
           maxMatches={12}

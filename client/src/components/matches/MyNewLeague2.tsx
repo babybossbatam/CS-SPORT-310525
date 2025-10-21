@@ -633,26 +633,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // POPULAR LEAGUES - Same as PopularLeaguesList (with date filtering to prevent overload)
+  // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    39,  // Premier League (England)
-    2,   // UEFA Champions League
-    140, // La Liga (Spain)
-    37,  // World Cup
-    135, // Serie A (Italy)
-    78,  // Bundesliga (Germany)
-    4,   // Euro Championship
-    61,  // Ligue 1 (France)
-    3,   // UEFA Europa League
-    15,  // FIFA Club World Cup
-    9,   // Copa America
-    848, // UEFA Conference League
-    45,  // FA Cup (England)
-    5,   // UEFA Nations League
-    143, // Copa del Rey (Spain)
-    137, // Coppa Italia (Italy)
-    81,  // DFB Pokal (Germany)
-    307, // Saudi Pro League
+    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
+    307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
+    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
 
   // Helper function to add delay between requests
@@ -1074,7 +1059,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }, [checkStorageQuota]);
 
   // Optimized parallel fetching with priority leagues
-  const priorityLeagues = [39, 140, 135, 78, 61, 2]; // Top 6 priority leagues
+  const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Top 6 priority leagues
   const regularLeagues = leagueIds.filter(id => !priorityLeagues.includes(id));
 
   // Fetch fixtures for all leagues with parallel processing and deduplication
@@ -1118,7 +1103,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
             const response = await apiRequest(
               "GET",
-              `/api/leagues/${leagueId}/fixtures?date=${selectedDate}`,
+              `/api/leagues/${leagueId}/fixtures`,
               { signal: controller.signal }
             );
 
