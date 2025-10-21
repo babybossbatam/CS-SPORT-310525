@@ -1111,7 +1111,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
             const response = await apiRequest(
               "GET",
-              `/api/leagues/${leagueId}/fixtures`,
+              `/api/leagues/${leagueId}/fixtures?date=${selectedDate}`,
               { signal: controller.signal }
             );
 
