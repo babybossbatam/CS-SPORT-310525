@@ -824,12 +824,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const results = leagueResults;
 
-          // Process results
-          results.forEach((result) => {
-            const { fixtures: fixturesData } = result;
+        // Process results
+        results.forEach((result) => {
+          const { fixtures: fixturesData } = result;
 
-              if (Array.isArray(fixturesData)) {
-                const cachedFixtures = fixturesData
+          if (Array.isArray(fixturesData)) {
+            const cachedFixtures = fixturesData
                   .filter((fixture: any) => {
                     // Must have valid teams and NOT be live (since we already fetched live matches)
                     const hasValidTeams = isValidMatch(fixture);
