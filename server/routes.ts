@@ -847,6 +847,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // If all fails, return a minimal default set of popular leagues
         return res.json([
+
+
+  // Optimized date-based fixtures for MyNewLeague2 - reduces API calls
+  apiRouter.get(
+    "/fixtures/popular/:date",
+    async (req: Request, res: Response) => {
+      try {
+        const { date } = req.params;
+        const priorityLeagues = [39, 140, 78, 135, 2, 3, 15, 848, 32, 10, 11, 22, 71, 253, 667]; // Same as MyNewLeague2
+
+        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} priority leagues`);
+
+        // Use the existing date endpoint but filter by priority leagues
+        const response = await rapidApiService.getFixturesByDate(date, true);
+        
+        if (!response || !Array.isArray(response)) {
+          return res.json([]);
+        }
+
+        // Filter to only priority leagues
+        const priorityFixtures = response.filter(fixture => 
+          fixture.league && priorityLeagues.includes(fixture.league.id)
+        );
+
+        console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
+
+        res.json(priorityFixtures);
+      } catch (error) {
+        console.error(`❌ [PopularFixtures] Error:`, error);
+        res.status(500).json({ 
+          error: "Failed to fetch popular fixtures",
+          details: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
+  );
+
+
           {
             league: {
               id: 39,
