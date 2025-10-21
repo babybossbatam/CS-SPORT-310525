@@ -27,50 +27,7 @@ import { useTranslation, useLanguage } from "@/contexts/LanguageContext";
 import { smartLeagueCountryTranslation } from "@/lib/smartLeagueCountryTranslation";
 
 import { RoundBadge } from "@/components/ui/round-badge";
-import MatchCard from "./MatchCard";
-
-// Global request cache for deduplication
-const requestCache = new Map<string, Promise<any>>();
-const requestTimestamps = new Map<string, number>();
-const CACHE_DURATION = 30000; // 30 seconds
-
-// Deduplication helper
-const makeDedupedRequest = async (url: string, options = {}) => {
-  const now = Date.now();
-  const lastRequest = requestTimestamps.get(url);
-
-  // If we have a cached request and it's still fresh, return it
-  if (requestCache.has(url) && lastRequest && (now - lastRequest) < CACHE_DURATION) {
-    console.log(`🔄 [Deduped] Using cached request for: ${url}`);
-    return requestCache.get(url);
-  }
-
-  // Clear old cache entry if it exists
-  if (requestCache.has(url)) {
-    requestCache.delete(url);
-    requestTimestamps.delete(url);
-  }
-
-  console.log(`🆕 [New Request] Making fresh request to: ${url}`);
-
-  // Create new request and cache it
-  const requestPromise = apiRequest("GET", url, options);
-  requestCache.set(url, requestPromise);
-  requestTimestamps.set(url, now);
-
-  // Clean up cache after request completes
-  requestPromise.finally(() => {
-    setTimeout(() => {
-      // Only delete if the timestamp matches the current one (prevents race conditions)
-      if (requestTimestamps.get(url) === now) {
-        requestCache.delete(url);
-        requestTimestamps.delete(url);
-      }
-    }, CACHE_DURATION);
-  });
-
-  return requestPromise;
-};
+import MatchCard from "./MatchCard"; // Assuming MatchCard component exists
 
 // Popular teams data from the same source as PopularTeamsList
 const POPULAR_TEAMS_DATA = [
@@ -87,6 +44,7 @@ const POPULAR_TEAMS_DATA = [
   { id: 492, name: "Inter", country: "Italy" },
   { id: 496, name: "Juventus", country: "Italy" },
   { id: 165, name: "Borussia Dortmund", country: "Germany" },
+
   { id: 168, name: "Bayer Leverkusen", country: "Germany" },
   { id: 81, name: "PSG", country: "France" },
   { id: 85, name: "Lyon", country: "France" },
@@ -101,24 +59,27 @@ const POPULAR_TEAMS_DATA = [
   { id: 211, name: "Porto", country: "Portugal" },
   { id: 212, name: "Benfica", country: "Portugal" },
   { id: 228, name: "Sporting CP", country: "Portugal" },
+  // Additional popular teams from various leagues
   { id: 502, name: "Napoli", country: "Italy" },
   { id: 500, name: "AS Roma", country: "Italy" },
   { id: 505, name: "Lazio", country: "Italy" },
+
+  // Popular reserve/academy teams
   { id: 1859, name: "Bayern München II", country: "Germany" },
   { id: 1860, name: "Borussia Dortmund II", country: "Germany" },
   { id: 8572, name: "Jong PSV", country: "Netherlands" },
   { id: 8564, name: "Jong Ajax", country: "Netherlands" },
 ];
 
-// Elite teams for Champions League
+// Elite teams for Champions League - only the most popular clubs
 const CHAMPIONS_LEAGUE_ELITE_TEAMS = [
-  33, 40, 50, 42, 49, // Premier League elite
-  541, 529, 548, // La Liga elite
-  157, 165, 168, // Bundesliga elite
-  489, 492, 496, 502, // Serie A elite
-  81, // Ligue 1 elite
-  610, 194, // Eredivisie elite
-  211, 212, 228, // Primeira Liga elite
+  33, 40, 50, 42, 49, // Premier League elite: Man United, Liverpool, Man City, Arsenal, Chelsea
+  541, 529, 548, // La Liga elite: Real Madrid, Barcelona, Atletico Madrid
+  157, 165, 168, // Bundesliga elite: Bayern Munich, Borussia Dortmund, Bayer Leverkusen
+  489, 492, 496, 502, // Serie A elite: AC Milan, Inter, Juventus, Napoli
+  81, // Ligue 1 elite: PSG
+  610, 194, // Eredivisie elite: Ajax, PSV
+  211, 212, 228, // Primeira Liga elite: Porto, Benfica, Sporting CP
 ];
 
 const POPULAR_TEAM_IDS = POPULAR_TEAMS_DATA.map((team) => team.id);
@@ -126,32 +87,87 @@ const POPULAR_TEAM_NAMES = POPULAR_TEAMS_DATA.map((team) =>
   team.name.toLowerCase(),
 );
 
+// Popular team keywords for enhanced matching
 const POPULAR_TEAM_KEYWORDS = [
-  "realmadrid", "barcelona", "manchestercity", "manchesterunited", "manchester",
-  "bayernmunich", "bayern", "juventus", "psg", "paris saint-germain", "paris saint germain",
-  "liverpool", "arsenal", "chelsea", "atleticomadrid", "atletico", "tottenham",
-  "ac milan", "inter milan", "inter", "napoli", "roma", "as roma",
-  "borussiadortmund", "borussia", "dortmund", "rbleipzig", "leipzig",
-  "bayerleverkusen", "leverkusen", "lyon", "olympique lyonnais", "marseille",
-  "olympique marseille", "monaco", "as monaco", "sevilla", "valencia", "villarreal",
-  "ajax", "feyenoord", "psveindhoven", "psv", "porto", "fcporto", "benfica",
-  "slbenfica", "sportingcp", "sportinglisbon", "sporting", "fenerbahce",
-  "galatasaray", "besiktas", "trabzonspor", "millwall", "southampton", "elche",
-  "valencia", "newcastle", "westham", "brighton", "brentford",
+  "realmadrid",
+  "barcelona",
+  "manchestercity",
+  "manchesterunited",
+  "manchester",
+  "bayernmunich",
+  "bayern",
+  "juventus",
+  "psg",
+  "paris saint-germain",
+  "paris saint germain",
+  "liverpool",
+  "arsenal",
+  "chelsea",
+  "atleticomadrid",
+  "atletico",
+  "tottenham",
+  "ac milan",
+  "inter milan",
+  "inter",
+  "napoli",
+  "roma",
+  "as roma",
+  "borussiadortmund",
+  "borussia",
+  "dortmund",
+  "rbleipzig",
+  "leipzig",
+  "bayerleverkusen",
+  "leverkusen",
+  "lyon",
+  "olympique lyonnais",
+  "marseille",
+  "olympique marseille",
+  "monaco",
+  "as monaco",
+  "sevilla",
+  "valencia",
+  "villarreal",
+  "ajax",
+  "feyenoord",
+  "psveindhoven",
+  "psv",
+  "porto",
+  "fcporto",
+  "benfica",
+  "slbenfica",
+  "sportingcp",
+  "sportinglisbon",
+  "sporting",
+  "fenerbahce",
+  "galatasaray",
+  "besiktas",
+  "trabzonspor",
+  "millwall",
+  "southampton",
+  "elche",
+  "valencia",
+  "newcastle",
+  "westham",
+  "brighton",
+  "brentford",
 ];
 
+// Helper function to check if a match involves popular teams
 const isPopularTeamMatch = (
   homeTeam: string,
   awayTeam: string,
   homeTeamId?: number,
   awayTeamId?: number,
-  leagueId?: number,
+  leagueId?: number, // Added leagueId parameter
 ): boolean => {
-  const isChampionsLeague = leagueId === 2;
+  // If it's Champions League, only consider elite teams
+  const isChampionsLeague = leagueId === 2; // Assuming League ID 2 is Champions League
   const popularIdsToCheck = isChampionsLeague
     ? CHAMPIONS_LEAGUE_ELITE_TEAMS
     : POPULAR_TEAM_IDS;
 
+  // First check by team ID (most accurate)
   if (homeTeamId && awayTeamId) {
     const hasPopularTeamById =
       popularIdsToCheck.includes(homeTeamId) ||
@@ -161,6 +177,7 @@ const isPopularTeamMatch = (
     }
   }
 
+  // Fallback to name matching
   const homeTeamLower = homeTeam.toLowerCase();
   const awayTeamLower = awayTeam.toLowerCase();
 
@@ -181,6 +198,7 @@ const isPopularTeamMatch = (
     return true;
   }
 
+  // Enhanced keyword-based matching (can also be made league-specific if needed)
   const hasKeywordMatch = POPULAR_TEAM_KEYWORDS.some(
     (keyword) =>
       homeTeamLower.includes(keyword) || awayTeamLower.includes(keyword),
@@ -188,13 +206,13 @@ const isPopularTeamMatch = (
 
   return hasKeywordMatch;
 };
-
 interface MyHomeFeaturedMatchNewProps {
   selectedDate: string;
   maxMatches?: number;
   onMatchCardClick?: (fixture: any) => void;
 }
 
+// Popular leagues from PopularLeaguesList.tsx
 const POPULAR_LEAGUES = [
   { id: 39, name: "Premier League", country: "England" },
   { id: 140, name: "La Liga", country: "Spain" },
@@ -213,15 +231,17 @@ const POPULAR_LEAGUES = [
   { id: 667, name: "Friendlies Clubs", country: "World" },
 ];
 
+// Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
+// Premier League (39) is prioritized first
 const FEATURED_MATCH_LEAGUE_IDS = [
   39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
 ];
 
+// Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180, 67, 68, 69,
-];
-
-const PRIORITY_LEAGUE_IDS = [39, 140, 78, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531];
+]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup, National 2 - Group A
+const PRIORITY_LEAGUE_IDS = [39, 140, 78, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -299,6 +319,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   maxMatches = 6,
   onMatchCardClick,
 }) => {
+  // Add CSS for truePulse animation
   const truePulseStyle = `
     @keyframes truePulse {
       0%, 100% {
@@ -310,6 +331,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   `;
 
+  // Inject styles if not already present
   React.useEffect(() => {
     const styleId = "truePulse-animation";
     if (!document.getElementById(styleId)) {
@@ -319,7 +341,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       document.head.appendChild(style);
     }
   }, []);
-
   const [, navigate] = useLocation();
   const [featuredMatches, setFeaturedMatches] = useState<DayMatches[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -344,33 +365,38 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const mountedRef = useRef(false);
   const selectiveUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Function to manage selective updates for matches
   const manageSelectiveUpdates = useCallback(() => {
+    // Clear existing interval if any
     if (selectiveUpdateIntervalRef.current) {
       clearInterval(selectiveUpdateIntervalRef.current);
     }
 
+    // Set a new interval for periodic updates (e.g., every 30 seconds)
     selectiveUpdateIntervalRef.current = setInterval(() => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current) return; // Prevent updates if component is unmounted
 
       setFeaturedMatches((prevMatches) => {
         const updatedMatches = prevMatches.map((dayData) => ({
           ...dayData,
           matches: dayData.matches.map((match) => {
+            // Check if this match is live and needs an update
             const status = match.fixture.status.short;
             const isLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
 
             if (isLive) {
-              // Using makeDedupedRequest for live match updates as well
-              makeDedupedRequest(`/api/fixtures/${match.fixture.id}`)
+              // Fetch real-time data for live matches
+              fetch(`/api/fixtures/${match.fixture.id}`) // Assuming an endpoint for individual fixture updates
                 .then((res) => res.json())
                 .then((data: Partial<FeaturedMatch>) => {
+                  // Update the liveMatchData state for selective rendering
                   setLiveMatchData((prevData) => {
                     const newData = new Map(prevData);
                     newData.set(match.fixture.id, {
                       goals: data.goals,
                       fixture: {
                         ...match.fixture,
-                        status: data.fixture?.status || match.fixture.status,
+                        status: data.fixture?.status || match.fixture.status, // Ensure status is updated
                       },
                     });
                     return newData;
@@ -378,13 +404,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 })
                 .catch((error) => console.error("Error fetching live match data:", error));
             }
-            return match;
+            return match; // Return the original match data if not live
           }),
         }));
         return updatedMatches;
       });
-    }, 30000);
-  }, []);
+    }, 30000); // Update every 30 seconds
+  }, []); // Dependencies: none, as it relies on its own interval logic
 
   const fetchRoundsForLeague = useCallback(
     async (leagueId: number, season: number) => {
@@ -394,7 +420,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
 
       try {
-        const response = await makeDedupedRequest(
+        const response = await apiRequest(
+          "GET",
           `/api/fixtures/rounds?league=${leagueId}&season=${season}`,
         );
         const rounds = await response.json();
@@ -413,6 +440,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [roundsCache],
   );
 
+  // Check if a match ended more than 2 hours ago (performance optimization)
   const isMatchOldEnded = useCallback((fixture: any): boolean => {
     const status = fixture.fixture?.status?.short;
     const isEnded = [
@@ -431,13 +459,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     const matchDate = new Date(fixture.fixture.date);
     const hoursAgo = (Date.now() - matchDate.getTime()) / (1000 * 60 * 60);
 
+    // Use 2-hour rule for better performance
     return hoursAgo > 2;
   }, []);
 
+  // Cache key for ended matches
   const getCacheKey = useCallback((date: string, leagueId: number) => {
     return `ended_matches_${date}_${leagueId}`;
   }, []);
 
+  // Get cached ended matches with strict date validation
   const getCachedEndedMatches = useCallback(
     (date: string, leagueId: number): any[] => {
       try {
@@ -448,6 +479,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         const { fixtures, timestamp, date: cachedDate } = JSON.parse(cached);
 
+        // CRITICAL: Ensure cached date exactly matches requested date
         if (cachedDate !== date) {
           console.log(
             `🚨 [MyHomeFeaturedMatchNew] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`,
@@ -456,10 +488,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return [];
         }
 
+        // Check cache age (24 hours max for ended matches)
         const cacheAge = Date.now() - timestamp;
-        const maxAge = 24 * 60 * 60 * 1000;
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
 
         if (cacheAge < maxAge) {
+          // Validate all fixtures are still old ended matches
           const validFixtures = fixtures.filter((fixture: any) =>
             isMatchOldEnded(fixture),
           );
@@ -469,6 +503,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           );
           return validFixtures;
         } else {
+          // Remove expired cache
           localStorage.removeItem(cacheKey);
           console.log(
             `⏰ [MyHomeFeaturedMatchNew] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
@@ -476,6 +511,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
       } catch (error) {
         console.error("Error reading cached ended matches:", error);
+        // Clear corrupted cache
         const cacheKey = getCacheKey(date, leagueId);
         localStorage.removeItem(cacheKey);
       }
@@ -485,6 +521,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [getCacheKey, isMatchOldEnded],
   );
 
+  // Cache ended matches
   const cacheEndedMatches = useCallback(
     (date: string, leagueId: number, fixtures: any[]) => {
       try {
@@ -514,14 +551,16 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
       try {
+        // Only show loading on initial load or force refresh
         if (forceRefresh || featuredMatches.length === 0) {
           setIsLoading(true);
         }
 
         const now = new Date();
+        // ENHANCED cache refresh logic - prioritize live matches and status transitions
         const shouldRefresh =
             forceRefresh ||
-            featuredMatches.length === 0 ||
+            featuredMatches.length === 0 || // Always refresh if no matches
             featuredMatches.some((dayData) =>
               dayData.matches.some((match) => {
                 const status = match.fixture.status.short;
@@ -530,10 +569,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   (now.getTime() - matchDate.getTime()) / (1000 * 60);
                 const hoursFromKickoff = minutesFromKickoff / 60;
 
+                // Check if it's today's match
                 const matchDateLocal = format(matchDate, "yyyy-MM-dd");
                 const todayLocal = format(now, "yyyy-MM-dd");
                 const isToday = matchDateLocal === todayLocal;
 
+                // PRIORITY 1: Always refresh for live matches
                 const isLive = [
                   "LIVE",
                   "LIV",
@@ -546,11 +587,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   "INT",
                 ].includes(status);
 
+                // PRIORITY 2: Matches that should have started (potential status transition)
                 const shouldHaveStarted = status === "NS" && minutesFromKickoff > 0;
+
+                // PRIORITY 3: Today's matches (any status)
                 const isTodaysMatch = isToday;
+
+                // PRIORITY 4: Recently ended matches (within 24 hours)
                 const isRecentlyEndedMatch =
                   ["FT", "AET", "PEN"].includes(status) &&
                   Math.abs(hoursFromKickoff) <= 24;
+
+                // PRIORITY 5: Upcoming matches within 2 hours (more aggressive)
                 const isUpcomingSoon =
                   status === "NS" && Math.abs(minutesFromKickoff) <= 120;
 
@@ -563,7 +611,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 if (shouldRefreshMatch) {
                   console.log(
-                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status})`,
+                    `🔄 [REFRESH TRIGGER] Match: ${match.teams.home.name} vs ${match.teams.away.name} (${status}) - Live: ${isLive}, ShouldStart: ${shouldHaveStarted}, Today: ${isTodaysMatch}`,
                   );
                 }
 
@@ -571,6 +619,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               }),
             );
 
+        // Get dates for today and the next 4 days
         const today = new Date();
         const dates = [
           { date: format(today, "yyyy-MM-dd"), label: "Today" },
@@ -589,116 +638,534 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           },
         ];
 
+        // Use priority leagues from our clean list
         const priorityLeagueIds = PRIORITY_LEAGUE_IDS;
         const allFixtures: FeaturedMatch[] = [];
 
         console.log(
-          "🔍 [MyHomeFeaturedMatchNew] Starting PARALLEL fetch with priority leagues:",
+          "🔍 [MyHomeFeaturedMatchNew] Starting fetch with priority leagues:",
           priorityLeagueIds,
         );
+        console.log(
+          "🔍 [MyHomeFeaturedMatchNew] All featured league IDs:",
+          FEATURED_MATCH_LEAGUE_IDS,
+        );
 
+        // Helper function to determine if match is live
         const isLiveMatch = (status: string) => {
           return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(
             status,
           );
         };
 
+        // Helper function to determine if match is ended
+        const isEndedMatch = (status: string) => {
+          return [
+            "FT",
+            "AET",
+            "PEN",
+            "AWD",
+            "WO",
+            "ABD",
+            "CANC",
+            "SUSP",
+          ].includes(status);
+        };
+
+        // Helper function to determine if match is upcoming
+        const isUpcomingMatch = (status: string) => {
+          return ["NS", "TBD", "PST"].includes(status);
+        };
+
+        // Simple validation - only check for valid team names
         const isValidMatch = (fixture: any) => {
           return !!(fixture?.teams?.home?.name && fixture?.teams?.away?.name);
         };
 
-        // 🚀 PARALLEL FETCH - Fetch live matches
+        // Fetch live matches from API for real-time updates - ALWAYS fetch for status transitions
         let liveFixtures: FeaturedMatch[] = [];
-        const livePromise = makeDedupedRequest("/api/featured-match/live?skipFilter=true")
-          .then(async (response) => {
-            const liveData = await response.json();
+        try {
+          console.log(
+            "🔴 [MyHomeFeaturedMatchNew] Fetching live matches for status transitions",
+          );
+          const liveResponse = await apiRequest(
+            "GET",
+            "/api/featured-match/live?skipFilter=true",
+          );
+          const liveData = await liveResponse.json();
 
-            if (Array.isArray(liveData)) {
-              console.log("🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:", liveData.length);
+          if (Array.isArray(liveData)) {
+            console.log(
+              "🔍 [MyHomeFeaturedMatchNew] Processing live fixtures:",
+              liveData.length,
+            );
 
-              const featuredLiveFixtures = liveData.filter((fixture) =>
-                FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id),
+            // First filter by featured leagues, then by valid teams
+            const featuredLiveFixtures = liveData.filter((fixture) =>
+              FEATURED_MATCH_LEAGUE_IDS.includes(fixture.league?.id),
+            );
+
+            console.log(
+              "🔍 [MyHomeFeaturedMatchNew] Featured live fixtures:",
+              featuredLiveFixtures.length,
+            );
+
+            liveFixtures = featuredLiveFixtures
+              .filter((fixture: any) => {
+                const isValid = isValidMatch(fixture);
+                if (!isValid) {
+                  console.log(
+                    "❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture:",
+                    {
+                      home: fixture.teams?.home?.name,
+                      away: fixture.teams?.away?.name,
+                      league: fixture.league?.name,
+                    },
+                  );
+                } else {
+                  console.log(
+                    "✅ [MyHomeFeaturedMatchNew] Valid featured live fixture:",
+                    {
+                      home: fixture.teams?.home?.name,
+                      away: fixture.teams?.away?.name,
+                      league: fixture.league?.name,
+                      leagueId: fixture.league?.id,
+                    },
+                  );
+                }
+                return isValid;
+              })
+              .map((fixture: any) => ({
+                fixture: {
+                  id: fixture.fixture.id,
+                  date: fixture.fixture.date,
+                  status: fixture.fixture.status,
+                  venue: fixture.fixture.venue,
+                },
+                league: {
+                  id: fixture.league.id,
+                  name: fixture.league.name,
+                  country: fixture.league.country,
+                  logo: fixture.league.logo,
+                  round: fixture.league.round,
+                },
+                teams: {
+                  home: {
+                    id: fixture.teams.home.id,
+                    name: fixture.teams.home.name,
+                    logo: fixture.teams.home.logo,
+                  },
+                  away: {
+                    id: fixture.teams.away.id,
+                    name: fixture.teams.away.name,
+                    logo: fixture.teams.away.logo,
+                  },
+                },
+                goals: {
+                  home: fixture.goals?.home ?? null,
+                  away: fixture.goals?.away ?? null,
+                },
+                venue: fixture.venue,
+              }));
+          }
+          console.log(
+            `✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches (including all live matches regardless of league)`,
+          );
+        } catch (error) {
+          console.error(
+            "❌ [MyHomeFeaturedMatchNew] Error fetching live matches:",
+            error,
+          );
+        }
+
+        allFixtures.push(...liveFixtures);
+
+        // Fetch non-live matches from cached data with smart refresh logic
+        if (shouldRefresh || allFixtures.length === 0) {
+          // Fetch non-live matches from cached data (priority leagues)
+          for (const leagueId of priorityLeagueIds) {
+            try {
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
               );
 
-              liveFixtures = featuredLiveFixtures
-                .filter((fixture: any) => {
-                  const isValid = isValidMatch(fixture);
-                  if (!isValid) {
-                    console.log("❌ [MyHomeFeaturedMatchNew] Filtered out invalid fixture");
-                  }
-                  return isValid;
-                })
-                .map((fixture: any) => ({
-                  fixture: {
-                    id: fixture.fixture.id,
-                    date: fixture.fixture.date,
-                    status: fixture.fixture.status,
-                    venue: fixture.fixture.venue,
-                  },
-                  league: {
-                    id: fixture.league.id,
-                    name: fixture.league.name,
-                    country: fixture.league.country,
-                    logo: fixture.league.logo,
-                    round: fixture.league.round,
-                  },
-                  teams: {
-                    home: {
-                      id: fixture.teams.home.id,
-                      name: fixture.teams.home.name,
-                      logo: fixture.teams.home.logo,
+              const fixturesResponse = await apiRequest(
+                "GET",
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+              );
+              const fixturesData = await fixturesResponse.json();
+
+              if (Array.isArray(fixturesData)) {
+                const cachedFixtures = fixturesData
+                  .filter((fixture: any) => {
+                    // Must have valid teams and NOT be live (since we already fetched live matches)
+                    const hasValidTeams = isValidMatch(fixture);
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+
+                    // CRITICAL: Exclude matches that ended more than 8 hours ago
+                    const isOldEnded = isMatchOldEnded(fixture);
+                    if (isOldEnded) {
+                      console.log(
+                        `⏰ [MyHomeFeaturedMatchNew] Excluding old ended match (${fixture.fixture.status.short}):`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                        },
+                      );
+                      return false;
+                    }
+
+                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    const matchDate = new Date(fixture.fixture.date);
+                    const minutesFromKickoff =
+                      (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const hoursFromKickoff = minutesFromKickoff / 60;
+                    const status = fixture.fixture.status.short;
+
+                    // CRITICAL: Never exclude live matches regardless of time discrepancies
+                    const isCurrentlyLive = [
+                      "LIVE",
+                      "LIV",
+                      "1H",
+                      "2H",
+                      "HT",
+                      "ET",
+                      "BT",
+                      "P",
+                      "INT",
+                    ].includes(status);
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName =
+                      fixture.league?.name?.toLowerCase() || "";
+                    const country =
+                      fixture.league?.country?.toLowerCase() || "";
+
+                    // EXPLICIT EXCLUSION: UEFA Europa Conference League and Regionalliga - Bayern
+                    const isExplicitlyExcluded =
+                      EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(
+                        fixture.league?.id,
+                      );
+
+                    // Exclude women's competitions
+                    const isWomensCompetition =
+                      leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague =
+                      leagueName.includes("regionalliga") ||
+                      leagueName.includes("regional liga");
+                    const is3Liga =
+                      leagueName.includes("3. liga") ||
+                      leagueName.includes("3 liga");
+
+                    // Exclude Tercera División RFEF and Segunda División RFEF leagues (Spanish regional/lower leagues)
+                    const isTerceraRFEF =
+                      leagueName.includes("tercera división rfef") ||
+                      leagueName.includes("tercera division rfef") ||
+                      leagueName.includes("tercera rfef");
+
+                    const isSegundaRFEF =
+                      leagueName.includes("segunda división rfef") ||
+                      leagueName.includes("segunda division rfef") ||
+                      leagueName.includes("segunda rfef");
+
+                    // Exclude Serie D leagues (Italian regional/lower leagues)
+                    const isSerieD =
+                      leagueName.includes("serie d") ||
+                      leagueName.includes("serie d -") ||
+                      leagueName.includes("serie d girone");
+
+                    // Exclude Serie C leagues (Italian lower division leagues)
+                    const isSerieC =
+                      leagueName.includes("serie c") ||
+                      leagueName.includes("serie c -") ||
+                      leagueName.includes("serie c girone") ||
+                      leagueName.includes("girone a") ||
+                      leagueName.includes("girone b") ||
+                      leagueName.includes("girone c");
+
+                    // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
+                    const isPrimeraRFEF =
+                      leagueName.includes("primera división rfef") ||
+                      leagueName.includes("primera division rfef") ||
+                      leagueName.includes("primera rfef");
+
+                    // Check for various types of conflicting data (excluding live matches)
+                    let hasConflictingData = false;
+                    let conflictReason = "";
+
+                    // 1. Ended status but match is far in future (more than 12 hours away)
+                    if (
+                      minutesFromKickoff < -720 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `ended status (${status}) for future match`;
+                    }
+
+                    // 2. "Not Started" status but match is more than 2 hours past kickoff
+                    if (
+                      minutesFromKickoff > 120 &&
+                      ["NS", "TBD", "PST"].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `not started status (${status}) for overdue match`;
+                    }
+
+                    // 3. Ended match that's more than 8 hours old (stale ended matches for featured)
+                    if (
+                      hoursFromKickoff > 8 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `stale ended match (${status}) more than 8 hours old`;
+                    }
+
+                    if (hasConflictingData) {
+                      console.log(
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                          status: status,
+                          hoursFromNow: hoursFromKickoff.toFixed(1),
+                          conflictReason: conflictReason,
+                        },
+                      );
+                      return false;
+                    }
+
+                    // Exclude Non League Premier leagues
+                    const isNonLeaguePremier =
+                      leagueName.includes("non league premier");
+
+                    const shouldInclude =
+                      hasValidTeams &&
+                      isNotLive &&
+                      !isWomensCompetition &&
+                      !isOberligaLeague &&
+                      !isRegionalligaLeague &&
+                      !is3Liga &&
+                      !isTerceraRFEF &&
+                      !isSegundaRFEF &&
+                      !isSerieD &&
+                      !isSerieC &&
+                      !isPrimeraRFEF &&
+                      !isExplicitlyExcluded &&
+                      !isNonLeaguePremier;
+
+                    if (shouldInclude) {
+                      console.log(
+                        `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                          status: fixture.fixture.status.short,
+                        },
+                      );
+                    } else if (isWomensCompetition) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding women's competition:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isOberligaLeague) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Oberliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isRegionalligaLeague) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Regionalliga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (is3Liga) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding 3. Liga league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isTerceraRFEF) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Tercera División RFEF league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isSegundaRFEF) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Segunda División RFEF league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isSerieD) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Serie D league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isSerieC) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Serie C league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isPrimeraRFEF) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Primera División RFEF league:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    } else if (isNonLeaguePremier) {
+                      console.log(
+                        `❌ [MyHomeFeaturedMatchNew] Excluding Non League Premier:`,
+                        {
+                          league: fixture.league?.name,
+                          leagueId: fixture.league?.id,
+                        },
+                      );
+                    }
+
+                    return shouldInclude;
+                  })
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
                     },
-                    away: {
-                      id: fixture.teams.away.id,
-                      name: fixture.teams.away.name,
-                      logo: fixture.teams.away.logo,
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
                     },
-                  },
-                  goals: {
-                    home: fixture.goals?.home ?? null,
-                    away: fixture.goals?.away ?? null,
-                  },
-                  venue: fixture.venue,
-                }));
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  }));
+
+                allFixtures.push(...cachedFixtures);
+              }
+            } catch (leagueError) {
+              console.warn(
+                `Failed to fetch cached data for league ${leagueId}:`,
+                leagueError,
+              );
             }
-            console.log(`✅ [MyHomeFeaturedMatchNew] Found ${liveFixtures.length} live matches`);
-          })
-          .catch((error) => {
-            console.error("❌ [MyHomeFeaturedMatchNew] Error fetching live matches:", error);
-          });
+          }
 
-        // 🚀 PARALLEL FETCH - Fetch all priority leagues in parallel
-        const leaguePromises = priorityLeagueIds.map(async (leagueId) => {
+          // Fetch popular team friendlies from Friendlies Clubs league (667)
           try {
-            console.log(`🔍 [MyHomeFeaturedMatchNew] PARALLEL fetch for league ${leagueId}`);
-
-            const response = await makeDedupedRequest(
-              `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+            console.log(
+              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
             );
-            const fixturesData = await response.json();
 
-            if (Array.isArray(fixturesData)) {
-              const cachedFixtures = fixturesData
+            const friendliesResponse = await apiRequest(
+              "GET",
+              `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
+            );
+            const friendliesData = await friendliesResponse.json();
+
+            if (Array.isArray(friendliesData)) {
+              const popularFriendlies = friendliesData
                 .filter((fixture: any) => {
+                  // Must have valid teams and NOT be live
                   const hasValidTeams = isValidMatch(fixture);
                   const isNotLive = !isLiveMatch(fixture.fixture.status.short);
-                  const isOldEnded = isMatchOldEnded(fixture);
 
-                  if (isOldEnded) {
+                  if (!hasValidTeams || !isNotLive) {
                     return false;
                   }
 
-                  const leagueName = fixture.league?.name?.toLowerCase() || "";
-                  const isExplicitlyExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id);
+                  // Check if it involves popular teams
+                  const homeTeamId = fixture.teams?.home?.id;
+                  const awayTeamId = fixture.teams?.away?.id;
+                  const homeTeam = fixture.teams?.home?.name || "";
+                  const awayTeam = fixture.teams?.away?.name || "";
 
-                  const isWomensCompetition = leagueName.includes("women");
-                  const shouldInclude = hasValidTeams && isNotLive && !isWomensCompetition && !isExplicitlyExcluded;
+                  const isPopular = isPopularTeamMatch(
+                    homeTeam,
+                    awayTeam,
+                    homeTeamId,
+                    awayTeamId,
+                    fixture.league?.id, // Pass league ID
+                  );
 
-                  if (shouldInclude) {
-                    console.log(`✅ [PARALLEL] Including league ${leagueId} fixture`);
+                  if (isPopular) {
+                    console.log(
+                      `🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                    );
+                    return true;
                   }
 
-                  return shouldInclude;
+                  return false;
                 })
                 .map((fixture: any) => ({
                   fixture: {
@@ -733,119 +1200,676 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                   venue: fixture.venue,
                 }));
 
-              return cachedFixtures;
+              console.log(
+                `🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`,
+              );
+              allFixtures.push(...popularFriendlies);
             }
-            return [];
-          } catch (leagueError) {
-            console.warn(`Failed to fetch league ${leagueId}:`, leagueError);
-            return [];
-          }
-        });
-
-        // 🚀 PARALLEL FETCH - Fetch date-based fixtures in parallel
-        const datePromises = dates.map(async (dateInfo) => {
-          try {
-            console.log(`🔍 [PARALLEL] Fetching date fixtures for ${dateInfo.label}: ${dateInfo.date}`);
-
-            const response = await makeDedupedRequest(
-              `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+          } catch (friendliesError) {
+            console.warn(
+              `Failed to fetch Friendlies Clubs data:`,
+              friendliesError,
             );
-            const fixtures = await response.json();
-
-            if (Array.isArray(fixtures)) {
-              const cachedFixtures = fixtures
-                .filter((fixture: any) => {
-                  const hasValidTeams = isValidMatch(fixture);
-                  const isNotLive = !isLiveMatch(fixture.fixture.status.short);
-                  const isNotPriorityLeague = !priorityLeagueIds.includes(fixture.league?.id);
-
-                  const leagueName = fixture.league?.name?.toLowerCase() || "";
-                  const country = fixture.league?.country?.toLowerCase() || "";
-
-                  const isWomensCompetition = leagueName.includes("women");
-                  const isPopularLeague = POPULAR_LEAGUES.some((league) => league.id === fixture.league?.id);
-                  const isFromPopularCountry = POPULAR_LEAGUES.some((league) => league.country.toLowerCase() === country);
-                  const isInternationalCompetition = leagueName.includes("champions league") ||
-                    leagueName.includes("europa league") || leagueName.includes("uefa") ||
-                    leagueName.includes("world cup") || country.includes("world") || country.includes("europe");
-
-                  return (
-                    hasValidTeams &&
-                    isNotLive &&
-                    isNotPriorityLeague &&
-                    !isWomensCompetition &&
-                    (isPopularLeague || isFromPopularCountry || isInternationalCompetition)
-                  );
-                })
-                .map((fixture: any) => ({
-                  fixture: {
-                    id: fixture.fixture.id,
-                    date: fixture.fixture.date,
-                    status: fixture.fixture.status,
-                    venue: fixture.fixture.venue,
-                  },
-                  league: {
-                    id: fixture.league.id,
-                    name: fixture.league.name,
-                    country: fixture.league.country,
-                    logo: fixture.league.logo,
-                    round: fixture.league.round,
-                  },
-                  teams: {
-                    home: {
-                      id: fixture.teams.home.id,
-                      name: fixture.teams.home.name,
-                      logo: fixture.teams.home.logo,
-                    },
-                    away: {
-                      id: fixture.teams.away.id,
-                      name: fixture.teams.away.name,
-                      logo: fixture.teams.away.logo,
-                    },
-                  },
-                  goals: {
-                    home: fixture.goals?.home ?? null,
-                    away: fixture.goals?.away ?? null,
-                  },
-                  venue: fixture.venue,
-                }));
-
-              return cachedFixtures;
-            }
-            return [];
-          } catch (error) {
-            console.error(`❌ [PARALLEL] Error fetching date fixtures for ${dateInfo.label}:`, error);
-            return [];
           }
-        });
 
-        // 🚀 WAIT FOR ALL PARALLEL REQUESTS TO COMPLETE
-        console.log("⏳ [PARALLEL] Waiting for all parallel requests to complete...");
-        const [, leagueResults, dateResults] = await Promise.all([
-          livePromise,
-          Promise.all(leaguePromises),
-          Promise.all(datePromises),
-        ]);
+          // Fetch non-live matches from cached date-based data
+          for (const dateInfo of dates) {
+            try {
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for ${dateInfo.label}: ${dateInfo.date}`,
+              );
 
-        // Combine all results
-        allFixtures.push(...liveFixtures);
-        leagueResults.forEach(fixtures => allFixtures.push(...fixtures));
-        dateResults.forEach(fixtures => allFixtures.push(...fixtures));
+              const response = await apiRequest(
+                "GET",
+                `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+              );
+              const fixtures = await response.json();
 
-        // Remove duplicates
+              if (fixtures?.length) {
+                const cachedFixtures = fixtures
+                  .filter((fixture: any) => {
+                    // Must have valid teams, be from popular leagues, not priority leagues, and NOT be live
+                    const hasValidTeams =
+                      fixture.teams?.home?.name && fixture.teams?.away?.name;
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+                    const isNotPriorityLeague = !priorityLeagueIds.includes(
+                      fixture.league?.id,
+                    );
+
+                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    const matchDate = new Date(fixture.fixture.date);
+                    const minutesFromKickoff =
+                      (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const hoursFromKickoff = minutesFromKickoff / 60;
+                    const status = fixture.fixture.status.short;
+
+                    // CRITICAL: Never exclude live matches regardless of time discrepancies
+                    const isCurrentlyLive = [
+                      "LIVE",
+                      "LIV",
+                      "1H",
+                      "2H",
+                      "HT",
+                      "ET",
+                      "BT",
+                      "P",
+                      "INT",
+                    ].includes(status);
+                    if (isCurrentlyLive) {
+                      console.log(
+                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in date-based search:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          status: status,
+                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
+                        },
+                      );
+                      // Skip all-based filtering for live matches
+                      return (
+                        hasValidTeams &&
+                        !isWomensCompetition &&
+                        !isOberligaLeague &&
+                        !isRegionalligaLeague &&
+                        !is3Liga &&
+                        !isTerceraRFEF &&
+                        !isSegundaRFEF &&
+                        !isSerieD &&
+                        !isSerieC &&
+                        !isPrimeraRFEF
+                      );
+                    }
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName =
+                      fixture.league?.name?.toLowerCase() || "";
+                    const country =
+                      fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
+                    const isWomensCompetition =
+                      leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague =
+                      leagueName.includes("regionalliga") ||
+                      leagueName.includes("regional liga");
+                    const is3Liga =
+                      leagueName.includes("3. liga") ||
+                      leagueName.includes("3 liga");
+
+                    // Exclude Tercera División RFEF and Segunda División RFEF leagues (Spanish regional/lower leagues)
+                    const isTerceraRFEF =
+                      leagueName.includes("tercera división rfef") ||
+                      leagueName.includes("tercera division rfef") ||
+                      leagueName.includes("tercera rfef");
+
+                    const isSegundaRFEF =
+                      leagueName.includes("segunda división rfef") ||
+                      leagueName.includes("segunda division rfef") ||
+                      leagueName.includes("segunda rfef");
+
+                    // Exclude Serie D leagues (Italian regional/lower leagues)
+                    const isSerieD =
+                      leagueName.includes("serie d") ||
+                      leagueName.includes("serie d -") ||
+                      leagueName.includes("serie d girone");
+
+                    // Exclude Serie C leagues (Italian lower division leagues)
+                    const isSerieC =
+                      leagueName.includes("serie c") ||
+                      leagueName.includes("serie c -") ||
+                      leagueName.includes("serie c girone") ||
+                      leagueName.includes("girone a") ||
+                      leagueName.includes("girone b") ||
+                      leagueName.includes("girone c");
+
+                    // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
+                    const isPrimeraRFEF =
+                      leagueName.includes("primera división rfef") ||
+                      leagueName.includes("primera division rfef") ||
+                      leagueName.includes("primera rfef");
+
+                    // Check for various types of conflicting data (excluding live matches)
+                    let hasConflictingData = false;
+                    let conflictReason = "";
+
+                    // 1. Ended status but match is far in future (more than 12 hours away)
+                    if (
+                      minutesFromKickoff < -720 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `ended status (${status}) for future match`;
+                    }
+
+                    // 2. "Not Started" status but match is more than 2 hours past kickoff
+                    if (
+                      minutesFromKickoff > 120 &&
+                      ["NS", "TBD", "PST"].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `not started status (${status}) for overdue match`;
+                    }
+
+                    // 3. Ended match that's more than 8 hours old (stale ended matches for featured)
+                    if (
+                      hoursFromKickoff > 8 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `stale ended match (${status}) more than 8 hours old`;
+                    }
+
+                    if (hasConflictingData) {
+                      console.log(
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding match with conflicting data - ${conflictReason}:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                          status: status,
+                          hoursFromNow: hoursFromKickoff.toFixed(1),
+                          conflictReason: conflictReason,
+                        },
+                      );
+                      return false;
+                    }
+
+                    // Check if it's a popular league or from a popular country
+                    const isPopularLeague = POPULAR_LEAGUES.some(
+                      (league) => league.id === fixture.league?.id,
+                    );
+                    const isFromPopularCountry = POPULAR_LEAGUES.some(
+                      (league) => league.country.toLowerCase() === country,
+                    );
+
+                    // Check if it's an international competition
+                    const isInternationalCompetition =
+                      leagueName.includes("champions league") ||
+                      leagueName.includes("europa league") ||
+                      leagueName.includes("uefa") ||
+                      leagueName.includes("world cup") ||
+                      leagueName.includes("fifa club world cup") ||
+                      leagueName.includes("fifa") ||
+                      leagueName.includes("conmebol") ||
+                      leagueName.includes("copa america") ||
+                      leagueName.includes("copa libertadores") ||
+                      leagueName.includes("copa sudamericana") ||
+                      leagueName.includes("libertadores") ||
+                      leagueName.includes("sudamericana") ||
+                      (leagueName.includes("friendlies") &&
+                        !leagueName.includes("international") &&
+                        !leagueName.includes("women")) ||
+                      (leagueName.includes("international") &&
+                        !leagueName.includes("women")) ||
+                      country.includes("world") ||
+                      country.includes("europe") ||
+                      country.includes("international");
+
+                    // Check if it's a club friendly with popular teams using the imported popular teams list
+                    const isPopularClubFriendly = () => {
+                      if (
+                        leagueName.includes("club friendlies") ||
+                        leagueName.includes("friendlies clubs") ||
+                        fixture.league.id === 667 ||
+                        (leagueName.includes("friendlies") &&
+                          !leagueName.includes("international") &&
+                          !leagueName.includes("women"))
+                      ) {
+                        const homeTeamId = fixture.teams?.home?.id;
+                        const awayTeamId = fixture.teams?.away?.id;
+                        const homeTeam = fixture.teams?.home?.name || "";
+                        const awayTeam = fixture.teams?.away?.name || "";
+
+                        const isPopular = isPopularTeamMatch(
+                          homeTeam,
+                          awayTeam,
+                          homeTeamId,
+                          awayTeamId,
+                          fixture.league?.id, // Pass league ID
+                        );
+
+                        if (isPopular) {
+                          console.log(
+                            `✅ [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                          );
+                          return true;
+                        }
+
+                        console.log(
+                          `❌ [MyHomeFeaturedMatchNew] Club friendly excluded (no popular teams): ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                        );
+                        return false;
+                      }
+                      return false;
+                    };
+
+                    return (
+                      hasValidTeams &&
+                      isNotLive &&
+                      isNotPriorityLeague &&
+                      !isWomensCompetition &&
+                      !isOberligaLeague &&
+                      !isRegionalligaLeague &&
+                      !is3Liga &&
+                      !isTerceraRFEF &&
+                      !isSegundaRFEF &&
+                      !isSerieD &&
+                      !isSerieC &&
+                      !isPrimeraRFEF &&
+                      (isPopularLeague ||
+                        isFromPopularCountry ||
+                        isInternationalCompetition ||
+                        isPopularClubFriendly())
+                    );
+                  })
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  }));
+
+                allFixtures.push(...cachedFixtures);
+              }
+            } catch (error) {
+              console.error(
+                `❌ [MyHomeFeaturedMatchNew] Error fetching cached data for ${dateInfo.label}:`,
+                error,
+              );
+            }
+          }
+        }
+
+        // If we still don't have enough fixtures, expand search to all popular leagues
+        if (allFixtures.length < 3) {
+          console.log(
+            `🔄 [MyHomeFeaturedMatchNew] Only ${allFixtures.length} fixtures found, expanding to all popular leagues`,
+          );
+
+          for (const dateInfo of dates) {
+            try {
+              const response = await apiRequest(
+                "GET",
+                `/api/featured-match/date/${dateInfo.date}?all=true&skipFilter=true`,
+              );
+              const fixtures = await response.json();
+
+              if (fixtures?.length) {
+                const expandedFixtures = fixtures
+                  .filter((fixture: any) => {
+                    const hasValidTeams =
+                      fixture.teams?.home?.name && fixture.teams?.away?.name;
+                    const isNotLive = !isLiveMatch(
+                      fixture.fixture.status.short,
+                    );
+                    const isNotDuplicate = !allFixtures.some(
+                      (existing) =>
+                        existing.fixture.id === fixture.fixture.id,
+                    );
+
+                    // ENHANCED: Exclude matches with conflicting status/time data (but preserve live matches)
+                    const matchDate = new Date(fixture.fixture.date);
+                    const minutesFromKickoff =
+                      (now.getTime() - matchDate.getTime()) / (1000 * 60);
+                    const hoursFromKickoff = minutesFromKickoff / 60;
+                    const status = fixture.fixture.status.short;
+
+                    // CRITICAL: Never exclude live matches regardless of time discrepancies
+                    const isCurrentlyLive = [
+                      "LIVE",
+                      "LIV",
+                      "1H",
+                      "2H",
+                      "HT",
+                      "ET",
+                      "BT",
+                      "P",
+                      "INT",
+                    ].includes(status);
+                    if (isCurrentlyLive) {
+                      console.log(
+                        `🔴 [MyHomeFeaturedMatchNew] Preserving live match in expanded search:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          status: status,
+                          minutesFromKickoff: minutesFromKickoff.toFixed(1),
+                        },
+                      );
+                      // Skip all filtering for live matches except basic validity
+                      return (
+                        hasValidTeams &&
+                        isNotDuplicate &&
+                        !isWomensCompetition &&
+                        !isOberligaLeague &&
+                        !isRegionalligaLeague &&
+                        !is3Liga &&
+                        !isTerceraRFEF &&
+                        !isSegundaRFEF &&
+                        !isSerieD &&
+                        !isSerieC &&
+                        !isPrimeraRFEF
+                      );
+                    }
+
+                    // Exclude women's competitions and Oberliga leagues
+                    const leagueName =
+                      fixture.league?.name?.toLowerCase() || "";
+                    const country =
+                      fixture.league?.country?.toLowerCase() || "";
+
+                    // Exclude women's competitions
+                    const isWomensCompetition =
+                      leagueName.includes("women") ||
+                      leagueName.includes("femenina") ||
+                      leagueName.includes("feminine") ||
+                      leagueName.includes("feminin");
+
+                    // Exclude Oberliga, Regionalliga, and 3. Liga leagues (German regional/lower leagues)
+                    const isOberligaLeague = leagueName.includes("oberliga");
+                    const isRegionalligaLeague =
+                      leagueName.includes("regionalliga") ||
+                      leagueName.includes("regional liga");
+                    const is3Liga =
+                      leagueName.includes("3. liga") ||
+                      leagueName.includes("3 liga");
+
+                    // Exclude Tercera División RFEF and Segunda División RFEF leagues (Spanish regional/lower leagues)
+                    const isTerceraRFEF =
+                      leagueName.includes("tercera división rfef") ||
+                      leagueName.includes("tercera division rfef") ||
+                      leagueName.includes("tercera rfef");
+
+                    const isSegundaRFEF =
+                      leagueName.includes("segunda división rfef") ||
+                      leagueName.includes("segunda division rfef") ||
+                      leagueName.includes("segunda rfef");
+
+                    // Exclude Serie D leagues (Italian regional/lower leagues)
+                    const isSerieD =
+                      leagueName.includes("serie d") ||
+                      leagueName.includes("serie d -") ||
+                      leagueName.includes("serie d girone");
+
+                    // Exclude Serie C leagues (Italian lower division leagues)
+                    const isSerieC =
+                      leagueName.includes("serie c") ||
+                      leagueName.includes("serie c -") ||
+                      leagueName.includes("serie c girone") ||
+                      leagueName.includes("girone a") ||
+                      leagueName.includes("girone b") ||
+                      leagueName.includes("girone c");
+
+                    // Exclude Primera División RFEF leagues (Spanish regional/lower leagues)
+                    const isPrimeraRFEF =
+                      leagueName.includes("primera división rfef") ||
+                      leagueName.includes("primera division rfef") ||
+                      leagueName.includes("primera rfef");
+
+                    // Check for various types of conflicting data (excluding live matches)
+                    let hasConflictingData = false;
+                    let conflictReason = "";
+
+                    // 1. Ended status but match is far in future (more than 12 hours away)
+                    if (
+                      minutesFromKickoff < -720 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `ended status (${status}) for future match`;
+                    }
+
+                    // 2. "Not Started" status but match is more than 2 hours past kickoff
+                    if (
+                      minutesFromKickoff > 120 &&
+                      ["NS", "TBD", "PST"].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `not started status (${status}) for overdue match`;
+                    }
+
+                    // 3. Ended match that's more than 12 hours old (stale ended matches for featured)
+                    if (
+                      hoursFromKickoff > 12 &&
+                      [
+                        "FT",
+                        "AET",
+                        "PEN",
+                        "AWD",
+                        "WO",
+                        "ABD",
+                        "CANC",
+                        "SUSP",
+                      ].includes(status)
+                    ) {
+                      hasConflictingData = true;
+                      conflictReason = `stale ended match (${status}) more than 12 hours old`;
+                    }
+
+                    if (hasConflictingData) {
+                      console.log(
+                        `🔄 [MyHomeFeaturedMatchNew] Excluding expanded search match with conflicting data - ${conflictReason}:`,
+                        {
+                          home: fixture.teams?.home?.name,
+                          away: fixture.teams?.away?.name,
+                          league: fixture.league?.name,
+                          date: fixture.fixture.date,
+                          status: status,
+                          hoursFromNow: hoursFromKickoff.toFixed(1),
+                          conflictReason: conflictReason,
+                        },
+                      );
+                      return false;
+                    }
+
+                    return (
+                      hasValidTeams &&
+                      isNotLive &&
+                      isNotDuplicate &&
+                      !isWomensCompetition &&
+                      !isOberligaLeague &&
+                      !isRegionalligaLeague &&
+                      !is3Liga &&
+                      !isTerceraRFEF &&
+                      !isSegundaRFEF &&
+                      !isSerieD &&
+                      !isSerieC &&
+                      !isPrimeraRFEF
+                    );
+                  })
+                  .slice(0, 5) // Limit to prevent overwhelming
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  }));
+
+                allFixtures.push(...expandedFixtures);
+              }
+            } catch (error) {
+              console.error(
+                `❌ [MyHomeFeaturedMatchNew] Error in expanded search for ${dateInfo.label}:`,
+                error,
+              );
+            }
+          }
+        }
+
+        // Remove duplicates based on fixture ID
         const allUniqueFixtures = allFixtures.filter(
           (fixture, index, self) =>
-            index === self.findIndex((f) => f.fixture.id === fixture.fixture.id),
+            index ===
+            self.findIndex((f) => f.fixture.id === fixture.fixture.id),
         );
 
-        console.log(`📋 [PARALLEL] Total unique fixtures found: ${allUniqueFixtures.length}`);
+        console.log(
+          `📋 [MyHomeFeaturedMatchNew] Total unique fixtures found:`,
+          allUniqueFixtures.length,
+        );
 
+        // Learn from fixtures data to improve translations
         try {
           learnFromFixtures(allUniqueFixtures);
+          console.log(
+            `📚 [MyHomeFeaturedMatchNew] Learning from ${allUniqueFixtures.length} fixtures for translation improvement`,
+          );
+
+          // Additional league-specific learning for comprehensive coverage
           smartLeagueCountryTranslation.learnFromFixtures(allUniqueFixtures);
-          console.log(`📚 [MyHomeFeaturedMatchNew] Learning completed from ${allUniqueFixtures.length} fixtures`);
+          console.log(
+            `🎓 [MyHomeFeaturedMatchNew] Enhanced league learning from ${allUniqueFixtures.length} fixtures for better coverage`,
+          );
         } catch (error) {
           console.warn("Error learning from fixtures:", error);
+        }
+
+        // Enhanced debug logging with league IDs
+        const fixtureDetails = allUniqueFixtures.map((f) => ({
+          id: f.fixture.id,
+          teams: `${f.teams.home.name} vs ${f.teams.away.name}`,
+          league: f.league.name,
+          leagueId: f.league.id,
+          country: f.league.country,
+          status: f.fixture.status.short,
+          date: f.fixture.date,
+        }));
+
+        console.log(
+          `📋 [MyHomeFeaturedMatchNew] Fixture details with League IDs:`,
+          fixtureDetails,
+        );
+
+        // Special debug for Oberliga leagues
+        const oberligaMatches = allUniqueFixtures.filter((f) =>
+          f.league.name?.toLowerCase().includes("oberliga"),
+        );
+
+        if (oberligaMatches.length > 0) {
+          console.log(
+            `🎯 [OBERLIGA LEAGUES FOUND] Count: ${oberligaMatches.length}`,
+          );
+          oberligaMatches.forEach((match) => {
+            console.log(`🏆 [OBERLIGA MATCH]`, {
+              LEAGUE_ID: match.league.id,
+              LEAGUE_NAME: match.league.name,
+              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
+              COUNTRY: match.league.country,
+              STATUS: match.fixture.status.short,
+            });
+          });
+        }
+
+        // Special debug for Bayern Süd
+        const bayernSudMatches = allUniqueFixtures.filter(
+          (f) =>
+            f.league.name?.toLowerCase().includes("bayern") &&
+            f.league.name?.toLowerCase().includes("süd"),
+        );
+
+        if (bayernSudMatches.length > 0) {
+          console.log(
+            `🏰 [BAYERN SÜD LEAGUES FOUND] Count: ${bayernSudMatches.length}`,
+          );
+          bayernSudMatches.forEach((match) => {
+            console.log(`⚽ [BAYERN SÜD MATCH]`, {
+              LEAGUE_ID: match.league.id,
+              LEAGUE_NAME: match.league.name,
+              MATCH: `${match.teams.home.name} vs ${match.teams.away.name}`,
+              COUNTRY: match.league.country,
+              STATUS: match.fixture.status.short,
+            });
+          });
         }
 
         // Group fixtures by date
@@ -857,38 +1881,214 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           const fixturesForDay = allUniqueFixtures
             .filter((fixture) => {
-              if (EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league.id)) {
-                console.log(`🚫 [EXPLICIT EXCLUSION] Match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              // EXPLICIT EXCLUSION: Never show UEFA Europa Conference League (ID 848), Regionalliga - Bayern (ID 169), League 940, or Ligue 2 (ID 62)
+              if (fixture.league.id === 848) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] UEFA Europa Conference League match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
+              if (fixture.league.id === 169) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Bayern match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 940) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 940 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 85) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nordost match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 80) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] 3. Liga match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 84) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - Nord match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 87) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - West match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              if (fixture.league.id === 41) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              if (fixture.league.id === 183) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              if (fixture.league.id === 86) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Regionalliga - SudWest match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 772) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 772 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 62) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Ligue 2 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 58) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Isthmian match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 931) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Non League Premier - Southern Central match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 59) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 59 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 60) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] League 60 match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 869) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] CECAFA Club Cup match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 180) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] Scotland Championship match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 67) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group A match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 68) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group B match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+
+              if (fixture.league.id === 69) {
+                console.log(
+                  `🚫 [EXPLICIT EXCLUSION] National 2 - Group C match excluded: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
+                return false;
+              }
+              // Additional name-based exclusion for Regionalliga leagues and Non League Premier
+              const leagueName = fixture.league?.name?.toLowerCase() || "";
+              if (
+                leagueName.includes("regionalliga") &&
+                leagueName.includes("bayern")
+              ) {
+                console.log(
+                  `🚫 [NAME-BASED EXCLUSION] Regionalliga - Bayern match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                );
+                return false;
+              }
+              if (leagueName.includes("non league premier")) {
+                console.log(
+                  `🚫 [NAME-BASED EXCLUSION] Non League Premier match excluded by name: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (League: ${fixture.league.name})`,
+                );
+                return false;
+              }
+
+              // CRITICAL: Filter out stale "Starting now" matches
               const status = fixture.fixture.status.short;
               const matchDate = new Date(fixture.fixture.date);
-              const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+              const minutesFromKickoff =
+                (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
+              // Remove matches that show "NS" (Not Started) but are significantly past kickoff time
               if (status === "NS" && minutesFromKickoff > 120) {
-                console.log(`🚫 [STALE MATCH EXCLUSION] Removing stale match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                console.log(
+                  `🚫 [STALE MATCH EXCLUSION] Removing stale "Starting now" match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(minutesFromKickoff)} min past kickoff)`,
+                );
                 return false;
               }
 
-              if (["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)) {
-                console.log(`🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+              // Remove matches that are postponed, cancelled, or suspended
+              if (
+                ["PST", "CANC", "SUSP", "ABD", "AWD", "WO"].includes(status)
+              ) {
+                console.log(
+                  `🚫 [STATUS EXCLUSION] Removing ${status} match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+                );
                 return false;
               }
 
+              // ENHANCED: For today's matches, include all ended matches within 8 hours and all live matches
               if (isToday) {
+                // Always include live matches
                 if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
-                  console.log(`🔴 [TODAY'S LIVE MATCH INCLUSION] Including live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
+                  console.log(
+                    `🔴 [TODAY'S LIVE MATCH INCLUSION] Including live match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${status})`,
+                  );
                   return true;
                 }
 
+                // For ended matches today, use 8-hour window
                 if (["FT", "AET", "PEN"].includes(status)) {
                   const hoursAgo = (now.getTime() - matchDate.getTime()) / (1000 * 60 * 60);
                   if (hoursAgo > 8) {
-                    console.log(`🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 8 hours`);
+                    console.log(
+                      `🕐 [TODAY'S ENDED MATCH EXCLUSION] Removing match older than 8 hours: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                    );
                     return false;
                   } else {
-                    console.log(`✅ [TODAY'S ENDED MATCH INCLUSION] Including today's ended match`);
+                    console.log(
+                      `✅ [TODAY'S ENDED MATCH INCLUSION] Including today's ended match: ${fixture.teams.home.name} vs ${fixture.teams.away.name} (${Math.round(hoursAgo)} hours ago)`,
+                    );
                   }
                 }
               }
@@ -900,28 +2100,154 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               return matchDateString === dateInfo.date;
             })
             .sort((a: FeaturedMatch, b: FeaturedMatch) => {
+              // Special priority for specific FIFA Club World Cup match (Inter vs River Plate)
+              const aIsSpecialMatch =
+                a.league.id === 15 &&
+                ((a.teams.home.name === "Inter" &&
+                  a.teams.away.name === "River Plate") ||
+                  (a.teams.home.name === "River Plate" &&
+                    a.teams.away.name === "Inter"));
+              const bIsSpecialMatch =
+                b.league.id === 15 &&
+                ((b.teams.home.name === "Inter" &&
+                  b.teams.away.name === "River Plate") ||
+                  (b.teams.home.name === "River Plate" &&
+                    b.teams.away.name === "Inter"));
+
+              // Special match always comes first
+              if (aIsSpecialMatch && !bIsSpecialMatch) return -1;
+              if (!aIsSpecialMatch && bIsSpecialMatch) return 1;
+
+              // Define match status categories
               const aStatus = a.fixture.status.short;
               const bStatus = b.fixture.status.short;
 
-              const aLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(aStatus);
-              const bLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(bStatus);
+              const aLive = isLiveMatch(aStatus);
+              const bLive = isLiveMatch(bStatus);
 
+              const aEnded = isEndedMatch(aStatus);
+              const bEnded = isEndedMatch(bStatus);
+
+              const aUpcoming = isUpcomingMatch(aStatus);
+              const bUpcoming = isUpcomingMatch(bStatus);
+
+              // NEW: Check if matches are today's matches
+              const aMatchDate = new Date(a.fixture.date);
+              const bMatchDate = new Date(b.fixture.date);
+              const aIsToday = format(aMatchDate, "yyyy-MM-dd") === todayDateString;
+              const bIsToday = format(bMatchDate, "yyyy-MM-dd") === todayDateString;
+
+              // NEW: Today's upcoming matches get highest priority (after live matches)
+              const aTodayUpcoming = aIsToday && aUpcoming;
+              const bTodayUpcoming = bIsToday && bUpcoming;
+
+              // NEW: Check for today's ended matches
+              const aTodayEnded = aIsToday && aEnded;
+              const bTodayEnded = bIsToday && bEnded;
+
+              // ENHANCED Primary sort: Live > Today's Ended > Today's Upcoming > Other Ended > Other Upcoming
               if (aLive && !bLive) return -1;
               if (!aLive && bLive) return 1;
 
+              if (aTodayEnded && !bTodayEnded && !bLive) return -1;
+              if (!aTodayEnded && bTodayEnded && !aLive) return 1;
+
+              if (aTodayUpcoming && !bTodayUpcoming && !bLive && !bTodayEnded) return -1;
+              if (!aTodayUpcoming && bTodayUpcoming && !aLive && !aTodayEnded) return 1;
+
+              if (aEnded && !bEnded && !bLive && !bTodayUpcoming && !bTodayEnded) return -1;
+              if (!aEnded && bEnded && !aLive && !aTodayUpcoming && !aTodayEnded) return 1;
+
+              if (aUpcoming && !bUpcoming && !bLive && !bEnded && !bTodayEnded) return -1;
+              if (!aUpcoming && bUpcoming && !aLive && !aEnded && !aTodayEnded) return 1;
+
+              // Within the same status category, apply additional sorting
+              const aLeagueName = a.league.name?.toLowerCase() || "";
+              const bLeagueName = b.league.name?.toLowerCase() || "";
+
+              // Check for Friendlies Clubs vs FA Cup priority
+              const aIsFriendliesClubs =
+                aLeagueName.includes("friendlies clubs") || a.league.id === 667;
+              const bIsFriendliesClubs =
+                bLeagueName.includes("friendlies clubs") || b.league.id === 667;
+
+              const aIsFACup =
+                aLeagueName.includes("fa cup") || a.league.id === 45;
+              const bIsFACup =
+                bLeagueName.includes("fa cup") || b.league.id === 45;
+
+              // Friendlies Clubs has priority over FA Cup
+              if (aIsFriendliesClubs && bIsFACup) return -1;
+              if (aIsFACup && bIsFriendliesClubs) return 1;
+
+              // Priority leagues
               const aPriority = priorityLeagueIds.indexOf(a.league.id);
               const bPriority = priorityLeagueIds.indexOf(b.league.id);
 
               if (aPriority !== -1 && bPriority === -1) return -1;
               if (aPriority === -1 && bPriority !== -1) return 1;
-              if (aPriority !== -1 && bPriority !== -1) return aPriority - bPriority;
+              if (aPriority !== -1 && bPriority !== -1)
+                return aPriority - bPriority;
 
-              // Sort by date within the same status and priority group
-              return new Date(a.fixture.date).getTime() - new Date(b.fixture.date).getTime();
+              // Popular team friendlies get priority over regular matches
+              const aIsPopularFriendly =
+                (aLeagueName.includes("friendlies") ||
+                  aLeagueName.includes("friendlies clubs") ||
+                  a.league.id === 667) &&
+                (POPULAR_TEAM_IDS.includes(a.teams.home.id) ||
+                  POPULAR_TEAM_IDS.includes(a.teams.away.id));
+              const bIsPopularFriendly =
+                (bLeagueName.includes("friendlies") ||
+                  bLeagueName.includes("friendlies clubs") ||
+                  b.league.id === 667) &&
+                (POPULAR_TEAM_IDS.includes(b.teams.home.id) ||
+                  POPULAR_TEAM_IDS.includes(b.teams.away.id));
+
+              if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
+              if (!aIsPopularFriendly && bIsPopularFriendly) return 1;
+
+              // Premier League (ID 39) priority - always show first within same status category
+              const aIsPremierLeague = a.league.id === 39;
+              const bIsPremierLeague = b.league.id === 39;
+
+              if (aIsPremierLeague && !bIsPremierLeague) return -1;
+              if (!aIsPremierLeague && bIsPremierLeague) return 1;
+
+              // Finally sort by time based on status
+              if (aLive && bLive) {
+                // For live matches, sort by elapsed time (shortest first)
+                const aElapsed = Number(a.fixture.status.elapsed) || 0;
+                const bElapsed = Number(b.fixture.status.elapsed) || 0;
+                return aElapsed - bElapsed;
+              }
+
+              if (aEnded && bEnded) {
+                // For ended matches, sort by most recent first
+                return (
+                  new Date(b.fixture.date).getTime() -
+                  new Date(a.fixture.date).getTime()
+                );
+              }
+
+              if (aUpcoming && bUpcoming) {
+                // For upcoming matches, sort by earliest first
+                return (
+                  new Date(a.fixture.date).getTime() -
+                  new Date(b.fixture.date).getTime()
+                );
+              }
+
+              // Default time sorting
+              return (
+                new Date(a.fixture.date).getTime() -
+                new Date(b.fixture.date).getTime()
+              );
             })
             .slice(0, Math.max(5, Math.floor(maxMatches / dates.length)));
 
-          console.log(`✅ [PARALLEL] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`);
+          console.log(
+            `✅ [MyHomeFeaturedMatchNew] Found ${fixturesForDay.length} featured matches for ${dateInfo.label}`,
+          );
 
           allMatches.push({
             date: dateInfo.date,
@@ -930,6 +2256,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           });
         }
 
+        // Remove duplicates based on fixture ID for final processing
         const uniqueFixtures = allMatches.reduce((acc, dayData) => {
           dayData.matches.forEach((match) => {
             if (!acc.some((existingMatch) => existingMatch.fixture.id === match.fixture.id)) {
@@ -939,6 +2266,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return acc;
         }, [] as FeaturedMatch[]);
 
+
+        // Group fixtures by league and update state
         const leagueMap: Record<number, FeaturedMatch[]> = {};
         uniqueFixtures.forEach((match) => {
           const leagueId = match.league.id;
@@ -949,21 +2278,26 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         });
         setFixturesByLeague(leagueMap);
 
+        // Update state with the new matches using standings-like preservation logic
         setFeaturedMatches((prevMatches) => {
+          // Compare match IDs for efficiency instead of full JSON stringify
           const prevIds = prevMatches.flatMap(day => day.matches.map(m => m.fixture.id)).sort();
           const newIds = uniqueFixtures.map(m => m.fixture.id).sort();
 
           if (prevIds.join(',') !== newIds.join(',')) {
-            console.log(`🔄 [PARALLEL] Match IDs changed, updating state`);
+            console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
+            // Trigger selective update management after state update
             setTimeout(() => manageSelectiveUpdates(), 100);
             return allMatches;
           }
 
+          // Check for status changes in existing matches
           const hasStatusChanges = allMatches.some(dayData =>
             dayData.matches.some(match => {
               const prevMatch = prevMatches
                 .flatMap(day => day.matches)
                 .find(m => m.fixture.id === match.fixture.id);
+              // Compare status and score for changes
               return prevMatch && (
                 prevMatch.fixture.status.short !== match.fixture.status.short ||
                 prevMatch.goals.home !== match.goals.home ||
@@ -973,17 +2307,17 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           );
 
           if (hasStatusChanges) {
-            console.log(`⚽ [PARALLEL] Match status/score changes detected, updating state`);
+            console.log(`⚽ [MyHomeFeaturedMatchNew] Match status/score changes detected, updating state`);
+            // Trigger selective update management after state update
             setTimeout(() => manageSelectiveUpdates(), 100);
             return allMatches;
           }
 
-          console.log(`✅ [PARALLEL] No changes detected, preserving existing state`);
+          console.log(`✅ [MyHomeFeaturedMatchNew] No changes detected, preserving existing state like standings cache`);
           return prevMatches;
         });
-
       } catch (error) {
-        console.error("❌ [PARALLEL] Error:", error);
+        console.error("❌ [MyHomeFeaturedMatchNew] Error:", error);
       } finally {
         setIsLoading(false);
       }
@@ -991,10 +2325,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     [maxMatches, manageSelectiveUpdates, featuredMatches.length, learnFromFixtures, smartLeagueCountryTranslation, t, translateLeagueName, translateTeamName, getMatchStatusTranslation],
   );
 
+  // Clear caches related to excluded leagues
   const clearExcludedLeaguesCaches = useCallback(() => {
     try {
-      fixtureCache.clearCache();
+      fixtureCache.clearCache(); // Clear fixture cache
 
+      // Clear localStorage entries related to excluded leagues
       const keys = Object.keys(localStorage);
       const excludedLeagueKeys = keys.filter(
         (key) =>
@@ -1002,8 +2338,21 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           key.includes("conference") ||
           key.includes("regionalliga") ||
           key.includes("bayern") ||
+          key.includes("national 2") ||
+          key.includes("ligue 2") ||
+          key.includes("l2") ||
+          key.includes("tercera") ||
+          key.includes("segunda") ||
+          key.includes("rfef") ||
+          key.includes("serie d") ||
+          key.includes("serie c") ||
+          key.includes("girone") ||
+          key.includes("primera rfef") ||
+          key.includes("fixtures_date") ||
           key.startsWith("ended_matches_") ||
-          key.startsWith("featured-match-"),
+          key.startsWith("league-fixtures-") ||
+          key.startsWith("featured-match-") ||
+          key.startsWith("all-fixtures-by-date"),
       );
 
       excludedLeagueKeys.forEach((key) => {
@@ -1014,58 +2363,130 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         }
       });
 
-      console.log(`🧹 [CacheClean] Cleared cache entries for excluded leagues`);
+      // Clear sessionStorage entries related to excluded leagues
+      const sessionKeys = Object.keys(sessionStorage);
+      const sessionExcludedKeys = sessionKeys.filter(
+        (key) =>
+          EXPLICITLY_EXCLUDED_LEAGUE_IDS.some(id => key.includes(String(id))) ||
+          key.includes("conference") ||
+          key.includes("regionalliga") ||
+          key.includes("bayern") ||
+          key.includes("national 2") ||
+          key.includes("ligue 2") ||
+          key.includes("l2") ||
+          key.includes("tercera") ||
+          key.includes("segunda") ||
+          key.includes("rfef") ||
+          key.includes("serie d") ||
+          key.includes("serie c") ||
+          key.includes("girone") ||
+          key.includes("primera rfef") ||
+          key.startsWith("league-fixtures-") ||
+          key.startsWith("featured-match-"),
+      );
+
+      sessionExcludedKeys.forEach((key) => {
+        try {
+          sessionStorage.removeItem(key);
+        } catch (error) {
+          console.warn(`Failed to clear session cache key: ${key}`, error);
+        }
+      });
+
+      // Clear React Query cache for these specific leagues
+      if (typeof window !== "undefined" && window.queryClient) {
+        try {
+          window.queryClient.removeQueries({
+            predicate: (query: any) => {
+              const key = query.queryKey?.join("-") || "";
+              return (
+                EXPLICITLY_EXCLUDED_LEAGUE_IDS.some(id => key.includes(String(id))) ||
+                key.includes("conference") ||
+                key.includes("regionalliga") ||
+                key.includes("bayern") ||
+                key.includes("national 2") ||
+                key.includes("ligue 2") ||
+                key.includes("l2") ||
+                key.includes("tercera") ||
+                key.includes("segunda") ||
+                key.includes("rfef") ||
+                key.includes("serie d") ||
+                key.includes("serie c") ||
+                key.includes("girone") ||
+                key.includes("primera rfef")
+              );
+            },
+          });
+        } catch (error) {
+          console.warn("Failed to clear React Query cache:", error);
+        }
+      }
+
+      console.log(
+        `🧹 [CacheClean] Cleared cache entries for excluded leagues`,
+      );
     } catch (error) {
       console.error("Error clearing excluded leagues caches:", error);
     }
   }, []);
 
+  // Initial fetch and effect for managing selective updates
   useEffect(() => {
-    mountedRef.current = true;
+    mountedRef.current = true; // Mark component as mounted
 
+    // Clear caches first to ensure we don't show stale data
     clearExcludedLeaguesCaches();
 
+    // MUCH longer delay to prevent overwhelming Replit Assistant
     const timer = setTimeout(() => {
       fetchFeaturedMatches(true);
-    }, 2000); // Reduced from 5000ms to 2000ms since we're using parallel fetching
+    }, 5000); // Increased from 1000ms to 5000ms
 
+    // Start the selective update interval management
     if (featuredMatches.length > 0) {
       manageSelectiveUpdates();
     }
 
     return () => {
-      mountedRef.current = false;
+      mountedRef.current = false; // Mark component as unmounted
       if (selectiveUpdateIntervalRef.current) {
         clearInterval(selectiveUpdateIntervalRef.current);
         selectiveUpdateIntervalRef.current = null;
       }
       clearTimeout(timer);
     };
-  }, []);
+  }, []); // Empty dependency array ensures this runs only on mount and unmount
 
+  // Smart cache interval management based on match states
   useEffect(() => {
     if (featuredMatches.length === 0) return;
 
     const now = new Date();
-    let refreshInterval = 300000;
+    let refreshInterval = 300000; // Default: 5 minutes
     let shouldRefresh = false;
 
+    // Analyze current match states to determine optimal refresh strategy
     const analysis = featuredMatches.reduce(
       (analysis, dayData) => {
         dayData.matches.forEach((match) => {
           const status = match.fixture.status.short;
           const matchDate = new Date(match.fixture.date);
-          const minutesFromKickoff = (now.getTime() - matchDate.getTime()) / (1000 * 60);
+          const minutesFromKickoff =
+            (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-          if (["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)) {
+          // Categorize matches
+          if (
+            ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+          ) {
             analysis.liveMatches++;
           } else if (status === "NS") {
             if (Math.abs(minutesFromKickoff) <= 30) {
-              analysis.imminentMatches++;
+              analysis.imminentMatches++; // Starting within 30 minutes
             } else if (Math.abs(minutesFromKickoff) <= 120) {
-              analysis.upcomingMatches++;
+              analysis.upcomingMatches++; // Starting within 2 hours
             }
 
+            // Check for stale "Starting now" matches (should have started already)
             if (minutesFromKickoff > 5 && minutesFromKickoff < 180) {
               analysis.staleMatches++;
             }
@@ -1081,6 +2502,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       },
     );
 
+    // Count today's ended matches for enhanced refresh strategy
     const todayEndedMatches = featuredMatches.reduce((count, dayData) => {
       return count + dayData.matches.filter(match => {
         const matchDate = new Date(match.fixture.date);
@@ -1092,47 +2514,69 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }).length;
     }, 0);
 
+    // OPTIMIZED refresh strategy to reduce network overhead
     if (analysis.liveMatches > 0) {
-      refreshInterval = 30000;
+      // Aggressive but not overwhelming: Live matches detected
+      refreshInterval = 30000; // 30 seconds for live matches (reduced from 15s)
       shouldRefresh = true;
-      console.log(`🔴 [PARALLEL] ${analysis.liveMatches} live matches - using optimized refresh (30s)`);
+      console.log(
+        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using optimized refresh (30s)`,
+      );
     } else if (todayEndedMatches > 0) {
-      refreshInterval = 60000;
+      // Moderate for today's ended matches
+      refreshInterval = 60000; // 1 minute (reduced from 30s)
       shouldRefresh = true;
-      console.log(`📊 [PARALLEL] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`);
+      console.log(
+        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`,
+      );
     } else if (analysis.staleMatches > 0) {
-      refreshInterval = 45000;
+      // Moderate: Stale matches that should have started
+      refreshInterval = 45000; // 45 seconds (reduced from 20s)
       shouldRefresh = true;
-      console.log(`🟡 [PARALLEL] ${analysis.staleMatches} stale matches detected - using moderate refresh (45s)`);
+      console.log(
+        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using moderate refresh (45s)`,
+      );
     } else if (analysis.imminentMatches > 0) {
-      refreshInterval = 120000;
+      // Less frequent: Matches starting within 30 minutes
+      refreshInterval = 120000; // 2 minutes (reduced from 1min)
       shouldRefresh = true;
-      console.log(`🟠 [PARALLEL] ${analysis.imminentMatches} imminent matches - using balanced refresh (2min)`);
+      console.log(
+        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using balanced refresh (2min)`,
+      );
     } else if (analysis.upcomingMatches > 0) {
-      refreshInterval = 180000;
+      // Standard: Matches starting within 2 hours
+      refreshInterval = 180000; // 3 minutes (reduced from 2min)
       shouldRefresh = true;
-      console.log(`🟢 [PARALLEL] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`);
+      console.log(
+        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`,
+      );
     } else {
-      refreshInterval = 600000;
+      // Extended: No urgent matches
+      refreshInterval = 600000; // 10 minutes (increased from 5min)
       shouldRefresh = false;
-      console.log(`⏸️ [PARALLEL] No urgent matches - using extended refresh (10min)`);
+      console.log(
+        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using extended refresh (10min)`,
+      );
     }
 
     if (!shouldRefresh) {
-      console.log(`⭕ [PARALLEL] No active refresh needed`);
+      console.log(`⭕ [MyHomeFeaturedMatchNew] No active refresh needed`);
       return;
     }
 
+    // Prevent double intervals by checking if one is already running
     const intervalId = setInterval(() => {
-      console.log(`🔄 [PARALLEL] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`);
-      fetchFeaturedMatches(false);
+      console.log(
+        `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
+      );
+      fetchFeaturedMatches(false); // Background refresh without loading state
     }, refreshInterval);
 
     return () => {
       clearInterval(intervalId);
-      console.log(`🧹 [PARALLEL] Cleaned up refresh interval`);
+      console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
     };
-  }, [featuredMatches, fetchFeaturedMatches, manageSelectiveUpdates]);
+  }, [featuredMatches, fetchFeaturedMatches, manageSelectiveUpdates]); // Depend on featuredMatches to re-evaluate interval
 
   const formatMatchTime = (dateString: string) => {
     try {
@@ -1211,6 +2655,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
   };
 
+  // Memoize expensive calculations
   const allMatches = useMemo(() => {
     return featuredMatches.reduce((acc, dayData) => {
       return [...acc, ...dayData.matches];
@@ -1221,6 +2666,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     return allMatches[currentMatchIndex];
   }, [allMatches, currentMatchIndex]);
 
+  // Fetch rounds data for current match league
   useEffect(() => {
     if (currentMatch && !roundsCache[`${currentMatch.league.id}-2025`]) {
       fetchRoundsForLeague(currentMatch.league.id, 2025);
@@ -1243,8 +2689,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   }, [allMatches.length]);
 
-  const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>({});
+  // State for storing extracted logo colors
+  const [teamLogoColors, setTeamLogoColors] = useState<Record<string, string>>(
+    {},
+  );
 
+  // Function to extract dominant color from logo
   const extractDominantColorFromLogo = useCallback(
     async (logoUrl: string, teamName: string) => {
       try {
@@ -1257,7 +2707,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             const ctx = canvas.getContext("2d");
 
             if (!ctx) {
-              resolve(getTeamColor(teamName, true));
+              resolve(getTeamColor(teamName, true)); // fallback
               return;
             }
 
@@ -1265,21 +2715,35 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
 
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            );
             const data = imageData.data;
 
+            // Color frequency map
             const colorMap: Record<string, number> = {};
 
+            // Sample every 4th pixel for performance
             for (let i = 0; i < data.length; i += 16) {
               const r = data[i];
               const g = data[i + 1];
               const b = data[i + 2];
               const a = data[i + 3];
 
+              // Skip transparent or near-transparent pixels
               if (a < 128) continue;
 
-              if ((r > 240 && g > 240 && b > 240) || (r < 20 && g < 20 && b < 20)) continue;
+              // Skip near-white or near-black pixels
+              if (
+                (r > 240 && g > 240 && b > 240) ||
+                (r < 20 && g < 20 && b < 20)
+              )
+                continue;
 
+              // Group similar colors (reduce precision)
               const rGroup = Math.floor(r / 20) * 20;
               const gGroup = Math.floor(g / 20) * 20;
               const bGroup = Math.floor(b / 20) * 20;
@@ -1288,6 +2752,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
             }
 
+            // Find most frequent color
             let dominantColor = "";
             let maxCount = 0;
 
@@ -1300,36 +2765,39 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
             if (dominantColor) {
               const [r, g, b] = dominantColor.split(",").map(Number);
+              // Enhance the color for better visibility
               const enhancedR = Math.min(255, Math.max(40, r * 0.8));
               const enhancedG = Math.min(255, Math.max(40, g * 0.8));
               const enhancedB = Math.min(255, Math.max(40, b * 0.8));
 
               resolve(`rgb(${enhancedR}, ${enhancedG}, ${enhancedB})`);
             } else {
-              resolve(getTeamColor(teamName, true));
+              resolve(getTeamColor(teamName, true)); // fallback
             }
           };
 
           img.onerror = () => {
-            resolve(getTeamColor(teamName, true));
+            resolve(getTeamColor(teamName, true)); // fallback
           };
 
           img.src = logoUrl;
         });
       } catch (error) {
         console.warn("Error extracting color from logo:", error);
-        return getTeamColor(teamName, true);
+        return getTeamColor(teamName, true); // fallback
       }
     },
     [],
   );
 
+  // Extract colors from team logos when match changes
   useEffect(() => {
     if (currentMatch?.teams) {
       const extractColors = async () => {
         const homeTeamName = currentMatch.teams.home.name;
         const awayTeamName = currentMatch.teams.away.name;
 
+        // Only extract if we don't already have the colors cached
         if (!teamLogoColors[homeTeamName] || !teamLogoColors[awayTeamName]) {
           const homeLogoUrl = currentMatch.teams.home.id
             ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
@@ -1360,6 +2828,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
   }, [currentMatch, extractDominantColorFromLogo, teamLogoColors]);
 
+  // Countdown timer effect for upcoming matches
   useEffect(() => {
     if (!currentMatch) {
       setCountdownTimer("--:--:--");
@@ -1368,6 +2837,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
     const statusInfo = getStatusDisplay(currentMatch);
 
+    // Only show countdown for upcoming matches
     if (!statusInfo.isUpcoming) {
       setCountdownTimer("");
       return;
@@ -1376,7 +2846,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     function updateTimer() {
       try {
         const targetDate = parseISO(currentMatch.fixture.date);
+
+        // Use current real time for accurate countdown
         const now = new Date();
+
         const diff = targetDate.getTime() - now.getTime();
 
         if (diff <= 0) {
@@ -1384,25 +2857,31 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
           return;
         }
 
+        // Calculate time components
         const totalHours = Math.floor(diff / (1000 * 60 * 60));
         const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
+        // Only show countdown if match is within 12 hours
         if (totalHours > 12) {
           setCountdownTimer("");
           return;
         }
 
+        // If more than 99 hours, show days and hours
         if (totalHours > 99) {
           const days = Math.floor(totalHours / 24);
           const remainingHours = totalHours % 24;
           setCountdownTimer(`${days}d ${remainingHours}h`);
         } else {
+          // Format with leading zeros for HH:mm:ss format
           const formattedHours = totalHours.toString().padStart(2, "0");
           const formattedMinutes = minutes.toString().padStart(2, "0");
           const formattedSeconds = seconds.toString().padStart(2, "0");
 
-          setCountdownTimer(`${formattedHours}:${formattedMinutes}:${formattedSeconds}`);
+          setCountdownTimer(
+            `${formattedHours}:${formattedMinutes}:${formattedSeconds}`,
+          );
         }
       } catch (error) {
         console.error("Error calculating countdown:", error);
@@ -1410,9 +2889,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }
     }
 
+    // Calculate initial time
     updateTimer();
+
+    // Set interval to update every second
     const interval = setInterval(updateTimer, 1000);
 
+    // Cleanup interval on unmount
     return () => {
       if (interval) {
         clearInterval(interval);
@@ -1422,24 +2905,32 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
   const getEnhancedTeamColor = useCallback(
     (teamName: string, isHome: boolean = false) => {
+      // Use extracted logo color if available, otherwise fallback to team color
       const extractedColor = teamLogoColors[teamName];
       if (extractedColor) {
         return extractedColor;
       }
+
+      // Fallback to existing color extraction
       return getTeamColor(teamName, isHome);
     },
     [teamLogoColors, getTeamColor],
   );
 
-  const handleMatchClick = useCallback((fixture: FeaturedMatch) => {
+  // Handle match click navigation
+  const handleMatchClick = useCallback((fixture: FeaturedMatch) => { // Changed parameter to fixture
     if (onMatchCardClick) {
-      console.log(`🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`, fixture.fixture.id);
-      onMatchCardClick(fixture);
+      console.log(
+        `🎯 [MyHomeFeaturedMatchNew] Selecting match for Details tab:`,
+        fixture.fixture.id,
+      );
+      onMatchCardClick(fixture); // Pass the entire fixture object like standings
     } else {
       navigate(`/match/${fixture.fixture.id}`);
     }
   }, [navigate, onMatchCardClick]);
 
+  // Toggle star for a match
   const toggleStar = useCallback((matchId: number) => {
     setStarredMatches((prev) => {
       const newSet = new Set(prev);
@@ -1470,23 +2961,28 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         </CardHeader>
         <CardContent className="pt-0">
           <div className="space-y-4">
+            {/* Match status skeleton */}
             <div className="text-center">
               <Skeleton className="h-4 w-20 mx-auto mb-2" />
               <Skeleton className="h-8 w-16 mx-auto" />
             </div>
 
+            {/* Teams display skeleton */}
             <div className="relative mt-4">
               <div className="flex relative h-[53px] rounded-md mb-8">
                 <div className="w-full h-full flex justify-between relative">
+                  {/* Home team section */}
                   <div className="flex items-center w-[45%]">
                     <Skeleton className="h-16 w-16 rounded-full" />
                     <Skeleton className="h-6 w-24 ml-4" />
                   </div>
 
+                  {/* VS section */}
                   <div className="flex items-center justify-center">
                     <Skeleton className="h-12 w-12 rounded-full" />
                   </div>
 
+                  {/* Away team section */}
                   <div className="flex items-center justify-end w-[45%]">
                     <Skeleton className="h-6 w-24 mr-4" />
                     <Skeleton className="h-16 w-16 rounded-full" />
@@ -1494,11 +2990,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </div>
               </div>
 
+              {/* Match details skeleton */}
               <div className="text-center">
                 <Skeleton className="h-4 w-64 mx-auto" />
               </div>
             </div>
 
+            {/* Action buttons skeleton */}
             <div className="flex justify-around border-t border-gray-200 pt-4">
               {[1, 2, 3, 4].map((i) => (
                 <div key={i} className="flex flex-col items-center">
@@ -1508,6 +3006,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               ))}
             </div>
 
+            {/* Navigation indicators skeleton */}
             <div className="flex justify-center mt-4 gap-1">
               {[1, 2, 3].map((i) => (
                 <Skeleton key={i} className="w-1.5 h-1.5 rounded-full" />
@@ -1541,6 +3040,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
             </div>
           ) : (
             <div className="relative">
+              {/* Navigation arrows */}
               {allMatches.length > 1 && (
                 <>
                   <button
@@ -1559,6 +3059,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                 </>
               )}
 
+              {/* Single match display */}
               <AnimatePresence mode="wait">
                 {currentMatch && (
                   <motion.div
@@ -1573,33 +3074,44 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                     }}
                     className="cursor-pointer"
                     onClick={() => {
-                      console.log(`🔍 [FEATURED MATCH DEBUG] League ID Debug:`, {
-                        leagueId: currentMatch.league.id,
-                        leagueName: currentMatch.league.name,
-                        leagueCountry: currentMatch.league.country,
-                        matchId: currentMatch.fixture.id,
-                        homeTeam: currentMatch.teams.home.name,
-                        awayTeam: currentMatch.teams.away.name,
-                        fixtureStatus: currentMatch.fixture.status.short,
-                      });
+                      // Debug logging for league identification
+                      console.log(
+                        `🔍 [FEATURED MATCH DEBUG] League ID Debug:`,
+                        {
+                          leagueId: currentMatch.league.id,
+                          leagueName: currentMatch.league.name,
+                          leagueCountry: currentMatch.league.country,
+                          matchId: currentMatch.fixture.id,
+                          homeTeam: currentMatch.teams.home.name,
+                          awayTeam: currentMatch.teams.away.name,
+                          fixtureStatus: currentMatch.fixture.status.short,
+                        },
+                      );
 
+                      // Call onMatchCardClick if provided, passing the fixture object
                       handleMatchClick(currentMatch);
                     }}
                   >
+                    {/* League header */}
                     <div
                       className="flex items-center justify-center gap-2 mb-4 p-2"
                       onClick={() => {
-                        console.log(`🔍 [LEAGUE HEADER DEBUG] Clicked on league:`, {
-                          LEAGUE_ID: currentMatch.league.id,
-                          LEAGUE_NAME: currentMatch.league.name,
-                          LEAGUE_COUNTRY: currentMatch.league.country,
-                          LEAGUE_LOGO: currentMatch.league.logo,
-                        });
+                        console.log(
+                          `🔍 [LEAGUE HEADER DEBUG] Clicked on league:`,
+                          {
+                            LEAGUE_ID: currentMatch.league.id,
+                            LEAGUE_NAME: currentMatch.league.name,
+                            LEAGUE_COUNTRY: currentMatch.league.country,
+                            LEAGUE_LOGO: currentMatch.league.logo,
+                          },
+                        );
                       }}
                     >
                       <LazyImage
                         src={
-                          currentMatch.league.name?.toLowerCase().includes("cotif")
+                          currentMatch.league.name
+                            ?.toLowerCase()
+                            .includes("cotif")
                             ? "/assets/matchdetaillogo/SGCUNl9j-zkh3mv3i.png"
                             : currentMatch.league.logo
                         }
@@ -1612,22 +3124,33 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         title={`League ID: ${currentMatch.league.id} | ${currentMatch.league.name} | ${currentMatch.league.country}`}
                       >
                         {(() => {
-                          const smartTranslation = smartLeagueCountryTranslation.translateLeagueName(
-                            currentMatch.league.name,
-                            currentLanguage,
-                          );
+                          // First try smart league translation
+                          const smartTranslation =
+                            smartLeagueCountryTranslation.translateLeagueName(
+                              currentMatch.league.name,
+                              currentLanguage,
+                            );
 
+                          // If smart translation worked (different from original), use it
                           if (smartTranslation !== currentMatch.league.name) {
-                            console.log(`🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`);
+                            console.log(
+                              `🎯 [League Translation] Smart: "${currentMatch.league.name}" → "${smartTranslation}"`,
+                            );
                             return smartTranslation;
                           }
 
-                          const contextTranslation = translateLeagueName(currentMatch.league.name);
-                          console.log(`🔄 [League Translation] Context: "${currentMatch.league.name}" → "${contextTranslation}"`);
+                          // Fallback to context translation
+                          const contextTranslation = translateLeagueName(
+                            currentMatch.league.name,
+                          );
+                          console.log(
+                            `🔄 [League Translation] Context: "${currentMatch.league.name}" → "${contextTranslation}"`,
+                          );
                           return contextTranslation;
                         })()}
                       </span>
 
+                      {/* Round/Bracket Status Display using RoundBadge component */}
                       <RoundBadge
                         leagueId={currentMatch.league.id}
                         currentRound={currentMatch.league?.round}
@@ -1636,6 +3159,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       />
                     </div>
 
+                    {/* Match day indicator */}
                     <div className="text-center mb-4 ">
                       <div className="text-lg font-bold text-gray-800 dark:text-gray-200 ">
                         {(() => {
@@ -1645,10 +3169,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           const today = new Date();
                           const tomorrow = addDays(today, 1);
 
-                          const matchDateString = format(matchDate, "yyyy-MM-dd");
+                          const matchDateString = format(
+                            matchDate,
+                            "yyyy-MM-dd",
+                          );
                           const todayString = format(today, "yyyy-MM-dd");
                           const tomorrowString = format(tomorrow, "yyyy-MM-dd");
 
+                          // Live matches - show elapsed time and live score
                           if (statusInfo.isLive) {
                             const elapsed = currentMatch.fixture.status.elapsed;
                             const homeScore = currentMatch.goals.home ?? 0;
@@ -1661,9 +3189,11 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     <span
                                       className="animate-pulse"
                                       style={{
-                                        animation: "truePulse 2s infinite ease-in-out",
+                                        animation:
+                                          "truePulse 2s infinite ease-in-out",
                                       }}
                                     >
+                                      {" "}
                                       {elapsed}'
                                     </span>
                                   )}
@@ -1671,10 +3201,14 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                     <span
                                       className="animate-pulse"
                                       style={{
-                                        animation: "truePulse 2s infinite ease-in-out",
+                                        animation:
+                                          "truePulse 2s infinite ease-in-out",
                                       }}
                                     >
-                                      {getMatchStatusTranslation("LIVE", currentLanguage)}
+                                      {getMatchStatusTranslation(
+                                        "LIVE",
+                                        currentLanguage,
+                                      )}
                                     </span>
                                   )}
                                 </div>
@@ -1685,40 +3219,65 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             );
                           }
 
-                          if (matchStatus === "FT" || matchStatus === "AET" || matchStatus === "PEN") {
+                          // Ended matches - show final score
+                          if (
+                            matchStatus === "FT" ||
+                            matchStatus === "AET" ||
+                            matchStatus === "PEN"
+                          ) {
                             const homeScore = currentMatch.goals.home ?? 0;
                             const awayScore = currentMatch.goals.away ?? 0;
 
                             return (
                               <div className="space-y-0">
                                 <div className="text-gray-600 dark:text-gray-400 text-sm ">
-                                  {getMatchStatusTranslation(matchStatus, currentLanguage)}
+                                  {getMatchStatusTranslation(
+                                    matchStatus,
+                                    currentLanguage,
+                                  )}
                                 </div>
                                 <div className="text-3xl font-bold">
                                   {homeScore} - {awayScore}
                                 </div>
-                                {matchStatus === "PEN" && currentMatch.score?.penalty && (
-                                  <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    {t("penalties")}: {currentMatch.score.penalty.home} - {currentMatch.score.penalty.away}
-                                  </div>
-                                )}
+                                {/* Show penalty scores if match ended in penalties */}
+                                {matchStatus === "PEN" &&
+                                  currentMatch.score?.penalty && (
+                                    <div className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                                      {t("penalties")}:{" "}
+                                      {currentMatch.score.penalty.home} -{" "}
+                                      {currentMatch.score.penalty.away}
+                                    </div>
+                                  )}
                               </div>
                             );
                           }
 
+                          // Upcoming matches - show countdown timer if within 8 hours, otherwise date
                           const upcomingContent = (() => {
-                            if (countdownTimer && countdownTimer !== "" && countdownTimer !== "Loading..." && countdownTimer !== "--:--:--") {
+                            // Show countdown timer if available and not empty
+                            if (
+                              countdownTimer &&
+                              countdownTimer !== "" &&
+                              countdownTimer !== "Loading..." &&
+                              countdownTimer !== "--:--:--"
+                            ) {
+                              // Check if countdown shows "Starting now" and translate it
                               if (countdownTimer === "Starting now") {
-                                return getMatchStatusTranslation("NS", currentLanguage);
+                                return getMatchStatusTranslation(
+                                  "NS",
+                                  currentLanguage,
+                                );
                               }
                               return countdownTimer;
                             }
 
+                            // Fallback to date labeling with translations
                             if (matchDateString === todayString) {
                               return t("today");
                             } else if (matchDateString === tomorrowString) {
                               return t("tomorrow") || "Tomorrow";
                             } else {
+                              // Calculate days difference for upcoming matches using date-only comparison
                               const matchDateOnly = new Date(
                                 matchDate.getFullYear(),
                                 matchDate.getMonth(),
@@ -1730,43 +3289,61 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 today.getDate(),
                               );
                               const daysDiff = Math.round(
-                                (matchDateOnly.getTime() - todayDateOnly.getTime()) / (1000 * 60 * 60 * 24),
+                                (matchDateOnly.getTime() -
+                                  todayDateOnly.getTime()) /
+                                  (1000 * 60 * 60 * 24),
                               );
 
                               if (daysDiff > 0 && daysDiff <= 7) {
-                                const dayText = daysDiff === 1 ?
-                                  (t("day") !== "day" ? t("day") : "Day") :
-                                  (t("days") !== "days" ? t("days") : "Days");
+                                // For matches within a week, show just the number of days with translation
+                                const dayText =
+                                  daysDiff === 1
+                                    ? t("day") !== "day"
+                                      ? t("day")
+                                      : "Day"
+                                    : t("days") !== "days"
+                                      ? t("days")
+                                      : "Days";
                                 return `${daysDiff} ${dayText}`;
                               } else if (daysDiff > 7) {
+                                // For matches more than a week away, show translated date
                                 const dayName = format(matchDate, "EEEE");
                                 const monthName = format(matchDate, "MMMM");
                                 const dayNumber = format(matchDate, "do");
 
                                 const translatedDayName = (() => {
                                   const dayKey = dayName.toLowerCase();
-                                  return t(dayKey) !== dayKey ? t(dayKey) : dayName;
+                                  return t(dayKey) !== dayKey
+                                    ? t(dayKey)
+                                    : dayName;
                                 })();
 
                                 const translatedMonthName = (() => {
                                   const monthKey = monthName.toLowerCase();
-                                  return t(monthKey) !== monthKey ? t(monthKey) : monthName;
+                                  return t(monthKey) !== monthKey
+                                    ? t(monthKey)
+                                    : monthName;
                                 })();
 
                                 return `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
                               } else {
+                                // For past matches that aren't ended (edge case)
                                 const dayName = format(matchDate, "EEEE");
                                 const monthName = format(matchDate, "MMM");
                                 const dayNumber = format(matchDate, "d");
 
                                 const translatedDayName = (() => {
                                   const dayKey = dayName.toLowerCase();
-                                  return t(dayKey) !== dayKey ? t(dayKey) : dayName;
+                                  return t(dayKey) !== dayKey
+                                    ? t(dayKey)
+                                    : dayName;
                                 })();
 
                                 const translatedMonthName = (() => {
                                   const monthKey = monthName.toLowerCase();
-                                  return t(monthKey) !== monthKey ? t(monthKey) : monthName;
+                                  return t(monthKey) !== monthKey
+                                    ? t(monthKey)
+                                    : monthName;
                                 })();
 
                                 return `${translatedDayName}, ${translatedMonthName} ${dayNumber}`;
@@ -1777,6 +3354,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           return (
                             <div className="space-y-1">
                               <div className="text-sm text-gray-600 dark:text-gray-400 invisible">
+                                {/* // Hidden status placeholder to maintain spacing */}
                                 Ended
                               </div>
                               <div className="text-2xl font-md min-h-[1rem] flex items-center justify-center">
@@ -1788,13 +3366,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       </div>
                     </div>
 
+                    {/* Teams display using colored bar like FixedScoreboard */}
                     <div className="relative mt-2">
                       <div
                         className="flex relative h-[53px] rounded-md mb-8"
-                        onClick={() => navigate(`/match/${currentMatch.fixture.id}`)}
+                        onClick={() =>
+                          navigate(`/match/${currentMatch.fixture.id}`)
+                        }
                         style={{ cursor: "pointer" }}
                       >
                         <div className="w-full h-full flex justify-between relative">
+                          {/* Home team colored bar and logo */}
+
                           <div
                             className="h-full w-[calc(50%+20px)] ml-[25px] transition-all duration-500 ease-in-out opacity-100 relative "
                             style={{
@@ -1803,7 +3386,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 true,
                               ),
                               transition: "all 0.3s ease-in-out",
-                              clipPath: "polygon(0 0, 100% 0, 100% 100%, 100% 100%, 100%)",
+                              clipPath:
+                                "polygon(0 0, 100% 0, 100% 100%, 100% 100%, 100%)",
                               right: "-15px",
                             }}
                           >
@@ -1822,13 +3406,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 }}
                               >
                                 <MyWorldTeamLogo
-                                  teamName={currentMatch.teams.home.name || "Home Team"}
+                                  teamName={
+                                    currentMatch.teams.home.name || "Home Team"
+                                  }
                                   teamLogo={
                                     currentMatch.teams.home.id
                                       ? `/api/team-logo/square/${currentMatch.teams.home.id}?size=64`
-                                      : currentMatch.teams.home.logo || "/assets/fallback-logo.svg"
+                                      : currentMatch.teams.home.logo ||
+                                        "/assets/fallback-logo.svg"
                                   }
-                                  alt={currentMatch.teams.home.name || "Home Team"}
+                                  alt={
+                                    currentMatch.teams.home.name || "Home Team"
+                                  }
                                   size="70px"
                                   className="w-full h-full object-contain"
                                   leagueContext={{
@@ -1856,6 +3445,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             })()}
                           </div>
 
+                          {/* VS circle */}
                           <div
                             className="absolute text-white font-md text-3xl  h-[52px] w-[52px] flex items-center justify-center z-30 overflow-hidden"
                             style={{
@@ -1868,6 +3458,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             <span className="vs-text font-bold">VS</span>
                           </div>
 
+                          {/* Match date and venue - centered below VS */}
                           <div
                             className=" absolute text-center text-xs text-black dark:text-gray-300 font-medium"
                             style={{
@@ -1878,6 +3469,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               position: "absolute",
                               left: "50%",
                               transform: "translateX(-50%)",
+
                               bottom: "-70px",
                               width: "max-content",
                               fontFamily: "'Inter', system-ui, sans-serif",
@@ -1885,52 +3477,83 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           >
                             {(() => {
                               try {
-                                const matchDate = new Date(currentMatch.fixture.date);
-                                const statusInfo = getStatusDisplay(currentMatch);
+                                const matchDate = new Date(
+                                  currentMatch.fixture.date,
+                                );
+                                const statusInfo =
+                                  getStatusDisplay(currentMatch);
 
+                                // Get day name and translate it
                                 const dayName = format(matchDate, "EEEE");
                                 const translatedDayName = (() => {
                                   const dayKey = dayName.toLowerCase();
-                                  return t(dayKey) !== dayKey ? t(dayKey) : dayName;
+                                  return t(dayKey) !== dayKey
+                                    ? t(dayKey)
+                                    : dayName;
                                 })();
 
+                                // Get month name and translate it
                                 const monthName = format(matchDate, "MMMM");
                                 const translatedMonthName = (() => {
                                   const monthKey = monthName.toLowerCase();
-                                  return t(monthKey) !== monthKey ? t(monthKey) : monthName;
+                                  return t(monthKey) !== monthKey
+                                    ? t(monthKey)
+                                    : monthName;
                                 })();
 
+                                // Get day number with ordinal
                                 const dayNumber = format(matchDate, "do");
                                 const timeOnly = format(matchDate, "HH:mm");
 
+                                // Build translated date string
                                 const translatedDate = `${translatedDayName}, ${dayNumber} ${translatedMonthName}`;
 
-                                let displayVenue = currentMatch.fixture?.venue?.name ||
-                                  currentMatch.venue?.name || null;
+                                // Safely get venue with proper fallbacks - SHOW FOR ALL MATCH TYPES
+                                let displayVenue =
+                                  currentMatch.fixture?.venue?.name ||
+                                  currentMatch.venue?.name ||
+                                  null;
 
-                                if (!displayVenue || displayVenue === "TBD" || displayVenue === "Venue TBA" ||
-                                  displayVenue === "" || displayVenue === "Unknown" || displayVenue === "null" ||
-                                  displayVenue.trim() === "") {
-                                  displayVenue = null;
+                                // Check if venue is missing or has placeholder values
+                                if (
+                                  !displayVenue ||
+                                  displayVenue === "TBD" ||
+                                  displayVenue === "Venue TBA" ||
+                                  displayVenue === "" ||
+                                  displayVenue === "Unknown" ||
+                                  displayVenue === "null" ||
+                                  displayVenue.trim() === ""
+                                ) {
+                                  displayVenue = null; // No valid venue found
                                 }
 
+                                // Format venue name with proper capitalization
                                 const formattedVenue = displayVenue
-                                  ? displayVenue.toLowerCase().replace(/\b\w/g, (l) => l.toUpperCase())
+                                  ? displayVenue
+                                      .toLowerCase()
+                                      .replace(/\b\w/g, (l) => l.toUpperCase())
                                   : null;
 
+                                // Show date, time, and venue for ALL match types (upcoming, live, ended)
                                 return (
                                   <>
                                     {translatedDate} | {timeOnly}
-                                    {formattedVenue ? ` | ${formattedVenue}` : ""}
+                                    {formattedVenue
+                                      ? ` | ${formattedVenue}`
+                                      : ""}
                                   </>
                                 );
                               } catch (e) {
-                                console.warn("Error formatting match date/venue:", e);
+                                console.warn(
+                                  "Error formatting match date/venue:",
+                                  e,
+                                );
                                 return "Match details unavailable";
                               }
                             })()}
                           </div>
 
+                          {/* Away team colored bar and logo */}
                           <div
                             className="h-full w-[calc(50%+16px)] mr-[45px] transition-all duration-500 ease-in-out opacity-100"
                             style={{
@@ -1939,7 +3562,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                                 false,
                               ),
                               transition: "all 0.3s ease-in-out",
-                              clipPath: "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
+                              clipPath:
+                                "polygon(15px 0, 100% 0, 100% 100%, 0 100%)",
                               marginLeft: "-15px",
                             }}
                           ></div>
@@ -1954,7 +3578,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                           >
                             {(() => {
-                              const originalName = currentMatch?.teams?.away?.name || "Away Team";
+                              const originalName =
+                                currentMatch?.teams?.away?.name || "Away Team";
                               return translateTeamName(originalName);
                             })()}
                           </div>
@@ -1974,13 +3599,18 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                             }}
                           >
                             <MyWorldTeamLogo
-                              teamName={currentMatch?.teams?.away?.name || "Away Team"}
+                              teamName={
+                                currentMatch?.teams?.away?.name || "Away Team"
+                              }
                               teamLogo={
                                 currentMatch.teams.away.id
                                   ? `/api/team-logo/square/${currentMatch.teams.away.id}?size=70`
-                                  : currentMatch?.teams?.away?.logo || `/assets/fallback-logo.svg`
+                                  : currentMatch?.teams?.away?.logo ||
+                                    `/assets/fallback-logo.svg`
                               }
-                              alt={currentMatch?.teams?.away?.name || "Away Team"}
+                              alt={
+                                currentMatch?.teams?.away?.name || "Away Team"
+                              }
                               size="75px"
                               className="w-full hull object-contain"
                               leagueContext={{
@@ -1993,6 +3623,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       </div>
                     </div>
 
+                    {/* Action Buttons */}
                     <div className="flex justify-around border-t border-gray-200 dark:border-gray-700 pt-4 mt-20">
                       <button
                         className="flex flex-col items-center cursor-pointer"
@@ -2001,7 +3632,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                           navigate(`/match/${currentMatch.fixture.id}`);
                         }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
                           <path
                             d="M20 3H4C3.45 3 3 3.45 3 4V20C3 20.55 3.45 21 4 21H20C20.55 21 21 20.55 21 20V4C21 3.45 20.55 3 20 3ZM7 7H17V17H7V7Z"
                             fill="currentColor"
@@ -2015,9 +3651,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="flex flex-col items-center cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
+                          // Placeholder for lineup navigation
                         }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
                           <path
                             d="M21.5 4H2.5C2.22386 4 2 4.22386 2 4.5V19.5C2 19.7761 2.22386 20 2.5 20H21.5C21.7761 20 22 19.7761 22 19.5V4.5C22 4.22386 21.7761 4 21.5 4Z"
                             stroke="currentColor"
@@ -2045,9 +3687,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="flex flex-col items-center cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
+                          // Placeholder for statistics navigation
                         }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
                           <path
                             d="M12 2C6.486 2 2 6.486 2 12C2 17.514 6.486 22 12 22C17.514 22 22 17.514 22 12C22 6.486 17.514 2 12 2ZM19.931 11H13V4.069C14.7598 4.29335 16.3953 5.09574 17.6498 6.3502C18.9043 7.60466 19.7066 9.24017 19.931 11ZM4 12C4 7.928 7.061 4.564 11 4.069V12C11.003 12.1526 11.0409 12.3024 11.111 12.438C11.126 12.468 11.133 12.501 11.152 12.531L15.354 19.254C14.3038 19.7442 13.159 19.9988 12 20C7.589 20 4 16.411 4 12ZM17.052 18.196L13.805 13H19.931C19.6746 15.0376 18.6436 16.8982 17.052 18.196Z"
                             fill="currentColor"
@@ -2061,9 +3709,15 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                         className="flex flex-col items-center cursor-pointer"
                         onClick={(e) => {
                           e.stopPropagation();
+                          // Placeholder for groups navigation
                         }}
                       >
-                        <svg width="20" height="20" viewBox="0 0 24 24" className="text-blue-500">
+                        <svg
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          className="text-blue-500"
+                        >
                           <path
                             d="M4 6H6V8H4V6ZM4 11H6V13H4V11ZM4 16H6V18H4V16ZM20 8V6H8.023V8H18.8H20ZM8 11H20V13H8V11ZM8 16H20V18H8V16Z"
                             fill="currentColor"
@@ -2075,6 +3729,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       </button>
                     </div>
 
+                    {/* Slide indicators */}
                     {allMatches.length > 1 && (
                       <div className="flex justify-center mt-4 gap-1">
                         {allMatches.map((_, index) => (
@@ -2085,7 +3740,9 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                               setCurrentMatchIndex(index);
                             }}
                             className={`w-1 h-1 rounded-sm transition-colors ${
-                              index === currentMatchIndex ? "bg-gray-500" : "bg-gray-300"
+                              index === currentMatchIndex
+                                ? "bg-gray-500"
+                                : "bg-gray-300"
                             }`}
                           />
                         ))}

@@ -644,9 +644,6 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
-  // Cache for in-flight requests to deduplicate calls
-  const requestCache = new Map<string, Promise<Response>>();
-
   // Helper function to check if match ended more than 4 hours ago
   const isMatchOldEnded = useCallback((fixture: FixtureData): boolean => {
     const status = fixture.fixture.status.short;
@@ -1086,133 +1083,186 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // 🚀 PARALLEL FETCH - Fetch all leagues in parallel with deduplication
-      console.log(`🚀 [MyNewLeague2] PARALLEL fetching ${leagueIds.length} leagues`);
+      // Process leagues in optimized batches
+      const batchSize = 5; // Increase concurrent requests for priority leagues
+      const results: Array<{
+        leagueId: number;
+        fixtures: FixtureData[];
+        error?: string;
+        networkError?: boolean;
+        rateLimited?: boolean;
+        timeout?: boolean;
+      }> = [];
 
-      const parallelPromises = leagueIds.map(async (leagueId) => {
-        try {
-          console.log(`🔍 [MyNewLeague2] PARALLEL fetch for league ${leagueId}`);
+      for (let i = 0; i < leagueIds.length; i += batchSize) {
+        const batch = leagueIds.slice(i, i + batchSize);
+        console.log(
+          `🔄 [MyNewLeague2] Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(leagueIds.length / batchSize)}: leagues ${batch.join(", ")}`,
+        );
 
-          // Use deduped request to prevent duplicate API calls
-          const cacheKey = `/api/leagues/${leagueId}/fixtures`;
-          let response;
+        const batchPromises = batch.map(async (leagueId, index) => {
+          // Minimal delay only for large batches
+          if (index > 2) {
+            await delay(10); // Reduced to 10ms delay
+          }
 
-          // Check if request is already in flight
-          if (requestCache.has(cacheKey)) {
-            console.log(`🔄 [MyNewLeague2] Using deduped request for league ${leagueId}`);
-            response = await requestCache.get(cacheKey);
-          } else {
-            console.log(`🆕 [MyNewLeague2] Making fresh request for league ${leagueId}`);
-            const requestPromise = apiRequest("GET", cacheKey).catch((fetchError) => {
-              // Handle timeout error specifically and return null for caching logic
+          try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+              controller.abort("Request timeout after 10 seconds"); // Adjusted timeout
+            }, 10000); // Adjusted to 10 seconds
+
+            const response = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}/fixtures`,
+              {
+                signal: controller.signal,
+              }
+            ).catch((fetchError) => {
+              clearTimeout(timeoutId);
+
+              // Handle specific timeout errors
               if (
                 fetchError.name === "AbortError" ||
                 fetchError.message?.includes("aborted") ||
                 fetchError.message?.includes("timeout")
               ) {
                 console.warn(
-                  `⏰ [MyNewLeague2] Request timeout for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`,
+                  `⏰ [MyNewLeague2] Request timeout for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
                 );
-                return null; // Indicate timeout
+                return null;
               }
 
-              // Handle other network errors
               console.warn(
                 `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
               );
-              // Re-throw to be caught by the outer catch block
-              throw fetchError;
-            });
-            requestCache.set(cacheKey, requestPromise);
-
-            // Clean up cache after request completes or fails
-            requestPromise.finally(() => {
-              // Use a slightly longer timeout to ensure data is processed
-              setTimeout(() => requestCache.delete(cacheKey), 60000);
+              return null;
             });
 
-            response = await requestPromise;
-          }
+            clearTimeout(timeoutId);
 
-          // If response is null due to timeout, return empty fixtures for this league
-          if (response === null) {
-            return {
-              leagueId,
-              fixtures: [],
-              error: "Request timeout",
-              networkError: true,
-              timeout: true,
-            };
-          }
+            if (!response) {
+              return {
+                leagueId,
+                fixtures: [],
+                error: "Request timeout or network error",
+                networkError: true,
+              };
+            }
 
-          // Handle non-OK responses (e.g., rate limits)
-          if (!response.ok) {
-            if (response.status === 429) {
-              console.warn(
-                `⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`,
+            if (!response.ok) {
+              if (response.status === 429) {
+                console.warn(
+                  `⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`,
+                );
+                return {
+                  leagueId,
+                  fixtures: [],
+                  error: "Rate limited",
+                  rateLimited: true,
+                };
+              }
+              console.log(
+                `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
               );
               return {
                 leagueId,
                 fixtures: [],
-                error: "Rate limited",
-                rateLimited: true,
+                error: `HTTP ${response.status}`,
               };
             }
-            console.log(
-              `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
-            );
-            return {
-              leagueId,
-              fixtures: [],
-              error: `HTTP ${response.status}`,
-            };
-          }
 
-          const data = await response.json().catch((jsonError) => {
+            const data = await response.json().catch((jsonError) => {
+              console.warn(
+                `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
+              );
+              return { response: [] };
+            });
+
+            const fixtures = data.response || data || [];
+
+            // Cache ended matches for this league
+            cacheEndedMatches(selectedDate, leagueId, fixtures);
+
+            console.log(
+              `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
+            );
+            return { leagueId, fixtures, error: null };
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : "Unknown error";
+
+            // Handle timeout errors specifically
+            if (
+              error instanceof Error &&
+              (error.name === "AbortError" ||
+                errorMessage.includes("abort") ||
+                errorMessage.includes("timeout"))
+            ) {
+              console.log(
+                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
+              );
+              return {
+                leagueId,
+                fixtures: [],
+                error: "Request timeout",
+                networkError: true,
+                timeout: true,
+              };
+            }
+
             console.warn(
-              `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
-            );
-            return { response: [] }; // Return empty array on parse error
-          });
-
-          const fixtures = data.response || data || [];
-
-          // Cache ended matches for this league
-          cacheEndedMatches(selectedDate, leagueId, fixtures);
-
-          console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
-          return { leagueId, fixtures: fixtures || [], error: undefined };
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Unknown error";
-
-          // Handle specific timeout errors that might not have been caught by apiRequest
-          if (
-            error instanceof Error &&
-            (error.name === "AbortError" ||
-              errorMessage.includes("abort") ||
-              errorMessage.includes("timeout"))
-          ) {
-            console.log(
-              `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`,
+              `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
             );
             return {
               leagueId,
               fixtures: [],
-              error: "Request timeout",
+              error: errorMessage,
               networkError: true,
-              timeout: true,
             };
           }
+        });
 
-          console.warn(
-            `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
+        try {
+          const batchResults = await Promise.allSettled(batchPromises);
+          const processedResults = batchResults.map((result) =>
+            result.status === "fulfilled"
+              ? result.value
+              : {
+                  leagueId: 0, // Placeholder for leagueId if promise rejected
+                  fixtures: [],
+                  error: "Promise rejected",
+                  networkError: true,
+                },
           );
-          return { leagueId, fixtures: [], error: errorMessage, networkError: true };
+          // Type assertion to resolve compatibility issue
+          results.push(...(processedResults as any));
+        } catch (batchError) {
+          console.warn(
+            `⚠️ [MyNewLeague2] Batch processing error: ${batchError}`,
+          );
+          // Continue with empty results for this batch
+          results.push(
+            ...batch.map((leagueId) => ({
+              leagueId,
+              fixtures: [],
+              error: "Batch processing failed",
+              networkError: true,
+            })),
+          );
         }
-      });
 
-      console.log(`⏳ [MyNewLeague2] Waiting for all ${leagueIds.length} parallel requests to complete...`);
-      const results = await Promise.all(parallelPromises);
+        // Add delay between batches to be more API-friendly
+        if (i + batchSize < leagueIds.length) {
+          console.log(`⏳ [MyNewLeague2] Waiting 2000ms before next batch...`);
+          await delay(25);
+        }
+      }
+
+      // Learn teams from fixtures before processing
+      smartTeamTranslation.learnTeamsFromFixtures(
+        results.flatMap((res) => res.fixtures),
+      );
 
       // Combine fresh fixtures with cached ended matches
       const allFixturesMap = new Map<number, FixtureData>();
@@ -1243,7 +1293,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       // Log detailed results
       console.log(`🔄 [MyNewLeague2] Fetch results:`, {
-        totalBatches: Math.ceil(leagueIds.length / leagueIds.length), // Should be 1 for parallel
+        totalBatches: Math.ceil(leagueIds.length / batchSize),
         successfulFetches: results.filter(
           (r) => !r.error && r.fixtures.length > 0,
         ).length,
@@ -3441,6 +3491,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
                                       )
                                       .replace(
                                         "im Elfmeterschießen",
+                                        penaltyScore + " " + onPenaltiesText,
+                                      )
+                                      .replace(
+                                        "ai rigori",
                                         penaltyScore + " " + onPenaltiesText,
                                       )
                                       .replace(
