@@ -1018,7 +1018,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (shouldInclude) {
                       console.log(
-                        `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
+                        `✅ [MyHomeFeaturedMatchNew] Including priority league fixture:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1146,7 +1146,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 allFixtures.push(...cachedFixtures);
               }
-            }
           });
 
           // Fetch popular team friendlies from Friendlies Clubs league (667)
