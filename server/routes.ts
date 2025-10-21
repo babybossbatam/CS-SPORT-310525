@@ -1002,26 +1002,14 @@ name: "Bundesliga",
       const leagueId = parseInt(req.params.id);
       const season = parseInt(req.query.season as string) || 2025;
       const forceRefresh = req.query.force === 'true';
-      const dateFilter = req.query.date as string;
 
-      console.log(`API: Fetching fixtures for league ${leagueId}, season ${season}${dateFilter ? `, date ${dateFilter}` : ''}${forceRefresh ? ' (force refresh)' : ''}`);
+      console.log(`API: Fetching fixtures for league ${leagueId}, season ${season}${forceRefresh ? ' (force refresh)' : ''}`);
 
       const fixtures = await rapidApiService.getFixturesByLeague(leagueId, season, forceRefresh);
 
-      // Filter by date if provided
-      let filteredFixtures = fixtures;
-      if (dateFilter && dateFilter.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        filteredFixtures = fixtures.filter((fixture) => {
-          const fixtureDate = new Date(fixture.fixture.date);
-          const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
-          return fixtureDateString === dateFilter;
-        });
-        console.log(`API: Filtered ${fixtures.length} fixtures to ${filteredFixtures.length} for date ${dateFilter}`);
-      }
+      console.log(`API: Retrieved ${fixtures.length} fixtures for league ${leagueId}`);
 
-      console.log(`API: Retrieved ${filteredFixtures.length} fixtures for league ${leagueId}`);
-
-      res.json({ response: filteredFixtures });
+      res.json(fixtures);
     } catch (error) {
       console.error(`Error in /leagues/${req.params.id}/fixtures:`, error);
       res.status(500).json({

@@ -1101,12 +1101,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-            const apiUrl = `/api/leagues/${leagueId}/fixtures?date=${selectedDate}`;
-            console.log(`🔍 [MyNewLeague2] Fetching league ${leagueId} fixtures for date: ${selectedDate} - URL: ${apiUrl}`);
-            
             const response = await apiRequest(
               "GET",
-              apiUrl,
+              `/api/leagues/${leagueId}/fixtures`,
               { signal: controller.signal }
             );
 
