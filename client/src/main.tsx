@@ -18,6 +18,7 @@ import { StorageMonitor } from './lib/storageMonitor';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import './lib/memoryManager'
 import './lib/workflowManager'
+import './lib/replitAssistantProtection'
 
 // Remove resource monitor to prevent conflicts with Replit Assistant
 // ResourceMonitor.getInstance().init(); // REMOVED
@@ -68,19 +69,19 @@ requestIdleCallback(() => {
   StorageMonitor.getInstance().init();
 }, { timeout: 2000 });
 
-// Set BALANCED EventEmitter limits for Replit Assistant compatibility
+// Set VERY CONSERVATIVE EventEmitter limits for Replit Assistant compatibility
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(25); // Increased for app stability
+  process.setMaxListeners(8); // Much lower for stability
 }
 
-// Balanced EventEmitter setup for Replit
+// Very conservative EventEmitter setup for Replit
 if (typeof window !== 'undefined') {
   if ((window as any).EventEmitter) {
-    (window as any).EventEmitter.defaultMaxListeners = 10; // Reduced from 50
+    (window as any).EventEmitter.defaultMaxListeners = 5; // Much lower
   }
 
   if ((window as any).events?.EventEmitter) {
-    (window as any).events.EventEmitter.defaultMaxListeners = 10; // Reduced from 50
+    (window as any).events.EventEmitter.defaultMaxListeners = 5; // Much lower
   }
 }
 

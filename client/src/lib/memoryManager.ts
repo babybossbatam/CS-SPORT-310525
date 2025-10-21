@@ -33,11 +33,9 @@ export class MemoryManager {
         const totalMB = Math.round(total / 1024 / 1024);
         const limitMB = Math.round(limit / 1024 / 1024);
         
-        console.log(`🧠 Memory: ${usedMB}MB used / ${totalMB}MB total / ${limitMB}MB limit`);
-        
-        // If memory usage is high, trigger cleanup
-        if (used > limit * 0.85) {
-          console.warn('⚠️ High memory usage detected, triggering cleanup');
+        // More aggressive cleanup threshold for Replit
+        if (used > limit * 0.6) { // Reduced from 0.85 to 0.6
+          console.warn('⚠️ Memory usage approaching limit, triggering aggressive cleanup');
           this.emergencyCleanup();
         }
         

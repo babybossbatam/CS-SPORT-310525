@@ -2437,10 +2437,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Clear caches first to ensure we don't show stale data
     clearExcludedLeaguesCaches();
 
-    // Delay initial load to prevent overwhelming Replit Assistant
+    // MUCH longer delay to prevent overwhelming Replit Assistant
     const timer = setTimeout(() => {
       fetchFeaturedMatches(true);
-    }, 1000);
+    }, 5000); // Increased from 1000ms to 5000ms
 
     // Start the selective update interval management
     if (featuredMatches.length > 0) {

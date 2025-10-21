@@ -111,8 +111,8 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Initialize with CONSERVATIVE limits for Replit compatibility
-setGlobalEventEmitterLimits(15);
+// Initialize with VERY CONSERVATIVE limits for Replit compatibility
+setGlobalEventEmitterLimits(8);
 
 // Set up cleanup only when page unloads
 if (typeof window !== 'undefined') {
