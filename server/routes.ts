@@ -1002,12 +1002,24 @@ name: "Bundesliga",
       const leagueId = parseInt(req.params.id);
       const season = parseInt(req.query.season as string) || 2025;
       const forceRefresh = req.query.force === 'true';
+      const date = req.query.date as string | undefined;
 
-      console.log(`API: Fetching fixtures for league ${leagueId}, season ${season}${forceRefresh ? ' (force refresh)' : ''}`);
+      console.log(`API: Fetching fixtures for league ${leagueId}, season ${season}${date ? ` for date ${date}` : ''}${forceRefresh ? ' (force refresh)' : ''}`);
 
-      const fixtures = await rapidApiService.getFixturesByLeague(leagueId, season, forceRefresh);
+      const allFixtures = await rapidApiService.getFixturesByLeague(leagueId, season, forceRefresh);
 
-      console.log(`API: Retrieved ${fixtures.length} fixtures for league ${leagueId}`);
+      // Filter by date if provided
+      let fixtures = allFixtures;
+      if (date) {
+        fixtures = allFixtures.filter((fixture: any) => {
+          const fixtureDate = new Date(fixture.fixture.date);
+          const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+          return fixtureDateString === date;
+        });
+        console.log(`API: Filtered ${allFixtures.length} fixtures to ${fixtures.length} for date ${date}`);
+      } else {
+        console.log(`API: Retrieved ${fixtures.length} fixtures for league ${leagueId}`);
+      }
 
       res.json(fixtures);
     } catch (error) {
