@@ -251,6 +251,17 @@ export const TodayMatchPageCard = ({
   // State to share fixtures from MyNewLeague2
   const [sharedAllFixtures, setSharedAllFixtures] = useState<any[]>([]);
 
+  // Delay mounting heavy components to prevent browser freeze
+  const [shouldMountLeagues, setShouldMountLeagues] = useState(false);
+
+  useEffect(() => {
+    // Delay mounting MyNewLeague2 to allow page to load first
+    const timer = setTimeout(() => {
+      setShouldMountLeagues(true);
+    }, 1000); // 1 second delay
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <>
@@ -492,24 +503,34 @@ export const TodayMatchPageCard = ({
       ) : (
         // Neither filter active - show default view
         <>
-          <MyNewLeague2
-            selectedDate={selectedDate}
-            timeFilterActive={false}
-            showTop10={false}
-            liveFilterActive={liveFilterActive}
-            onMatchCardClick={handleMatchCardClick}
-            onFixturesLoad={setSharedAllFixtures} // Pass callback to receive fixtures
-            useUTCOnly={true}
-          />
+          {shouldMountLeagues ? (
+            <>
+              <MyNewLeague2
+                selectedDate={selectedDate}
+                timeFilterActive={false}
+                showTop10={false}
+                liveFilterActive={liveFilterActive}
+                onMatchCardClick={handleMatchCardClick}
+                onFixturesLoad={setSharedAllFixtures} // Pass callback to receive fixtures
+                useUTCOnly={true}
+              />
 
-          <TodaysMatchesByCountryNew
-            selectedDate={selectedDate}
-            liveFilterActive={liveFilterActive}
-            timeFilterActive={timeFilterActive}
-            onMatchCardClick={handleMatchCardClick}
-          />
-          {isMobile && (
-            <MyRightContent />
+              <TodaysMatchesByCountryNew
+                selectedDate={selectedDate}
+                liveFilterActive={liveFilterActive}
+                timeFilterActive={timeFilterActive}
+                onMatchCardClick={handleMatchCardClick}
+              />
+              {isMobile && (
+                <MyRightContent />
+              )}
+            </>
+          ) : (
+            <Card className="p-6">
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              </div>
+            </Card>
           )}
         </>
       )
