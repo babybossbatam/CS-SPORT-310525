@@ -33,9 +33,15 @@ export class MemoryManager {
         const totalMB = Math.round(total / 1024 / 1024);
         const limitMB = Math.round(limit / 1024 / 1024);
         
-        // More aggressive cleanup threshold for Replit
-        if (used > limit * 0.6) { // Reduced from 0.85 to 0.6
+        // Very aggressive cleanup threshold for Replit Assistant compatibility
+        if (used > limit * 0.4) { // Reduced to 40% threshold
           console.warn('⚠️ Memory usage approaching limit, triggering aggressive cleanup');
+          this.emergencyCleanup();
+        }
+        
+        // Also trigger cleanup if growth is too rapid
+        if (used > this.lastMemoryUsage * 1.2) {
+          console.warn('⚠️ Rapid memory growth detected, triggering cleanup');
           this.emergencyCleanup();
         }
         

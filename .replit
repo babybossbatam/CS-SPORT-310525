@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Full Stack Dev Clean"
+runButton = "Ultra Light Start"
 
 [[workflows.workflow]]
 name = "Project"
@@ -156,6 +156,15 @@ args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=1024 --max-semi-
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd client && NODE_OPTIONS='--max-old-space-size=512' npm run dev"
+
+[[workflows.workflow]]
+name = "Ultra Light Start"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=512 --max-semi-space-size=32' tsx --watch=false server/index.ts"
 
 [[ports]]
 localPort = 5000
