@@ -1,0 +1,23 @@
+Uncaught SyntaxError: Invalid or unexpected tokenUnderstand this error
+anchor?ar=1&k=6Ldqhw…jQ0Mw..&hl=en&v=…:1 Uncaught (in promise) Timeout (o)Understand this error
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.Understand this error
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'ambient-light-sensor'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'battery'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'execution-while-not-rendered'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'layout-animations'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'legacy-image-formats'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'navigation-override'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'oversized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'publickey-credentials'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'speaker-selection'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'unoptimized-images'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Unrecognized feature: 'unsized-media'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Allow attribute will take precedence over 'allowfullscreen'.Understand this warning
+workspace_iframe.html?initialPath=%2F&id=%3Arpt%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.Understand this warning
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/api/player-photo-by-name?name=Thiago:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/api/player-photo-by-name?name=Thiago:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/api/player-photo-by-name?name=A.%20Semenyo:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/api/player-photo-by-name?name=E.%20Haaland:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/api/player-photo-by-name?name=E.%20Haaland:1  Failed to load resource: the server responded with a status of 404 (Not Found)Understand this error
+482be3e5-72e0-4aaf-ab33-69660b136cf5-00-3q7q84j2fwng2.riker.replit.dev:3000/api/player-photo-by-name?name=A.%20Semenyo:1  Failed to load resource: the server responded with a status of 404 (Not Found)
