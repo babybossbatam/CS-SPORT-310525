@@ -633,11 +633,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // League IDs without any filtering - removed duplicates
+  // Reduced league IDs for better performance
   const leagueIds = [
-    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
-    307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
-    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
+    39, 140, 135, 78, 61, 2, 3, 4, 15, 38, 29, 32, 22, 5
   ];
 
   // Reduced delay for parallel processing optimization
@@ -1083,12 +1081,22 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // Parallel processing of all leagues simultaneously
+      // Sequential processing to prevent system overload
       console.log(
-        `🚀 [MyNewLeague2] Parallel processing ${leagueIds.length} leagues simultaneously`,
+        `🚀 [MyNewLeague2] Sequential processing ${leagueIds.length} leagues`,
       );
 
-      const leaguePromises = leagueIds.map(async (leagueId) => {
+      const results: Array<{
+        leagueId: number;
+        fixtures: FixtureData[];
+        error?: string;
+        networkError?: boolean;
+        rateLimited?: boolean;
+        timeout?: boolean;
+      }> = [];
+
+      // Process leagues sequentially with delays
+      for (const leagueId of leagueIds) {
 
           try {
           const controller = new AbortController();
@@ -1207,28 +1215,56 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         }
       });
 
-      // Wait for all parallel requests to complete
-      console.log(`⏳ [MyNewLeague2] Waiting for ${leagueIds.length} parallel requests...`);
-      const allResults = await Promise.allSettled(leaguePromises);
-      
-      // Process all results
-      const results: Array<{
-        leagueId: number;
-        fixtures: FixtureData[];
-        error?: string;
-        networkError?: boolean;
-        rateLimited?: boolean;
-        timeout?: boolean;
-      }> = allResults.map((result) =>
-        result.status === "fulfilled"
-          ? result.value
-          : {
-              leagueId: 0,
+      try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            controller.abort("Request timeout after 5 seconds");
+          }, 5000); // Reduced timeout
+
+          const response = await apiRequest(
+            "GET",
+            `/api/leagues/${leagueId}/fixtures`,
+            {
+              signal: controller.signal,
+            }
+          ).catch((fetchError) => {
+            clearTimeout(timeoutId);
+            console.warn(`⚠️ [MyNewLeague2] Error for league ${leagueId}`);
+            return null;
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response || !response.ok) {
+            results.push({
+              leagueId,
               fixtures: [],
-              error: "Promise rejected",
-              networkError: true,
-            },
-      );
+              error: `HTTP ${response?.status || 'Unknown'}`,
+            });
+            continue;
+          }
+
+          const data = await response.json().catch(() => ({ response: [] }));
+          const fixtures = data.response || data || [];
+
+          // Limit fixtures per league to prevent memory overload
+          const limitedFixtures = fixtures.slice(0, 50);
+
+          results.push({ leagueId, fixtures: limitedFixtures, error: null });
+          
+          // Add delay between requests to prevent overwhelming
+          await new Promise(resolve => setTimeout(resolve, 100));
+
+        } catch (error) {
+          console.warn(`⚠️ [MyNewLeague2] Error fetching league ${leagueId}`);
+          results.push({
+            leagueId,
+            fixtures: [],
+            error: "Network error",
+            networkError: true,
+          });
+        }
+      }
 
       // Learn teams from fixtures before processing
       smartTeamTranslation.learnTeamsFromFixtures(

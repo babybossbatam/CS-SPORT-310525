@@ -12,7 +12,7 @@ build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
 
 [workflows]
-runButton = "Ultra Light Start"
+runButton = "Lightweight Start"
 
 [[workflows.workflow]]
 name = "Project"
@@ -165,6 +165,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=512 --max-semi-space-size=32' tsx --watch=false server/index.ts"
+
+[[workflows.workflow]]
+name = "Lightweight Start"
+author = 42256231
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "NODE_ENV=development NODE_OPTIONS='--max-old-space-size=256 --max-semi-space-size=16' tsx --watch=false server/index.ts"
 
 [[ports]]
 localPort = 5000
