@@ -640,7 +640,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
 
-  // Helper function to add delay between requests
+  // Reduced delay for parallel processing optimization
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -1083,42 +1083,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // Process leagues in optimized batches
-      const batchSize = 5; // Increase concurrent requests for priority leagues
-      const results: Array<{
-        leagueId: number;
-        fixtures: FixtureData[];
-        error?: string;
-        networkError?: boolean;
-        rateLimited?: boolean;
-        timeout?: boolean;
-      }> = [];
+      // Parallel processing of all leagues simultaneously
+      console.log(
+        `🚀 [MyNewLeague2] Parallel processing ${leagueIds.length} leagues simultaneously`,
+      );
 
-      for (let i = 0; i < leagueIds.length; i += batchSize) {
-        const batch = leagueIds.slice(i, i + batchSize);
-        console.log(
-          `🔄 [MyNewLeague2] Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(leagueIds.length / batchSize)}: leagues ${batch.join(", ")}`,
-        );
-
-        const batchPromises = batch.map(async (leagueId, index) => {
-          // Minimal delay only for large batches
-          if (index > 2) {
-            await delay(10); // Reduced to 10ms delay
-          }
+      const leaguePromises = leagueIds.map(async (leagueId) => {
 
           try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => {
-              controller.abort("Request timeout after 10 seconds"); // Adjusted timeout
-            }, 10000); // Adjusted to 10 seconds
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => {
+            controller.abort("Request timeout after 8 seconds");
+          }, 8000); // Reduced timeout for parallel processing
 
-            const response = await apiRequest(
-              "GET",
-              `/api/leagues/${leagueId}/fixtures`,
-              {
-                signal: controller.signal,
-              }
-            ).catch((fetchError) => {
+          const response = await apiRequest(
+            "GET",
+            `/api/leagues/${leagueId}/fixtures`,
+            {
+              signal: controller.signal,
+            }
+          ).catch((fetchError) => {
               clearTimeout(timeoutId);
 
               // Handle specific timeout errors
@@ -1212,52 +1196,39 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             }
 
             console.warn(
-              `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
-            );
-            return {
-              leagueId,
-              fixtures: [],
-              error: errorMessage,
-              networkError: true,
-            };
-          }
-        });
-
-        try {
-          const batchResults = await Promise.allSettled(batchPromises);
-          const processedResults = batchResults.map((result) =>
-            result.status === "fulfilled"
-              ? result.value
-              : {
-                  leagueId: 0, // Placeholder for leagueId if promise rejected
-                  fixtures: [],
-                  error: "Promise rejected",
-                  networkError: true,
-                },
+            `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
           );
-          // Type assertion to resolve compatibility issue
-          results.push(...(processedResults as any));
-        } catch (batchError) {
-          console.warn(
-            `⚠️ [MyNewLeague2] Batch processing error: ${batchError}`,
-          );
-          // Continue with empty results for this batch
-          results.push(
-            ...batch.map((leagueId) => ({
-              leagueId,
-              fixtures: [],
-              error: "Batch processing failed",
-              networkError: true,
-            })),
-          );
+          return {
+            leagueId,
+            fixtures: [],
+            error: errorMessage,
+            networkError: true,
+          };
         }
+      });
 
-        // Add delay between batches to be more API-friendly
-        if (i + batchSize < leagueIds.length) {
-          console.log(`⏳ [MyNewLeague2] Waiting 2000ms before next batch...`);
-          await delay(25);
-        }
-      }
+      // Wait for all parallel requests to complete
+      console.log(`⏳ [MyNewLeague2] Waiting for ${leagueIds.length} parallel requests...`);
+      const allResults = await Promise.allSettled(leaguePromises);
+      
+      // Process all results
+      const results: Array<{
+        leagueId: number;
+        fixtures: FixtureData[];
+        error?: string;
+        networkError?: boolean;
+        rateLimited?: boolean;
+        timeout?: boolean;
+      }> = allResults.map((result) =>
+        result.status === "fulfilled"
+          ? result.value
+          : {
+              leagueId: 0,
+              fixtures: [],
+              error: "Promise rejected",
+              networkError: true,
+            },
+      );
 
       // Learn teams from fixtures before processing
       smartTeamTranslation.learnTeamsFromFixtures(
