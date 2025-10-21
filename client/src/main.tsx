@@ -63,22 +63,25 @@ if (import.meta.env.DEV) {
   });
 }
 
-// Disable heavy initialization to prevent system overload
-// Cache and storage initialization disabled for Replit Assistant compatibility
+// Defer cache and storage initialization
+requestIdleCallback(() => {
+  initializeFlagCachePersistence();
+  StorageMonitor.getInstance().init();
+}, { timeout: 2000 });
 
-// Ultra-conservative EventEmitter limits for Replit Assistant compatibility
+// Set VERY CONSERVATIVE EventEmitter limits for Replit Assistant compatibility
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(3); // Extremely low for stability
+  process.setMaxListeners(8); // Much lower for stability
 }
 
-// Ultra-conservative EventEmitter setup for Replit
+// Very conservative EventEmitter setup for Replit
 if (typeof window !== 'undefined') {
   if ((window as any).EventEmitter) {
-    (window as any).EventEmitter.defaultMaxListeners = 2; // Extremely low
+    (window as any).EventEmitter.defaultMaxListeners = 5; // Much lower
   }
 
   if ((window as any).events?.EventEmitter) {
-    (window as any).events.EventEmitter.defaultMaxListeners = 2; // Extremely low
+    (window as any).events.EventEmitter.defaultMaxListeners = 5; // Much lower
   }
 }
 

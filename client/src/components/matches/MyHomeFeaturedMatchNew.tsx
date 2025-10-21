@@ -782,54 +782,49 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Fetch non-live matches from cached data with smart refresh logic
         if (shouldRefresh || allFixtures.length === 0) {
-          // Sequential fetching to reduce load
-        console.log(
-          `🚀 [MyHomeFeaturedMatchNew] Sequential fetching ${Math.min(priorityLeagueIds.length, 8)} priority leagues`,
-        );
+          // Parallel fetching of priority leagues
+          console.log(
+            `🚀 [MyHomeFeaturedMatchNew] Parallel fetching ${priorityLeagueIds.length} priority leagues`,
+          );
 
-        const limitedLeagueIds = priorityLeagueIds.slice(0, 8); // Limit to 8 leagues
-        const leagueResults: Array<{
-          leagueId: number;
-          fixtures: any[];
-        }> = [];
+          const leaguePromises = priorityLeagueIds.map(async (leagueId) => {
+            try {
+              console.log(
+                `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
+              );
 
-        for (const leagueId of limitedLeagueIds) {
-          try {
-            const response = await apiRequest(
-              "GET",
-              `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
-            );
-            const fixturesData = await response.json();
+              const fixturesResponse = await apiRequest(
+                "GET",
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+              );
+              const fixturesData = await fixturesResponse.json();
 
-            if (Array.isArray(fixturesData)) {
-              // Limit fixtures to prevent memory issues
-              const limitedFixtures = fixturesData.slice(0, 30);
-              leagueResults.push({
-                leagueId,
-                fixtures: limitedFixtures,
-              });
+              if (Array.isArray(fixturesData)) {
+                return {
+                  leagueId,
+                  fixtures: fixturesData,
+                };
+              }
+              return { leagueId, fixtures: [] };
+            } catch (error) {
+              console.warn(
+                `Failed to fetch cached data for league ${leagueId}:`,
+                error,
+              );
+              return { leagueId, fixtures: [] };
             }
+          });
 
-            // Small delay between requests
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-          } catch (error) {
-            console.warn(`Failed to fetch cached data for league ${leagueId}`);
-            leagueResults.push({
-              leagueId,
-              fixtures: [],
-            });
-          }
-        }
-
-        const results = leagueResults;
-
-        // Process results
-        results.forEach((result) => {
-          const { fixtures: fixturesData } = result;
-
-          if (Array.isArray(fixturesData)) {
-            const cachedFixtures = fixturesData
+          // Wait for all parallel requests to complete
+          const leagueResults = await Promise.allSettled(leaguePromises);
+          
+          // Process results
+          leagueResults.forEach((result) => {
+            if (result.status === 'fulfilled') {
+              const { fixtures: fixturesData } = result.value;
+              
+              if (Array.isArray(fixturesData)) {
+                const cachedFixtures = fixturesData
                   .filter((fixture: any) => {
                     // Must have valid teams and NOT be live (since we already fetched live matches)
                     const hasValidTeams = isValidMatch(fixture);
@@ -1018,7 +1013,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                     if (shouldInclude) {
                       console.log(
-                        `✅ [MyHomeFeaturedMatchNew] Including priority league fixture:`,
+                        `✅ [MyHomeFeaturedMatchNew] Including priority league ${leagueId} fixture:`,
                         {
                           home: fixture.teams?.home?.name,
                           away: fixture.teams?.away?.name,
@@ -1146,6 +1141,12 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 allFixtures.push(...cachedFixtures);
               }
+            } else {
+              console.warn(
+                `Failed to fetch league data:`,
+                result.reason,
+              );
+            }
           });
 
           // Fetch popular team friendlies from Friendlies Clubs league (667)

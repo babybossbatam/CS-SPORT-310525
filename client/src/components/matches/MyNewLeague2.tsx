@@ -633,9 +633,11 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // Reduced league IDs for better performance
+  // League IDs without any filtering - removed duplicates
   const leagueIds = [
-    39, 140, 135, 78, 61, 2, 3, 4, 15, 38, 29, 32, 22, 5
+    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
+    307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
+    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
 
   // Reduced delay for parallel processing optimization
@@ -1081,27 +1083,18 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         `💾 [MyNewLeague2] Retrieved ${cachedEndedMatches.length} cached ended matches`,
       );
 
-      // Sequential processing to prevent system overload
+      // Parallel processing of all leagues simultaneously
       console.log(
-        `🚀 [MyNewLeague2] Sequential processing ${leagueIds.length} leagues`,
+        `🚀 [MyNewLeague2] Parallel processing ${leagueIds.length} leagues simultaneously`,
       );
 
-      const results: Array<{
-        leagueId: number;
-        fixtures: FixtureData[];
-        error?: string;
-        networkError?: boolean;
-        rateLimited?: boolean;
-        timeout?: boolean;
-      }> = [];
+      const leaguePromises = leagueIds.map(async (leagueId) => {
 
-      // Process leagues sequentially with delays
-      for (const leagueId of leagueIds) {
-        try {
+          try {
           const controller = new AbortController();
           const timeoutId = setTimeout(() => {
             controller.abort("Request timeout after 8 seconds");
-          }, 8000);
+          }, 8000); // Reduced timeout for parallel processing
 
           const response = await apiRequest(
             "GET",
@@ -1110,121 +1103,132 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
               signal: controller.signal,
             }
           ).catch((fetchError) => {
-            clearTimeout(timeoutId);
+              clearTimeout(timeoutId);
 
-            // Handle specific timeout errors
-            if (
-              fetchError.name === "AbortError" ||
-              fetchError.message?.includes("aborted") ||
-              fetchError.message?.includes("timeout")
-            ) {
+              // Handle specific timeout errors
+              if (
+                fetchError.name === "AbortError" ||
+                fetchError.message?.includes("aborted") ||
+                fetchError.message?.includes("timeout")
+              ) {
+                console.warn(
+                  `⏰ [MyNewLeague2] Request timeout for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
+                );
+                return null;
+              }
+
               console.warn(
-                `⏰ [MyNewLeague2] Request timeout for league ${leagueId}: Request exceeded 8 seconds - falling back to cached data`,
+                `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
               );
               return null;
-            }
-
-            console.warn(
-              `🌐 [MyNewLeague2] Network error for league ${leagueId}: ${fetchError.message}`,
-            );
-            return null;
-          });
-
-          clearTimeout(timeoutId);
-
-          if (!response) {
-            results.push({
-              leagueId,
-              fixtures: [],
-              error: "Request timeout or network error",
-              networkError: true,
             });
-            continue;
-          }
 
-          if (!response.ok) {
-            if (response.status === 429) {
-              console.warn(
-                `⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`,
-              );
-              results.push({
+            clearTimeout(timeoutId);
+
+            if (!response) {
+              return {
                 leagueId,
                 fixtures: [],
-                error: "Rate limited",
-                rateLimited: true,
-              });
-              continue;
+                error: "Request timeout or network error",
+                networkError: true,
+              };
             }
-            console.log(
-              `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
-            );
-            results.push({
-              leagueId,
-              fixtures: [],
-              error: `HTTP ${response.status}`,
-            });
-            continue;
-          }
 
-          const data = await response.json().catch((jsonError) => {
+            if (!response.ok) {
+              if (response.status === 429) {
+                console.warn(
+                  `⚠️ [MyNewLeague2] Rate limited for league ${leagueId}, will use cached data if available`,
+                );
+                return {
+                  leagueId,
+                  fixtures: [],
+                  error: "Rate limited",
+                  rateLimited: true,
+                };
+              }
+              console.log(
+                `❌ [MyNewLeague2] Failed to fetch league ${leagueId}: ${response.status} ${response.statusText}`,
+              );
+              return {
+                leagueId,
+                fixtures: [],
+                error: `HTTP ${response.status}`,
+              };
+            }
+
+            const data = await response.json().catch((jsonError) => {
+              console.warn(
+                `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
+              );
+              return { response: [] };
+            });
+
+            const fixtures = data.response || data || [];
+
+            // Cache ended matches for this league
+            cacheEndedMatches(selectedDate, leagueId, fixtures);
+
+            console.log(
+              `✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`,
+            );
+            return { leagueId, fixtures, error: null };
+          } catch (error) {
+            const errorMessage =
+              error instanceof Error ? error.message : "Unknown error";
+
+            // Handle timeout errors specifically
+            if (
+              error instanceof Error &&
+              (error.name === "AbortError" ||
+                errorMessage.includes("abort") ||
+                errorMessage.includes("timeout"))
+            ) {
+              console.log(
+                `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 10 seconds - falling back to cached data`, // Adjusted log message
+              );
+              return {
+                leagueId,
+                fixtures: [],
+                error: "Request timeout",
+                networkError: true,
+                timeout: true,
+              };
+            }
+
             console.warn(
-              `📄 [MyNewLeague2] JSON parse error for league ${leagueId}: ${jsonError.message}`,
-            );
-            return { response: [] };
-          });
-
-          const fixtures = data.response || data || [];
-
-          // Cache ended matches for this league
-          cacheEndedMatches(selectedDate, leagueId, fixtures);
-
-          // Limit fixtures per league to prevent memory overload
-          const limitedFixtures = fixtures.slice(0, 50);
-
-          results.push({ leagueId, fixtures: limitedFixtures, error: null });
-
-          console.log(
-            `✅ [MyNewLeague2] League ${leagueId}: ${limitedFixtures.length} fixtures`,
-          );
-
-          // Add delay between requests to prevent overwhelming
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-        } catch (error) {
-          const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
-
-          // Handle timeout errors specifically
-          if (
-            error instanceof Error &&
-            (error.name === "AbortError" ||
-              errorMessage.includes("abort") ||
-              errorMessage.includes("timeout"))
-          ) {
-            console.log(
-              `⏰ [MyNewLeague2] Timeout error for league ${leagueId}: Request exceeded 8 seconds - falling back to cached data`,
-            );
-            results.push({
-              leagueId,
-              fixtures: [],
-              error: "Request timeout",
-              networkError: true,
-              timeout: true,
-            });
-            continue;
-          }
-
-          console.warn(
             `⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`,
           );
-          results.push({
+          return {
             leagueId,
             fixtures: [],
             error: errorMessage,
             networkError: true,
-          });
+          };
         }
-      }
+      });
+
+      // Wait for all parallel requests to complete
+      console.log(`⏳ [MyNewLeague2] Waiting for ${leagueIds.length} parallel requests...`);
+      const allResults = await Promise.allSettled(leaguePromises);
+      
+      // Process all results
+      const results: Array<{
+        leagueId: number;
+        fixtures: FixtureData[];
+        error?: string;
+        networkError?: boolean;
+        rateLimited?: boolean;
+        timeout?: boolean;
+      }> = allResults.map((result) =>
+        result.status === "fulfilled"
+          ? result.value
+          : {
+              leagueId: 0,
+              fixtures: [],
+              error: "Promise rejected",
+              networkError: true,
+            },
+      );
 
       // Learn teams from fixtures before processing
       smartTeamTranslation.learnTeamsFromFixtures(
