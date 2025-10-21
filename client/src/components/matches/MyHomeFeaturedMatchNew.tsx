@@ -2437,10 +2437,10 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Clear caches first to ensure we don't show stale data
     clearExcludedLeaguesCaches();
 
-    // Initial fetch with force refresh after clearing caches
-    const timeoutId = setTimeout(() => {
+    // Delay initial load to prevent overwhelming Replit Assistant
+    const timer = setTimeout(() => {
       fetchFeaturedMatches(true);
-    }, 100);
+    }, 1000);
 
     // Start the selective update interval management
     if (featuredMatches.length > 0) {
@@ -2453,7 +2453,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         clearInterval(selectiveUpdateIntervalRef.current);
         selectiveUpdateIntervalRef.current = null;
       }
-      clearTimeout(timeoutId);
+      clearTimeout(timer);
     };
   }, []); // Empty dependency array ensures this runs only on mount and unmount
 

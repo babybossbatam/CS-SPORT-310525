@@ -68,12 +68,12 @@ requestIdleCallback(() => {
   StorageMonitor.getInstance().init();
 }, { timeout: 2000 });
 
-// Set CONSERVATIVE EventEmitter limits for Replit Assistant compatibility
+// Set BALANCED EventEmitter limits for Replit Assistant compatibility
 if (typeof process !== 'undefined' && process.setMaxListeners) {
-  process.setMaxListeners(10); // Reduced from 20
+  process.setMaxListeners(25); // Increased for app stability
 }
 
-// Simple EventEmitter setup for Replit - MUCH lower limits
+// Balanced EventEmitter setup for Replit
 if (typeof window !== 'undefined') {
   if ((window as any).EventEmitter) {
     (window as any).EventEmitter.defaultMaxListeners = 10; // Reduced from 50

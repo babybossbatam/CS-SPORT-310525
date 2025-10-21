@@ -1,12 +1,12 @@
 // EventEmitter utilities optimized for Replit Assistant compatibility
-export const setGlobalEventEmitterLimits = (limit: number = 15) => {
+export const setGlobalEventEmitterLimits = (limit: number = 25) => {
   if (typeof window === 'undefined') return;
 
   try {
-    // Set CONSERVATIVE limits - high limits overwhelm Replit Assistant
+    // Set BALANCED limits - enough for the app but not overwhelming
     const emitterTargets = [
       'EventEmitter',
-      'process',
+      'process', 
       'emitter',
       'events'
     ];
@@ -24,12 +24,12 @@ export const setGlobalEventEmitterLimits = (limit: number = 15) => {
     // Silently handle errors to prevent console spam
   }
 
-  // Set conservative process limits
+  // Set balanced process limits
   if (typeof process !== 'undefined' && process.setMaxListeners) {
     process.setMaxListeners(limit);
   }
 
-  // Set conservative browser EventEmitter limits
+  // Set balanced browser EventEmitter limits
   if (typeof window !== 'undefined') {
     (window as any).maxEventListeners = limit;
 
@@ -50,16 +50,27 @@ export const setGlobalEventEmitterLimits = (limit: number = 15) => {
 };
 
 export const cleanupEventListeners = () => {
-  // Minimal cleanup to prevent conflicts with Replit's monitoring
+  // Enhanced cleanup to prevent conflicts with Replit's monitoring
   if (typeof window !== 'undefined') {
     try {
-      // Only clean up our own event listeners, not Replit's
+      // Clean up our own event listeners, not Replit's
       const customElements = document.querySelectorAll('[data-cleanup="true"]');
       customElements.forEach(el => {
         if (el && typeof (el as any).removeAllListeners === 'function') {
           (el as any).removeAllListeners();
         }
       });
+      
+      // Clear any lingering timers that might be creating listeners
+      const highestTimeoutId = setTimeout(() => {}, 0);
+      for (let i = 0; i < highestTimeoutId; i++) {
+        clearTimeout(i);
+      }
+      
+      // Force garbage collection if available
+      if ((window as any).gc) {
+        (window as any).gc();
+      }
     } catch (e) {
       // Ignore cleanup errors
     }
