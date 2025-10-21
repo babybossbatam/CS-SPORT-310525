@@ -633,19 +633,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // TOP 10 MOST IMPORTANT LEAGUES ONLY - Reduced to prevent browser freeze
-  // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Europa League, World Cup, Euro, Copa America
+  // POPULAR LEAGUES - Same as PopularLeaguesList (with date filtering to prevent overload)
   const leagueIds = [
     39,  // Premier League (England)
+    2,   // UEFA Champions League
     140, // La Liga (Spain)
+    37,  // World Cup
     135, // Serie A (Italy)
     78,  // Bundesliga (Germany)
-    61,  // Ligue 1 (France)
-    2,   // UEFA Champions League
-    3,   // UEFA Europa League
-    1,   // World Cup
     4,   // Euro Championship
+    61,  // Ligue 1 (France)
+    3,   // UEFA Europa League
+    15,  // FIFA Club World Cup
     9,   // Copa America
+    848, // UEFA Conference League
+    45,  // FA Cup (England)
+    5,   // UEFA Nations League
+    143, // Copa del Rey (Spain)
+    137, // Coppa Italia (Italy)
+    81,  // DFB Pokal (Germany)
+    307, // Saudi Pro League
   ];
 
   // Helper function to add delay between requests
