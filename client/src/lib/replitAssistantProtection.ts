@@ -54,7 +54,7 @@ class ReplitAssistantProtection {
   }
 
   // Throttle API calls to prevent overwhelming the system
-  throttleApiCall<T>(fn: () => Promise<T>, delay: number = 1000): Promise<T> {
+  throttleApiCall<T>(fn: () => Promise<T>, delay: number = 2000): Promise<T> {
     return new Promise((resolve, reject) => {
       this.queueOperation(async () => {
         try {

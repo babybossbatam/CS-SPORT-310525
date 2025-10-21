@@ -2514,48 +2514,48 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       }).length;
     }, 0);
 
-    // ENHANCED refresh strategy for live match transitions
+    // OPTIMIZED refresh strategy to reduce network overhead
     if (analysis.liveMatches > 0) {
-      // Most aggressive: Live matches detected
-      refreshInterval = 15000; // 15 seconds for live matches
+      // Aggressive but not overwhelming: Live matches detected
+      refreshInterval = 30000; // 30 seconds for live matches (reduced from 15s)
       shouldRefresh = true;
       console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using aggressive refresh (15s)`,
+        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using optimized refresh (30s)`,
       );
     } else if (todayEndedMatches > 0) {
-      // Aggressive for today's ended matches to get final stats
-      refreshInterval = 30000; // 30 seconds
+      // Moderate for today's ended matches
+      refreshInterval = 60000; // 1 minute (reduced from 30s)
       shouldRefresh = true;
       console.log(
-        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using aggressive refresh (30s)`,
+        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`,
       );
     } else if (analysis.staleMatches > 0) {
-      // Very aggressive: Stale matches that should have started
-      refreshInterval = 20000; // 20 seconds for status transitions
+      // Moderate: Stale matches that should have started
+      refreshInterval = 45000; // 45 seconds (reduced from 20s)
       shouldRefresh = true;
       console.log(
-        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using very aggressive refresh (20s)`,
+        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using moderate refresh (45s)`,
       );
     } else if (analysis.imminentMatches > 0) {
-      // Frequent: Matches starting within 30 minutes
-      refreshInterval = 60000; // 1 minute
+      // Less frequent: Matches starting within 30 minutes
+      refreshInterval = 120000; // 2 minutes (reduced from 1min)
       shouldRefresh = true;
       console.log(
-        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using frequent refresh (1min)`,
+        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using balanced refresh (2min)`,
       );
     } else if (analysis.upcomingMatches > 0) {
-      // Moderate: Matches starting within 2 hours
-      refreshInterval = 120000; // 2 minutes
+      // Standard: Matches starting within 2 hours
+      refreshInterval = 180000; // 3 minutes (reduced from 2min)
       shouldRefresh = true;
       console.log(
-        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using moderate refresh (2min)`,
+        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`,
       );
     } else {
-      // Standard: No urgent matches
-      refreshInterval = 300000; // 5 minutes
+      // Extended: No urgent matches
+      refreshInterval = 600000; // 10 minutes (increased from 5min)
       shouldRefresh = false;
       console.log(
-        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using standard refresh (5min)`,
+        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using extended refresh (10min)`,
       );
     }
 

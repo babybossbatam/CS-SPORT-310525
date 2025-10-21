@@ -43,23 +43,23 @@ const monitorMemory = () => {
   }
 };
 
-// Check memory every 30 seconds
-setInterval(monitorMemory, 30000);
+// Check memory every 2 minutes to reduce overhead
+setInterval(monitorMemory, 120000);
 
-// Set EXTREMELY CONSERVATIVE limits for Replit Assistant compatibility
-process.setMaxListeners(2); // Minimal for extreme stability
+// Set BALANCED limits for better performance while maintaining stability
+process.setMaxListeners(10); // Increased for better functionality
 import { EventEmitter } from 'events';
-EventEmitter.defaultMaxListeners = 2; // Minimal for extreme stability
+EventEmitter.defaultMaxListeners = 10; // Increased for better functionality
 
-// Set max listeners for common event emitters - VERY CONSERVATIVE
+// Set max listeners for common event emitters - BALANCED
 if (typeof process !== 'undefined' && process.stdout) {
-  process.stdout.setMaxListeners(5);
+  process.stdout.setMaxListeners(10);
 }
 if (typeof process !== 'undefined' && process.stderr) {
-  process.stderr.setMaxListeners(5);
+  process.stderr.setMaxListeners(10);
 }
 if (typeof process !== 'undefined' && process.stdin) {
-  process.stdin.setMaxListeners(3);
+  process.stdin.setMaxListeners(8);
 }
 
 // Graceful shutdown handling

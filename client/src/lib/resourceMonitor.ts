@@ -11,36 +11,36 @@ export class ResourceMonitor {
   }
 
   init(): void {
-    // Monitor every 60 seconds
+    // Monitor every 3 minutes to reduce overhead
     this.monitorInterval = setInterval(() => {
       this.checkResources();
-    }, 60 * 1000);
+    }, 180 * 1000);
 
-    console.log('📊 Resource monitor initialized');
+    console.log('📊 Resource monitor initialized with balanced intervals');
   }
 
   private checkResources(): void {
     try {
-      // Check memory
+      // Check memory with higher threshold
       const memoryInfo = (performance as any).memory;
       if (memoryInfo) {
         const memoryUsagePercent = (memoryInfo.usedJSHeapSize / memoryInfo.jsHeapSizeLimit) * 100;
         
-        if (memoryUsagePercent > 80) {
+        if (memoryUsagePercent > 85) { // Increased threshold
           console.warn(`⚠️ High memory usage: ${memoryUsagePercent.toFixed(1)}%`);
           this.triggerMemoryCleanup();
         }
       }
 
-      // Check active intervals/timeouts
+      // Check active intervals/timeouts with higher threshold
       const activeTimers = this.countActiveTimers();
-      if (activeTimers > 50) {
+      if (activeTimers > 100) { // Increased threshold
         console.warn(`⚠️ High number of active timers: ${activeTimers}`);
       }
 
-      // Check DOM nodes
+      // Check DOM nodes with higher threshold
       const domNodes = document.getElementsByTagName('*').length;
-      if (domNodes > 5000) {
+      if (domNodes > 8000) { // Increased threshold
         console.warn(`⚠️ High DOM node count: ${domNodes}`);
       }
 
@@ -65,8 +65,8 @@ export class ResourceMonitor {
     // Trigger cleanup in memory manager
     try {
       const memoryManager = (window as any).MemoryManager?.getInstance();
-      if (memoryManager) {
-        memoryManager.emergencyCleanup?.();
+      if (memoryManager && typeof memoryManager.emergencyCleanup === 'function') {
+        memoryManager.emergencyCleanup();
       }
     } catch (error) {
       console.error('Failed to trigger memory cleanup:', error);
@@ -78,5 +78,11 @@ export class ResourceMonitor {
       clearInterval(this.monitorInterval);
       this.monitorInterval = null;
     }
+    console.log('📊 Resource monitor destroyed');
   }
+}
+
+// Auto-initialize with balanced settings
+if (typeof window !== 'undefined') {
+  ResourceMonitor.getInstance().init();
 }

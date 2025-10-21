@@ -12,10 +12,10 @@ export class MemoryManager {
   }
 
   init(): void {
-    // Check memory every 30 seconds
+    // Check memory every 2 minutes to reduce overhead
     this.memoryCheckInterval = setInterval(() => {
       this.checkMemoryUsage();
-    }, 30 * 1000);
+    }, 120 * 1000);
 
     console.log('🧠 Memory manager initialized');
   }
@@ -33,15 +33,15 @@ export class MemoryManager {
         const totalMB = Math.round(total / 1024 / 1024);
         const limitMB = Math.round(limit / 1024 / 1024);
         
-        // Very aggressive cleanup threshold for Replit Assistant compatibility
-        if (used > limit * 0.4) { // Reduced to 40% threshold
-          console.warn('⚠️ Memory usage approaching limit, triggering aggressive cleanup');
+        // More conservative cleanup threshold for stability
+        if (used > limit * 0.7) { // Increased to 70% threshold
+          console.warn('⚠️ Memory usage approaching limit, triggering cleanup');
           this.emergencyCleanup();
         }
         
-        // Also trigger cleanup if growth is too rapid
-        if (used > this.lastMemoryUsage * 1.2) {
-          console.warn('⚠️ Rapid memory growth detected, triggering cleanup');
+        // Trigger cleanup if growth is significant but not too aggressive
+        if (used > this.lastMemoryUsage * 1.5) {
+          console.warn('⚠️ Significant memory growth detected, triggering cleanup');
           this.emergencyCleanup();
         }
         

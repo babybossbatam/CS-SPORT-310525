@@ -1,5 +1,5 @@
 // EventEmitter utilities optimized for Replit Assistant compatibility
-export const setGlobalEventEmitterLimits = (limit: number = 25) => {
+export const setGlobalEventEmitterLimits = (limit: number = 15) => {
   if (typeof window === 'undefined') return;
 
   try {
@@ -111,8 +111,8 @@ if (typeof window !== 'undefined') {
   };
 }
 
-// Initialize with EXTREMELY CONSERVATIVE limits for Replit compatibility
-setGlobalEventEmitterLimits(3);
+// Initialize with BALANCED limits for better performance
+setGlobalEventEmitterLimits(15);
 
 // Set up cleanup only when page unloads
 if (typeof window !== 'undefined') {
