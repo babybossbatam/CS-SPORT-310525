@@ -633,11 +633,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // League IDs without any filtering - removed duplicates
+  // TOP 10 MOST IMPORTANT LEAGUES ONLY - Reduced to prevent browser freeze
+  // Premier League, La Liga, Serie A, Bundesliga, Ligue 1, Champions League, Europa League, World Cup, Euro, Copa America
   const leagueIds = [
-    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
-    307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
-    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
+    39,  // Premier League (England)
+    140, // La Liga (Spain)
+    135, // Serie A (Italy)
+    78,  // Bundesliga (Germany)
+    61,  // Ligue 1 (France)
+    2,   // UEFA Champions League
+    3,   // UEFA Europa League
+    1,   // World Cup
+    4,   // Euro Championship
+    9,   // Copa America
   ];
 
   // Helper function to add delay between requests
@@ -1059,7 +1067,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   }, [checkStorageQuota]);
 
   // Optimized parallel fetching with priority leagues
-  const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Top 6 priority leagues
+  const priorityLeagues = [39, 140, 135, 78, 61, 2]; // Top 6 priority leagues
   const regularLeagues = leagueIds.filter(id => !priorityLeagues.includes(id));
 
   // Fetch fixtures for all leagues with parallel processing and deduplication
