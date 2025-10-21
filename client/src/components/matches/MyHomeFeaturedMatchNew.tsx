@@ -782,12 +782,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         // Fetch non-live matches from cached data with smart refresh logic
         if (shouldRefresh || allFixtures.length === 0) {
-          // Parallel fetching of priority leagues
-          console.log(
-            `🚀 [MyHomeFeaturedMatchNew] Parallel fetching ${priorityLeagueIds.length} priority leagues`,
-          );
-
-          const leaguePromises = priorityLeagueIds.map(async (leagueId) => {
+          // Fetch non-live matches from cached data (priority leagues)
+          for (const leagueId of priorityLeagueIds) {
             try {
               console.log(
                 `🔍 [MyHomeFeaturedMatchNew] Fetching cached data for league ${leagueId}`,
@@ -799,30 +795,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               );
               const fixturesData = await fixturesResponse.json();
 
-              if (Array.isArray(fixturesData)) {
-                return {
-                  leagueId,
-                  fixtures: fixturesData,
-                };
-              }
-              return { leagueId, fixtures: [] };
-            } catch (error) {
-              console.warn(
-                `Failed to fetch cached data for league ${leagueId}:`,
-                error,
-              );
-              return { leagueId, fixtures: [] };
-            }
-          });
-
-          // Wait for all parallel requests to complete
-          const leagueResults = await Promise.allSettled(leaguePromises);
-          
-          // Process results
-          leagueResults.forEach((result) => {
-            if (result.status === 'fulfilled') {
-              const { fixtures: fixturesData } = result.value;
-              
               if (Array.isArray(fixturesData)) {
                 const cachedFixtures = fixturesData
                   .filter((fixture: any) => {
@@ -1141,13 +1113,13 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
                 allFixtures.push(...cachedFixtures);
               }
-            } else {
+            } catch (leagueError) {
               console.warn(
-                `Failed to fetch league data:`,
-                result.reason,
+                `Failed to fetch cached data for league ${leagueId}:`,
+                leagueError,
               );
             }
-          });
+          }
 
           // Fetch popular team friendlies from Friendlies Clubs league (667)
           try {
