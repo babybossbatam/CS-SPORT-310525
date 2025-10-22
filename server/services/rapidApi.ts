@@ -940,7 +940,7 @@ export const rapidApiService = {
       return [];
     } catch (error) {
       console.error(`❌ [RapidAPI] Error fetching events for fixture ${fixtureId}:`, error);
-      return null;
+      return [];
     }
   },
 
@@ -981,7 +981,7 @@ timestamp: now,
         return cached.data;
       }
       console.error("API request failed and no cache available");
-      return null;
+      return [];
     }
   },
 
@@ -1028,7 +1028,7 @@ timestamp: now,
         return cached.data;
       }
       console.error("API request failed and no cache available");
-      return null;
+      return [];
     }
   },
 
