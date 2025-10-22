@@ -5,7 +5,7 @@ import { Skeleton } from "../ui/skeleton";
 import { apiRequest } from "@/lib/queryClient";
 import { format, parseISO, isValid } from "date-fns";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import { shortenTeamName } from "@/lib/teamNameUtils";
+import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import { fixtureCache } from "@/lib/fixtureCache";
 import { 

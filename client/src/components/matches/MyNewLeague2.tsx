@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { safeSubstring } from "@/lib/dateUtilsUpdated";
-import { shortenTeamName } from "@/lib/teamNameUtils";
+import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import LazyImage from "../common/LazyImage";
 import MyCircularFlag from "../common/MyCircularFlag";

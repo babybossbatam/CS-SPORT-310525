@@ -4,7 +4,7 @@ import { Clock, Calendar, Star } from "lucide-react";
 import { parseISO, isValid, format } from "date-fns";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { shortenTeamName } from "@/lib/teamNameUtils";
+import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import MyCircularFlag from "../common/MyCircularFlag";
 import { formatMatchTimeWithTimezone } from "@/lib/timezoneApiService";

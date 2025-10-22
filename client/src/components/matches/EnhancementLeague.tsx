@@ -25,7 +25,7 @@ import {
   clearAllFlagCache,
   getCountryCode,
 } from "../../lib/flagUtils";
-import { shortenTeamName } from "@/lib/teamNameUtils";
+import { shortenTeamName } from "./TodayPopularFootballLeaguesNew";
 import MyWorldTeamLogo from "../common/MyWorldTeamLogo";
 import "../../styles/MyLogoPositioning.css";
 

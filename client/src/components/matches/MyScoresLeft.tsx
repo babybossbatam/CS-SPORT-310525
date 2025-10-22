@@ -6,9 +6,12 @@ import { Calendar } from "../ui/calendar";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
+import TodayPopularFootballLeaguesNew from "./TodayPopularFootballLeaguesNew";
+import TodaysMatchesByCountryNew from "./TodaysMatchesByCountryNew";
 import LiveMatchForAllCountry from "./LiveMatchForAllCountry";
 import LiveMatchByTime from "./LiveMatchByTime";
 import TodayMatchByTime from "./TodayMatchByTime";
+import MyNewPopularLeague from "./MyNewPopularLeague";
 import EnhancementLeague from "./EnhancementLeague";
 import MyNewLeague from "./MyNewLeague";
 import MyScoresLeague from "./MyScoresLeague";

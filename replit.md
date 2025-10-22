@@ -96,12 +96,6 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
-- October 22, 2025. Code cleanup and refactoring:
-  - Extracted `shortenTeamName` helper function to `client/src/lib/teamNameUtils.ts`
-  - Deleted unused components: TodayPopularFootballLeaguesNew, MyNewPopularLeague, TodaysMatchesByCountryNew
-  - Updated 6+ files (MyNewLeague2, MyDetailsFixture, MyNewLeague, MyScoresLeague, TodayMatchByTime, EnhancementLeague) to use new utility
-  - Removed broken imports from MyScoresLeft, MyFootballMain, TodayMatchPageCard
-  - Build now running successfully without errors
 - October 22, 2025. Fixed critical system overload by removing duplicate route:
   - Removed duplicate /api/fixtures/date/:date route that was making 3 API calls per request
   - Performance improved from 363+ seconds to 8ms per request (45,000x faster)
