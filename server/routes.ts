@@ -847,44 +847,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // If all fails, return a minimal default set of popular leagues
         return res.json([
-
-
-  // Optimized date-based fixtures for MyNewLeague2 - reduces API calls
-  apiRouter.get(
-    "/fixtures/popular/:date",
-    async (req: Request, res: Response) => {
-      try {
-        const { date } = req.params;
-        const priorityLeagues = [39, 140, 78, 135, 2, 3, 15, 848, 32, 10, 11, 22, 71, 253, 667]; // Same as MyNewLeague2
-
-        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} priority leagues`);
-
-        // Use the existing date endpoint but filter by priority leagues
-        const response = await rapidApiService.getFixturesByDate(date, true);
-        
-        if (!response || !Array.isArray(response)) {
-          return res.json([]);
-        }
-
-        // Filter to only priority leagues
-        const priorityFixtures = response.filter(fixture => 
-          fixture.league && priorityLeagues.includes(fixture.league.id)
-        );
-
-        console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
-
-        res.json(priorityFixtures);
-      } catch (error) {
-        console.error(`❌ [PopularFixtures] Error:`, error);
-        res.status(500).json({ 
-          error: "Failed to fetch popular fixtures",
-          details: error instanceof Error ? error.message : "Unknown error"
-        });
-      }
-    }
-  );
-
-
           {
             league: {
               id: 39,
@@ -901,9 +863,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           },
           {
             league: {
+              id: 140,
+              name: "La Liga",
+              type: "League", 
+              logo: "https://media.api-sports.io/football/leagues/140.png",
+              country: "Spain",
+            },
+            country: {
+              name: "Spain",
+              code: "ES",
+              flag: "https://media.api-sports.io/flags/es.svg",
+            },
+          },
+          {
+            league: {
               id: 78,
-
-name: "Bundesliga",
+              name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
               country: "Germany",
@@ -944,6 +919,128 @@ name: "Bundesliga",
       res.json([]);
     }
   });
+
+  // Optimized and cached popular fixtures endpoint
+  apiRouter.get(
+    "/fixtures/popular/:date",
+    async (req: Request, res: Response) => {
+      try {
+        const { date } = req.params;
+        const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Reduced to top 6 leagues only
+
+        // Check cache first
+        const cacheKey = `popular-fixtures-${date}`;
+        const cachedData = fixturesCache.get(cacheKey);
+
+        if (cachedData && Date.now() - cachedData.timestamp < 30 * 60 * 1000) { // 30 min cache
+          console.log(`📦 [PopularFixtures] Cache hit for ${date}`);
+          return res.json(cachedData.data);
+        }
+
+        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} top priority leagues`);
+
+        // Use the existing date endpoint but filter by priority leagues
+        const response = await rapidApiService.getFixturesByDate(date, false); // Use cached version
+        
+        if (!response || !Array.isArray(response)) {
+          return res.json([]);
+        }
+
+        // Filter to only priority leagues and limit results
+        const priorityFixtures = response
+          .filter(fixture => 
+            fixture.league && priorityLeagues.includes(fixture.league.id)
+          )
+          .slice(0, 50); // Limit to 50 fixtures maximum
+
+        // Cache the result
+        fixturesCache.set(cacheKey, {
+          data: priorityFixtures,
+          timestamp: Date.now()
+        });
+
+        console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
+
+        res.json(priorityFixtures);
+      } catch (error) {
+        console.error(`❌ [PopularFixtures] Error:`, error);
+        res.status(500).json({ 
+          error: "Failed to fetch popular fixtures",
+          details: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
+  );
+
+
+          ]);
+      }
+    } catch (error) {
+      console.error("Error fetching leagues:", error);
+      // Return cached data if available as a fallback
+      const cachedLeagues = await storage.getAllCachedLeagues();
+
+      if (cachedLeagues && cachedLeagues.length > 0) {
+        const leagues = cachedLeagues.map((league) => league.data);
+        return res.json(leagues);
+      }
+
+      // If all else fails, return empty array instead of error
+      res.json([]);
+    }
+  });
+
+  // Optimized and cached popular fixtures endpoint
+  apiRouter.get(
+    "/fixtures/popular/:date",
+    async (req: Request, res: Response) => {
+      try {
+        const { date } = req.params;
+        const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Reduced to top 6 leagues only
+
+        // Check cache first
+        const cacheKey = `popular-fixtures-${date}`;
+        const cachedData = fixturesCache.get(cacheKey);
+
+        if (cachedData && Date.now() - cachedData.timestamp < 30 * 60 * 1000) { // 30 min cache
+          console.log(`📦 [PopularFixtures] Cache hit for ${date}`);
+          return res.json(cachedData.data);
+        }
+
+        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} top priority leagues`);
+
+        // Use the existing date endpoint but filter by priority leagues
+        const response = await rapidApiService.getFixturesByDate(date, false); // Use cached version
+        
+        if (!response || !Array.isArray(response)) {
+          return res.json([]);
+        }
+
+        // Filter to only priority leagues and limit results
+        const priorityFixtures = response
+          .filter(fixture => 
+            fixture.league && priorityLeagues.includes(fixture.league.id)
+          )
+          .slice(0, 50); // Limit to 50 fixtures maximum
+
+        // Cache the result
+        fixturesCache.set(cacheKey, {
+          data: priorityFixtures,
+          timestamp: Date.now()
+        });
+
+        console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
+
+        res.json(priorityFixtures);
+      } catch (error) {
+        console.error(`❌ [PopularFixtures] Error:`, error);
+        res.status(500).json({ 
+          error: "Failed to fetch popular fixtures",
+          details: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
+  );
 
   // League information endpoint
   apiRouter.get("/leagues/:id", async (req: Request, res: Response) => {
