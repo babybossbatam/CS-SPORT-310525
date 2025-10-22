@@ -633,16 +633,12 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // Comprehensive league IDs with priority system
+  // League IDs without any filtering - removed duplicates
   const leagueIds = [
     32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
     307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
-    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743
+    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
-
-  // Top 6 priority leagues for enhanced fetching
-  const priorityLeagues = [39, 140, 78, 135, 2, 3];
-  const regularLeagues = leagueIds.filter(id => !priorityLeagues.includes(id));
 
   // Helper function to add delay between requests
   const delay = (ms: number) =>
@@ -1062,65 +1058,153 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     cleanupOldCache();
   }, [checkStorageQuota]);
 
-  // Comprehensive fetching with priority league system
+  // Optimized parallel fetching with priority leagues
+  const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Top 6 priority leagues
+  const regularLeagues = leagueIds.filter(id => !priorityLeagues.includes(id));
+
+  // Fetch fixtures for all leagues with parallel processing and deduplication
   const {
     data: allFixtures,
     isLoading,
     error,
     isFetching,
   } = useQuery({
-    queryKey: ["myNewLeague2", "dateFixtures", selectedDate, "comprehensive"],
+    queryKey: ["myNewLeague2", "allFixtures", selectedDate],
     queryFn: async (): Promise<FixtureData[]> => {
-      console.log(`🎯 [MyNewLeague2] Fetching fixtures for date: ${selectedDate}`);
-      console.log(`📊 [MyNewLeague2] Priority leagues: ${priorityLeagues.length}, Regular leagues: ${regularLeagues.length}`);
+      console.log(
+        `🎯 [MyNewLeague2] Starting parallel fetch for ${leagueIds.length} leagues on ${selectedDate}`,
+      );
+
+      // Create deduplication map
+      const fixtureDeduplicationMap = new Map<number, FixtureData>();
+      const processedLeagues = new Set<number>();
+
+      // Helper function for parallel batch processing
+      const processBatchParallel = async (batch: number[], batchName: string) => {
+        console.log(`🚀 [MyNewLeague2] Processing ${batchName} batch: [${batch.join(", ")}]`);
+        
+        const batchPromises = batch.map(async (leagueId) => {
+          if (processedLeagues.has(leagueId)) {
+            console.log(`⚠️ [MyNewLeague2] League ${leagueId} already processed, skipping`);
+            return { leagueId, fixtures: [], cached: true };
+          }
+
+          try {
+            // Check cache first for ended matches
+            const cached = getCachedEndedMatches(selectedDate, leagueId);
+            if (cached.length > 0) {
+              console.log(`💾 [MyNewLeague2] Using ${cached.length} cached fixtures for league ${leagueId}`);
+              processedLeagues.add(leagueId);
+              return { leagueId, fixtures: cached, cached: true };
+            }
+
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+            const response = await apiRequest(
+              "GET",
+              `/api/leagues/${leagueId}/fixtures`,
+              { signal: controller.signal }
+            );
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+              if (response.status === 429) {
+                console.warn(`⚠️ [MyNewLeague2] Rate limited for league ${leagueId}`);
+                return { leagueId, fixtures: [], error: "Rate limited" };
+              }
+              throw new Error(`HTTP ${response.status}`);
+            }
+
+            const data = await response.json();
+            const fixtures = data.response || data || [];
+
+            // Cache ended matches in background
+            if (fixtures.length > 0) {
+              setTimeout(() => cacheEndedMatches(selectedDate, leagueId, fixtures), 0);
+            }
+
+            processedLeagues.add(leagueId);
+            console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
+            return { leagueId, fixtures, error: null };
+
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Unknown error";
+            console.warn(`⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`);
+            return { leagueId, fixtures: [], error: errorMessage };
+          }
+        });
+
+        return Promise.allSettled(batchPromises);
+      };
 
       try {
-        // Use the new optimized popular fixtures endpoint
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/popular/${selectedDate}`
-        );
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+        // Process priority leagues first (parallel)
+        const priorityResults = await processBatchParallel(priorityLeagues, "Priority");
+        
+        // Add small delay before regular leagues
+        await delay(100);
+        
+        // Process regular leagues in smaller parallel batches
+        const regularBatches: number[][] = [];
+        const batchSize = 3; // Smaller batch size for regular leagues
+        for (let i = 0; i < regularLeagues.length; i += batchSize) {
+          regularBatches.push(regularLeagues.slice(i, i + batchSize));
         }
 
-        const data = await response.json();
-        const fixtures = Array.isArray(data) ? data : [];
+        const allResults = [...priorityResults];
+        
+        // Process regular league batches with delays
+        for (let i = 0; i < regularBatches.length; i++) {
+          const batch = regularBatches[i];
+          const batchResults = await processBatchParallel(batch, `Regular-${i + 1}`);
+          allResults.push(...batchResults);
+          
+          // Small delay between batches
+          if (i < regularBatches.length - 1) {
+            await delay(200);
+          }
+        }
 
-        // Filter fixtures to include all our leagues (priority + regular)
-        const filteredFixtures = fixtures.filter((fixture: FixtureData) => {
-          return leagueIds.includes(fixture.league.id);
+        // Process all results and deduplicate
+        allResults.forEach((result) => {
+          if (result.status === 'fulfilled') {
+            const { fixtures } = result.value;
+            fixtures.forEach((fixture: FixtureData) => {
+              if (fixture?.fixture?.id) {
+                // Deduplication: only add if not already present
+                if (!fixtureDeduplicationMap.has(fixture.fixture.id)) {
+                  fixtureDeduplicationMap.set(fixture.fixture.id, fixture);
+                }
+              }
+            });
+          }
         });
 
-        // Separate and prioritize fixtures
-        const priorityFixtures = filteredFixtures.filter((fixture: FixtureData) => 
-          priorityLeagues.includes(fixture.league.id)
-        );
-        const regularFixtures = filteredFixtures.filter((fixture: FixtureData) => 
-          regularLeagues.includes(fixture.league.id)
-        );
-
-        // Combine with priority fixtures first
-        const sortedFixtures = [...priorityFixtures, ...regularFixtures];
+        const finalFixtures = Array.from(fixtureDeduplicationMap.values());
 
         // Learn teams from fixtures
-        smartTeamTranslation.learnTeamsFromFixtures(sortedFixtures);
+        smartTeamTranslation.learnTeamsFromFixtures(finalFixtures);
 
-        console.log(`✅ [MyNewLeague2] Comprehensive fetch complete:`, {
-          totalFixtures: fixtures.length,
-          filteredFixtures: sortedFixtures.length,
-          priorityFixtures: priorityFixtures.length,
-          regularFixtures: regularFixtures.length,
+        console.log(`🔄 [MyNewLeague2] Parallel fetch complete:`, {
           totalLeagues: leagueIds.length,
-          selectedDate
+          processedLeagues: processedLeagues.size,
+          totalFixtures: finalFixtures.length,
+          deduplicatedFixtures: fixtureDeduplicationMap.size,
+          priorityLeagues: priorityLeagues.length,
+          regularLeagues: regularLeagues.length,
         });
 
-        return sortedFixtures;
+        return finalFixtures;
 
       } catch (error) {
-        console.error("🚨 [MyNewLeague2] Error in comprehensive fetch:", error);
-        return [];
+        console.error("🚨 [MyNewLeague2] Critical error in parallel fetch:", error);
+        
+        // Return whatever fixtures we managed to get
+        const emergencyFixtures = Array.from(fixtureDeduplicationMap.values());
+        console.log(`🆘 [MyNewLeague2] Emergency return: ${emergencyFixtures.length} fixtures`);
+        return emergencyFixtures;
       }
     },
     // Apply dynamic cache configuration
@@ -2177,44 +2261,26 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       {/* Individual League Cards */}
       {leagueEntries
         .sort(([aId], [bId]) => {
-          // Priority system: Top 6 priority leagues first, then regular leagues
-          const aIdNum = Number(aId);
-          const bIdNum = Number(bId);
-          
-          const aIsPriority = priorityLeagues.includes(aIdNum);
-          const bIsPriority = priorityLeagues.includes(bIdNum);
+          // Define priority order - same as MyNewLeague
+          const priorityOrder = [
+            32, 38, 39, 29, 850, 15, 78, 140, 135, 79, 61, 2, 5, 22, 10, 11,
+            1022, 772, 307, 71, 72, 667, 301, 3, 848, 73, 75, 239, 233, 253,
+          ];
 
-          // If both are priority or both are regular, sort by predefined order
-          if (aIsPriority === bIsPriority) {
-            // Define comprehensive priority order
-            const fullPriorityOrder = [
-              // Top 6 priority leagues
-              39, 140, 78, 135, 2, 3,
-              // Regular leagues in order of importance
-              32, 38, 29, 15, 79, 61, 4, 10, 11, 848, 886, 1022, 772,
-              307, 71, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 
-              1169, 23, 253, 850, 893, 921, 130, 128, 493, 239, 265, 
-              237, 235, 743
-            ];
+          const aIndex = priorityOrder.indexOf(Number(aId));
+          const bIndex = priorityOrder.indexOf(Number(bId));
 
-            const aIndex = fullPriorityOrder.indexOf(aIdNum);
-            const bIndex = fullPriorityOrder.indexOf(bIdNum);
-
-            // If both found in priority order, sort by position
-            if (aIndex !== -1 && bIndex !== -1) {
-              return aIndex - bIndex;
-            }
-
-            // If only one found, prioritize it
-            if (aIndex !== -1) return -1;
-            if (bIndex !== -1) return 1;
-
-            // If neither found, maintain original order
-            return 0;
+          // If both leagues are in priority list, sort by their position
+          if (aIndex !== -1 && bIndex !== -1) {
+            return aIndex - bIndex;
           }
 
-          // Priority leagues always come first
-          return aIsPriority ? -1 : 1;
+          // If only one is in priority list, prioritize it
+          if (aIndex !== -1) return -1;
+          if (bIndex !== -1) return 1;
+
+          // For other leagues, maintain original order
+          return 0;
         })
         .map(([leagueId, { league, fixtures }]) => {
           const leagueIdNum = Number(leagueId);
