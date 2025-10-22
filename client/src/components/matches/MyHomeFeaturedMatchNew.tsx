@@ -780,141 +780,106 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
         allFixtures.push(...liveFixtures);
 
-        // Parallel fetch for priority leagues with deduplication
+        // Optimized sequential fetch with strict throttling
         if (shouldRefresh || allFixtures.length === 0) {
-          console.log(`🚀 [MyHomeFeaturedMatchNew] Starting parallel fetch for ${priorityLeagueIds.length} priority leagues`);
+          console.log(`🚀 [MyHomeFeaturedMatchNew] Starting throttled fetch for top ${Math.min(priorityLeagueIds.length, 8)} priority leagues`);
           
-          // Create fixture deduplication map
-          const fixtureMap = new Map<number, FeaturedMatch>();
+          // Limit to top 8 priority leagues only
+          const topPriorityLeagues = priorityLeagueIds.slice(0, 8);
+          const delay = 800; // 800ms delay between requests
           
-          // Process priority leagues in parallel batches
-          const batchSize = 4; // Parallel batch size
-          const priorityBatches: number[][] = [];
-          
-          for (let i = 0; i < priorityLeagueIds.length; i += batchSize) {
-            priorityBatches.push(priorityLeagueIds.slice(i, i + batchSize));
-          }
-
-          // Process each batch in parallel
-          for (let batchIndex = 0; batchIndex < priorityBatches.length; batchIndex++) {
-            const batch = priorityBatches[batchIndex];
-            console.log(`🔄 [MyHomeFeaturedMatchNew] Processing priority batch ${batchIndex + 1}/${priorityBatches.length}: [${batch.join(", ")}]`);
+          for (let i = 0; i < topPriorityLeagues.length; i++) {
+            const leagueId = topPriorityLeagues[i];
             
-            const batchPromises = batch.map(async (leagueId) => {
-              try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 6000); // 6 second timeout
-                
-                const fixturesResponse = await apiRequest(
-                  "GET",
-                  `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
-                  { signal: controller.signal }
-                );
-                
-                clearTimeout(timeoutId);
-                
-                if (!fixturesResponse.ok) {
-                  throw new Error(`HTTP ${fixturesResponse.status}`);
-                }
-                
-                const fixturesData = await fixturesResponse.json();
-                console.log(`✅ [MyHomeFeaturedMatchNew] League ${leagueId}: ${Array.isArray(fixturesData) ? fixturesData.length : 0} fixtures`);
-                
-                return { leagueId, data: Array.isArray(fixturesData) ? fixturesData : [] };
-              } catch (error) {
-                console.warn(`⚠️ [MyHomeFeaturedMatchNew] Error fetching league ${leagueId}:`, error);
-                return { leagueId, data: [], error: error.message };
-              }
-            });
-
             try {
-              const batchResults = await Promise.allSettled(batchPromises);
+              console.log(`🔄 [MyHomeFeaturedMatchNew] Fetching league ${leagueId} (${i + 1}/${topPriorityLeagues.length})`);
               
-              // Process batch results
-              batchResults.forEach((result) => {
-                if (result.status === 'fulfilled') {
-                  const { leagueId, data } = result.value;
-                  
-                  if (Array.isArray(data)) {
-                    const cachedFixtures = data
-                  .filter((fixture: any) => {
-                        // Must have valid teams and NOT be live
-                        const hasValidTeams = isValidMatch(fixture);
-                        const isNotLive = !isLiveMatch(fixture.fixture.status.short);
-
-                        // Exclude old ended matches
-                        const isOldEnded = isMatchOldEnded(fixture);
-                        if (isOldEnded) {
-                          return false;
-                        }
-
-                    // Basic filtering for performance
-                        const leagueName = fixture.league?.name?.toLowerCase() || "";
-                        const isExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id) ||
-                          leagueName.includes("women") ||
-                          leagueName.includes("oberliga") ||
-                          leagueName.includes("regionalliga");
-
-                        return hasValidTeams && isNotLive && !isExcluded;
-                      })
-                      .map((fixture: any) => ({
-                        fixture: {
-                          id: fixture.fixture.id,
-                          date: fixture.fixture.date,
-                          status: fixture.fixture.status,
-                          venue: fixture.fixture.venue,
-                        },
-                        league: {
-                          id: fixture.league.id,
-                          name: fixture.league.name,
-                          country: fixture.league.country,
-                          logo: fixture.league.logo,
-                          round: fixture.league.round,
-                        },
-                        teams: {
-                          home: {
-                            id: fixture.teams.home.id,
-                            name: fixture.teams.home.name,
-                            logo: fixture.teams.home.logo,
-                          },
-                          away: {
-                            id: fixture.teams.away.id,
-                            name: fixture.teams.away.name,
-                            logo: fixture.teams.away.logo,
-                          },
-                        },
-                        goals: {
-                          home: fixture.goals?.home ?? null,
-                          away: fixture.goals?.away ?? null,
-                        },
-                        venue: fixture.venue,
-                      }));
-
-                    // Add to deduplication map
-                    cachedFixtures.forEach((fixture: FeaturedMatch) => {
-                      if (fixture.fixture.id && !fixtureMap.has(fixture.fixture.id)) {
-                        fixtureMap.set(fixture.fixture.id, fixture);
-                      }
-                    });
-                  }
-                }
-              });
+              const controller = new AbortController();
+              const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
               
-              // Small delay between batches
-              if (batchIndex < priorityBatches.length - 1) {
-                await delay(150);
+              const fixturesResponse = await apiRequest(
+                "GET",
+                `/api/featured-match/leagues/${leagueId}/fixtures?skipFilter=true`,
+                { signal: controller.signal }
+              );
+              
+              clearTimeout(timeoutId);
+              
+              if (!fixturesResponse.ok) {
+                console.warn(`⚠️ [MyHomeFeaturedMatchNew] League ${leagueId}: HTTP ${fixturesResponse.status}`);
+                continue;
               }
               
-            } catch (batchError) {
-              console.error(`🚨 [MyHomeFeaturedMatchNew] Batch ${batchIndex + 1} processing error:`, batchError);
+              const fixturesData = await fixturesResponse.json();
+              
+              if (Array.isArray(fixturesData)) {
+                const validFixtures = fixturesData
+                  .filter((fixture: any) => {
+                    const hasValidTeams = isValidMatch(fixture);
+                    const isNotLive = !isLiveMatch(fixture.fixture.status.short);
+                    const isOldEnded = isMatchOldEnded(fixture);
+                    
+                    if (isOldEnded) return false;
+                    
+                    const leagueName = fixture.league?.name?.toLowerCase() || "";
+                    const isExcluded = EXPLICITLY_EXCLUDED_LEAGUE_IDS.includes(fixture.league?.id) ||
+                      leagueName.includes("women") ||
+                      leagueName.includes("oberliga") ||
+                      leagueName.includes("regionalliga");
+
+                    return hasValidTeams && isNotLive && !isExcluded;
+                  })
+                  .slice(0, 20) // Limit to 20 fixtures per league
+                  .map((fixture: any) => ({
+                    fixture: {
+                      id: fixture.fixture.id,
+                      date: fixture.fixture.date,
+                      status: fixture.fixture.status,
+                      venue: fixture.fixture.venue,
+                    },
+                    league: {
+                      id: fixture.league.id,
+                      name: fixture.league.name,
+                      country: fixture.league.country,
+                      logo: fixture.league.logo,
+                      round: fixture.league.round,
+                    },
+                    teams: {
+                      home: {
+                        id: fixture.teams.home.id,
+                        name: fixture.teams.home.name,
+                        logo: fixture.teams.home.logo,
+                      },
+                      away: {
+                        id: fixture.teams.away.id,
+                        name: fixture.teams.away.name,
+                        logo: fixture.teams.away.logo,
+                      },
+                    },
+                    goals: {
+                      home: fixture.goals?.home ?? null,
+                      away: fixture.goals?.away ?? null,
+                    },
+                    venue: fixture.venue,
+                  }));
+
+                allFixtures.push(...validFixtures);
+                console.log(`✅ [MyHomeFeaturedMatchNew] League ${leagueId}: ${validFixtures.length} valid fixtures added`);
+              }
+
+              // Delay before next request to prevent overwhelming
+              if (i < topPriorityLeagues.length - 1) {
+                console.log(`⏸️ [MyHomeFeaturedMatchNew] Waiting ${delay}ms before next league...`);
+                await new Promise(resolve => setTimeout(resolve, delay));
+              }
+
+            } catch (error) {
+              console.warn(`⚠️ [MyHomeFeaturedMatchNew] Error fetching league ${leagueId}:`, error);
+              continue;
             }
           }
 
-          // Convert map to array
-          const parallelFixtures = Array.from(fixtureMap.values());
-          allFixtures.push(...parallelFixtures);
-
-          console.log(`🚀 [MyHomeFeaturedMatchNew] Parallel fetch complete: ${parallelFixtures.length} fixtures from ${priorityLeagueIds.length} leagues`)
+          console.log(`🚀 [MyHomeFeaturedMatchNew] Throttled fetch complete: ${allFixtures.length} total fixtures from ${topPriorityLeagues.length} leagues`)
 
           // Fetch popular team friendlies from Friendlies Clubs league (667)
           try {

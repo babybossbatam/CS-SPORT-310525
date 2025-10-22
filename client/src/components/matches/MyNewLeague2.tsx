@@ -1062,64 +1062,116 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     cleanupOldCache();
   }, [checkStorageQuota]);
 
-  // Comprehensive fetching with priority league system
+  // Optimized fetching with batching and throttling
   const {
     data: allFixtures,
     isLoading,
     error,
     isFetching,
   } = useQuery({
-    queryKey: ["myNewLeague2", "dateFixtures", selectedDate, "comprehensive"],
+    queryKey: ["myNewLeague2", "dateFixtures", selectedDate, "optimized"],
     queryFn: async (): Promise<FixtureData[]> => {
-      console.log(`🎯 [MyNewLeague2] Fetching fixtures for date: ${selectedDate}`);
-      console.log(`📊 [MyNewLeague2] Priority leagues: ${priorityLeagues.length}, Regular leagues: ${regularLeagues.length}`);
+      console.log(`🎯 [MyNewLeague2] Starting optimized fetch for date: ${selectedDate}`);
 
       try {
-        // Use the new optimized popular fixtures endpoint
-        const response = await apiRequest(
-          "GET",
-          `/api/fixtures/popular/${selectedDate}`
-        );
+        // First, try to get cached data from the popular endpoint
+        let allFixtures: FixtureData[] = [];
 
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
+        // Step 1: Get popular fixtures first (this should be cached)
+        try {
+          const popularResponse = await apiRequest(
+            "GET",
+            `/api/fixtures/popular/${selectedDate}`
+          );
+
+          if (popularResponse.ok) {
+            const popularData = await popularResponse.json();
+            if (Array.isArray(popularData)) {
+              allFixtures = popularData.filter((fixture: FixtureData) => 
+                priorityLeagues.includes(fixture.league.id)
+              );
+              console.log(`✅ [MyNewLeague2] Got ${allFixtures.length} priority fixtures from popular endpoint`);
+            }
+          }
+        } catch (error) {
+          console.warn("⚠️ [MyNewLeague2] Popular endpoint failed, continuing with individual league fetch");
         }
 
-        const data = await response.json();
-        const fixtures = Array.isArray(data) ? data : [];
+        // Step 2: If we have enough fixtures from priority leagues, return early
+        if (allFixtures.length >= 20) {
+          console.log(`🚀 [MyNewLeague2] Early return with ${allFixtures.length} priority fixtures`);
+          smartTeamTranslation.learnTeamsFromFixtures(allFixtures);
+          return allFixtures;
+        }
 
-        // Filter fixtures to include all our leagues (priority + regular)
-        const filteredFixtures = fixtures.filter((fixture: FixtureData) => {
-          return leagueIds.includes(fixture.league.id);
-        });
+        // Step 3: Batch fetch remaining leagues with strict throttling
+        const remainingLeagues = regularLeagues.slice(0, 15); // Limit to 15 additional leagues
+        const batchSize = 2; // Only 2 concurrent requests
+        const delay = 500; // 500ms delay between batches
 
-        // Separate and prioritize fixtures
-        const priorityFixtures = filteredFixtures.filter((fixture: FixtureData) => 
-          priorityLeagues.includes(fixture.league.id)
+        for (let i = 0; i < remainingLeagues.length; i += batchSize) {
+          const batch = remainingLeagues.slice(i, i + batchSize);
+          console.log(`🚀 [MyNewLeague2] Processing batch ${Math.floor(i/batchSize) + 1}: [${batch.join(", ")}]`);
+
+          const batchPromises = batch.map(async (leagueId) => {
+            try {
+              const response = await apiRequest(
+                "GET",
+                `/api/leagues/${leagueId}/fixtures?season=2025`
+              );
+
+              if (!response.ok) {
+                console.log(`⚠️ [MyNewLeague2] League ${leagueId}: HTTP ${response.status}`);
+                return [];
+              }
+
+              const fixtures = await response.json();
+              if (!Array.isArray(fixtures)) return [];
+
+              // Filter to selected date only
+              const dateFixtures = fixtures.filter((fixture: FixtureData) => {
+                const fixtureDate = new Date(fixture.fixture.date);
+                const fixtureDateString = format(fixtureDate, "yyyy-MM-dd");
+                return fixtureDateString === selectedDate;
+              });
+
+              console.log(`✅ [MyNewLeague2] League ${leagueId}: ${dateFixtures.length} fixtures`);
+              return dateFixtures;
+
+            } catch (error) {
+              console.warn(`⚠️ [MyNewLeague2] League ${leagueId} failed:`, error);
+              return [];
+            }
+          });
+
+          const batchResults = await Promise.allSettled(batchPromises);
+          
+          batchResults.forEach((result) => {
+            if (result.status === 'fulfilled' && Array.isArray(result.value)) {
+              allFixtures.push(...result.value);
+            }
+          });
+
+          // Delay before next batch to prevent overwhelming
+          if (i + batchSize < remainingLeagues.length) {
+            console.log(`⏸️ [MyNewLeague2] Waiting ${delay}ms before next batch...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+        }
+
+        // Remove duplicates and learn from fixtures
+        const uniqueFixtures = allFixtures.filter(
+          (fixture, index, self) =>
+            index === self.findIndex((f) => f.fixture.id === fixture.fixture.id),
         );
-        const regularFixtures = filteredFixtures.filter((fixture: FixtureData) => 
-          regularLeagues.includes(fixture.league.id)
-        );
 
-        // Combine with priority fixtures first
-        const sortedFixtures = [...priorityFixtures, ...regularFixtures];
+        smartTeamTranslation.learnTeamsFromFixtures(uniqueFixtures);
 
-        // Learn teams from fixtures
-        smartTeamTranslation.learnTeamsFromFixtures(sortedFixtures);
-
-        console.log(`✅ [MyNewLeague2] Comprehensive fetch complete:`, {
-          totalFixtures: fixtures.length,
-          filteredFixtures: sortedFixtures.length,
-          priorityFixtures: priorityFixtures.length,
-          regularFixtures: regularFixtures.length,
-          totalLeagues: leagueIds.length,
-          selectedDate
-        });
-
-        return sortedFixtures;
+        console.log(`✅ [MyNewLeague2] Optimized fetch complete: ${uniqueFixtures.length} total fixtures`);
+        return uniqueFixtures;
 
       } catch (error) {
-        console.error("🚨 [MyNewLeague2] Error in comprehensive fetch:", error);
+        console.error("🚨 [MyNewLeague2] Error in optimized fetch:", error);
         return [];
       }
     },

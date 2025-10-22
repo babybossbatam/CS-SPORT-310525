@@ -849,27 +849,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json([
 
 
-  // Optimized date-based fixtures for MyNewLeague2 - reduces API calls
+  // Optimized and cached popular fixtures endpoint
   apiRouter.get(
     "/fixtures/popular/:date",
     async (req: Request, res: Response) => {
       try {
         const { date } = req.params;
-        const priorityLeagues = [39, 140, 78, 135, 2, 3, 15, 848, 32, 10, 11, 22, 71, 253, 667]; // Same as MyNewLeague2
+        const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Reduced to top 6 leagues only
 
-        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} priority leagues`);
+        // Check cache first
+        const cacheKey = `popular-fixtures-${date}`;
+        const cachedData = fixturesCache.get(cacheKey);
+
+        if (cachedData && Date.now() - cachedData.timestamp < 30 * 60 * 1000) { // 30 min cache
+          console.log(`📦 [PopularFixtures] Cache hit for ${date}`);
+          return res.json(cachedData.data);
+        }
+
+        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} top priority leagues`);
 
         // Use the existing date endpoint but filter by priority leagues
-        const response = await rapidApiService.getFixturesByDate(date, true);
+        const response = await rapidApiService.getFixturesByDate(date, false); // Use cached version
         
         if (!response || !Array.isArray(response)) {
           return res.json([]);
         }
 
-        // Filter to only priority leagues
-        const priorityFixtures = response.filter(fixture => 
-          fixture.league && priorityLeagues.includes(fixture.league.id)
-        );
+        // Filter to only priority leagues and limit results
+        const priorityFixtures = response
+          .filter(fixture => 
+            fixture.league && priorityLeagues.includes(fixture.league.id)
+          )
+          .slice(0, 50); // Limit to 50 fixtures maximum
+
+        // Cache the result
+        fixturesCache.set(cacheKey, {
+          data: priorityFixtures,
+          timestamp: Date.now()
+        });
 
         console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
 
