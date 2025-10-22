@@ -365,7 +365,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const mountedRef = useRef(false);
   const selectiveUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Function to manage selective updates for matches - OPTIMIZED with batch fetching
+  // Function to manage selective updates for matches
   const manageSelectiveUpdates = useCallback(() => {
     // Clear existing interval if any
     if (selectiveUpdateIntervalRef.current) {
@@ -373,59 +373,44 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     }
 
     // Set a new interval for periodic updates (e.g., every 30 seconds)
-    selectiveUpdateIntervalRef.current = setInterval(async () => {
+    selectiveUpdateIntervalRef.current = setInterval(() => {
       if (!mountedRef.current) return; // Prevent updates if component is unmounted
 
-      // Check if there are any live matches first
-      const hasLiveMatches = featuredMatches.some(dayData =>
-        dayData.matches.some(match => {
-          const status = match.fixture.status.short;
-          return ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-        })
-      );
+      setFeaturedMatches((prevMatches) => {
+        const updatedMatches = prevMatches.map((dayData) => ({
+          ...dayData,
+          matches: dayData.matches.map((match) => {
+            // Check if this match is live and needs an update
+            const status = match.fixture.status.short;
+            const isLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
 
-      // Only fetch if there are live matches
-      if (!hasLiveMatches) {
-        console.log("⏸️ [MyHomeFeaturedMatchNew] No live matches, skipping update");
-        return;
-      }
-
-      try {
-        // Fetch ALL live fixtures in ONE batch request instead of individual requests
-        const response = await apiRequest("GET", "/api/fixtures/live");
-        const liveFixtures = await response.json();
-        
-        console.log(`🔴 [MyHomeFeaturedMatchNew] Batch updated ${liveFixtures?.length || 0} live fixtures`);
-
-        // Create a map of live fixture data for quick lookup
-        const liveDataMap = new Map<number, any>();
-        liveFixtures.forEach((fixture: any) => {
-          liveDataMap.set(fixture.fixture.id, fixture);
-        });
-
-        // Update only the live match data state
-        setLiveMatchData((prevData) => {
-          const newData = new Map(prevData);
-          
-          // Update with fresh live data
-          liveDataMap.forEach((fixtureData, fixtureId) => {
-            newData.set(fixtureId, {
-              goals: fixtureData.goals,
-              fixture: {
-                status: fixtureData.fixture.status,
-                id: fixtureData.fixture.id,
-                date: fixtureData.fixture.date,
-              },
-            });
-          });
-          
-          return newData;
-        });
-      } catch (error) {
-        console.error("❌ [MyHomeFeaturedMatchNew] Error fetching batch live data:", error);
-      }
+            if (isLive) {
+              // Fetch real-time data for live matches
+              fetch(`/api/fixtures/${match.fixture.id}`) // Assuming an endpoint for individual fixture updates
+                .then((res) => res.json())
+                .then((data: Partial<FeaturedMatch>) => {
+                  // Update the liveMatchData state for selective rendering
+                  setLiveMatchData((prevData) => {
+                    const newData = new Map(prevData);
+                    newData.set(match.fixture.id, {
+                      goals: data.goals,
+                      fixture: {
+                        ...match.fixture,
+                        status: data.fixture?.status || match.fixture.status, // Ensure status is updated
+                      },
+                    });
+                    return newData;
+                  });
+                })
+                .catch((error) => console.error("Error fetching live match data:", error));
+            }
+            return match; // Return the original match data if not live
+          }),
+        }));
+        return updatedMatches;
+      });
     }, 30000); // Update every 30 seconds
-  }, [featuredMatches]); // Dependencies: featuredMatches to check for live matches
+  }, []); // Dependencies: none, as it relies on its own interval logic
 
   const fetchRoundsForLeague = useCallback(
     async (leagueId: number, season: number) => {

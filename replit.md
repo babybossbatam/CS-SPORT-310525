@@ -96,13 +96,6 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
-- October 22, 2025. Optimized MyNewLeague2 and MyHomeFeaturedMatchNew components:
-  - MyNewLeague2: Replaced fetch with apiRequest from @/lib/queryClient for better error handling
-  - MyHomeFeaturedMatchNew: Eliminated individual live match fetches (was fetching each match separately)
-  - MyHomeFeaturedMatchNew: Implemented batch /api/fixtures/live endpoint (1 request instead of N requests)
-  - MyHomeFeaturedMatchNew: Added conditional refetching - only fetches when live matches exist
-  - Estimated 70-80% reduction in API calls for live match updates
-  - Both components now use smart refetch intervals based on match status
 - October 22, 2025. Fixed critical system overload with request coalescing:
   - Added in-memory request deduplication to prevent duplicate concurrent API calls
   - When 6+ components request same date simultaneously, they now share 1 fetch instead of each making their own
