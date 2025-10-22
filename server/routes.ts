@@ -2708,6 +2708,108 @@ app.get('/api/teams/popular', async (req, res) => {
     },
   );
 
+  // Optimized batch endpoint for MyNewLeague2: fetch multiple leagues with smart date filtering
+  apiRouter.post("/leagues/batch/fixtures", async (req: Request, res: Response) => {
+    try {
+      const { leagueIds, date } = req.body;
+
+      if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD" });
+      }
+
+      if (!Array.isArray(leagueIds) || leagueIds.length === 0) {
+        return res.status(400).json({ error: "leagueIds must be a non-empty array" });
+      }
+
+      console.log(`🎯 [Batch] Fetching ${leagueIds.length} leagues for date ${date} (with ±1 day for timezones)`);
+
+      // Calculate season dynamically based on the requested date
+      // Football seasons typically run from July to June, so season is year + 1 for July onwards
+      const targetDate = new Date(date + 'T00:00:00Z');
+      const year = targetDate.getFullYear();
+      const month = targetDate.getMonth() + 1; // getMonth() is 0-indexed
+      const season = month >= 7 ? year + 1 : year;
+
+      console.log(`📅 [Batch] Calculated season: ${season} for date: ${date}`);
+
+      // Calculate date ranges (date-1, date, date+1) for timezone coverage
+      const previousDay = new Date(targetDate);
+      previousDay.setDate(previousDay.getDate() - 1);
+      const nextDay = new Date(targetDate);
+      nextDay.setDate(nextDay.getDate() + 1);
+
+      const datesToFetch = [
+        previousDay.toISOString().split('T')[0],
+        date,
+        nextDay.toISOString().split('T')[0]
+      ];
+
+      // Map to deduplicate fixtures
+      const fixtureMap = new Map<number, any>();
+      let totalFetched = 0;
+
+      // Optimized batch processing with smaller batches to reduce system load
+      const batchSize = 3; // Reduced from 5 to 3 for better performance
+      for (let i = 0; i < leagueIds.length; i += batchSize) {
+        const batch = leagueIds.slice(i, i + batchSize);
+        
+        await Promise.all(batch.map(async (leagueId: number) => {
+          try {
+            // Fetch fixtures for this league with dynamic season (leverages RapidAPI's internal caching)
+            const leagueFixtures = await rapidApiService.getFixturesByLeague(leagueId, season);
+            
+            if (!Array.isArray(leagueFixtures)) return;
+
+            // Filter to only include fixtures from our date range (date-1, date, date+1)
+            const filteredFixtures = leagueFixtures.filter((fixture: any) => {
+              if (!fixture?.fixture?.date) return false;
+              
+              const fixtureDate = new Date(fixture.fixture.date);
+              const fixtureDateString = fixtureDate.toISOString().split('T')[0];
+              
+              // Include if fixture falls within our 3-day window
+              return datesToFetch.includes(fixtureDateString);
+            });
+
+            // Add to deduplication map
+            filteredFixtures.forEach((fixture: any) => {
+              if (fixture?.fixture?.id && !fixtureMap.has(fixture.fixture.id)) {
+                fixtureMap.set(fixture.fixture.id, fixture);
+              }
+            });
+
+            totalFetched += filteredFixtures.length;
+          } catch (error) {
+            console.warn(`⚠️ [Batch] Error fetching league ${leagueId}:`, error instanceof Error ? error.message : 'Unknown');
+          }
+        }));
+
+        // Increased delay between batches to reduce workflow overload
+        if (i + batchSize < leagueIds.length) {
+          await new Promise(resolve => setTimeout(resolve, 200)); // Increased from 100ms to 200ms
+        }
+      }
+
+      const allFixtures = Array.from(fixtureMap.values());
+      
+      console.log(`✅ [Batch] Fetched ${totalFetched} fixtures (${allFixtures.length} unique) for ${leagueIds.length} leagues`);
+      
+      res.json({
+        date,
+        dateRange: datesToFetch,
+        fixtures: allFixtures,
+        meta: {
+          requestedLeagues: leagueIds.length,
+          totalFixtures: allFixtures.length,
+          datesCovered: datesToFetch
+        }
+      });
+    } catch (error) {
+      console.error("❌ [Batch] Error in batch fixtures endpoint:", error);
+      res.status(500).json({ error: "Failed to fetch batch fixtures" });
+    }
+  });
+
   // Get fixtures by date
   apiRouter.get("/fixtures/date/:date", async (req: Request, res: Response) => {
     try {

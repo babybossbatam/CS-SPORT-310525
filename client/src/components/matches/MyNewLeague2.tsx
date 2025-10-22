@@ -755,7 +755,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
         if (!cached) return [];
 
-        const parsedCache = JSON.JSON.parse(cached);
+        const parsedCache = JSON.parse(cached);
 
         // Handle both old and new cache formats
         const fixtures = parsedCache.fixtures || parsedCache.f || [];
@@ -1062,7 +1062,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const priorityLeagues = [39, 140, 78, 135, 2, 3]; // Top 6 priority leagues
   const regularLeagues = leagueIds.filter(id => !priorityLeagues.includes(id));
 
-  // Fetch fixtures for all leagues with parallel processing and deduplication
+  // Fetch fixtures for all leagues using optimized batch endpoint
   const {
     data: allFixtures,
     isLoading,
@@ -1072,144 +1072,51 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     queryKey: ["myNewLeague2", "allFixtures", selectedDate],
     queryFn: async (): Promise<FixtureData[]> => {
       console.log(
-        `🎯 [MyNewLeague2] Starting parallel fetch for ${leagueIds.length} leagues on ${selectedDate}`,
+        `🎯 [MyNewLeague2] Using optimized batch endpoint for ${leagueIds.length} leagues on ${selectedDate}`,
       );
 
-      // Create deduplication map
-      const fixtureDeduplicationMap = new Map<number, FixtureData>();
-      const processedLeagues = new Set<number>();
-
-      // Helper function for parallel batch processing
-      const processBatchParallel = async (batch: number[], batchName: string) => {
-        console.log(`🚀 [MyNewLeague2] Processing ${batchName} batch: [${batch.join(", ")}]`);
-        
-        const batchPromises = batch.map(async (leagueId) => {
-          if (processedLeagues.has(leagueId)) {
-            console.log(`⚠️ [MyNewLeague2] League ${leagueId} already processed, skipping`);
-            return { leagueId, fixtures: [], cached: true };
-          }
-
-          try {
-            // Check cache first for ended matches
-            const cached = getCachedEndedMatches(selectedDate, leagueId);
-            if (cached.length > 0) {
-              console.log(`💾 [MyNewLeague2] Using ${cached.length} cached fixtures for league ${leagueId}`);
-              processedLeagues.add(leagueId);
-              return { leagueId, fixtures: cached, cached: true };
-            }
-
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
-
-            const response = await apiRequest(
-              "GET",
-              `/api/leagues/${leagueId}/fixtures`,
-              { signal: controller.signal }
-            );
-
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-              if (response.status === 429) {
-                console.warn(`⚠️ [MyNewLeague2] Rate limited for league ${leagueId}`);
-                return { leagueId, fixtures: [], error: "Rate limited" };
-              }
-              throw new Error(`HTTP ${response.status}`);
-            }
-
-            const data = await response.json();
-            const fixtures = data.response || data || [];
-
-            // Cache ended matches in background
-            if (fixtures.length > 0) {
-              setTimeout(() => cacheEndedMatches(selectedDate, leagueId, fixtures), 0);
-            }
-
-            processedLeagues.add(leagueId);
-            console.log(`✅ [MyNewLeague2] League ${leagueId}: ${fixtures.length} fixtures`);
-            return { leagueId, fixtures, error: null };
-
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "Unknown error";
-            console.warn(`⚠️ [MyNewLeague2] Error fetching league ${leagueId}: ${errorMessage}`);
-            return { leagueId, fixtures: [], error: errorMessage };
-          }
-        });
-
-        return Promise.allSettled(batchPromises);
-      };
-
       try {
-        // Process priority leagues first (parallel)
-        const priorityResults = await processBatchParallel(priorityLeagues, "Priority");
-        
-        // Add small delay before regular leagues
-        await delay(100);
-        
-        // Process regular leagues in smaller parallel batches
-        const regularBatches: number[][] = [];
-        const batchSize = 3; // Smaller batch size for regular leagues
-        for (let i = 0; i < regularLeagues.length; i += batchSize) {
-          regularBatches.push(regularLeagues.slice(i, i + batchSize));
-        }
-
-        const allResults = [...priorityResults];
-        
-        // Process regular league batches with delays
-        for (let i = 0; i < regularBatches.length; i++) {
-          const batch = regularBatches[i];
-          const batchResults = await processBatchParallel(batch, `Regular-${i + 1}`);
-          allResults.push(...batchResults);
-          
-          // Small delay between batches
-          if (i < regularBatches.length - 1) {
-            await delay(200);
-          }
-        }
-
-        // Process all results and deduplicate
-        allResults.forEach((result) => {
-          if (result.status === 'fulfilled') {
-            const { fixtures } = result.value;
-            fixtures.forEach((fixture: FixtureData) => {
-              if (fixture?.fixture?.id) {
-                // Deduplication: only add if not already present
-                if (!fixtureDeduplicationMap.has(fixture.fixture.id)) {
-                  fixtureDeduplicationMap.set(fixture.fixture.id, fixture);
-                }
-              }
-            });
+        // Use the optimized batch endpoint - ONE request instead of 46!
+        const response = await fetch("/api/leagues/batch/fixtures", {
+          method: "POST",
+          body: JSON.stringify({
+            leagueIds: leagueIds,
+            date: selectedDate
+          }),
+          headers: {
+            'Content-Type': 'application/json'
           }
         });
 
-        const finalFixtures = Array.from(fixtureDeduplicationMap.values());
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const fixtures = data.fixtures || [];
+
+        console.log(`✅ [MyNewLeague2] Batch fetch complete:`, {
+          totalLeagues: leagueIds.length,
+          totalFixtures: fixtures.length,
+          dateRange: data.dateRange,
+          meta: data.meta
+        });
 
         // Learn teams from fixtures
-        smartTeamTranslation.learnTeamsFromFixtures(finalFixtures);
+        if (fixtures.length > 0) {
+          smartTeamTranslation.learnTeamsFromFixtures(fixtures);
+        }
 
-        console.log(`🔄 [MyNewLeague2] Parallel fetch complete:`, {
-          totalLeagues: leagueIds.length,
-          processedLeagues: processedLeagues.size,
-          totalFixtures: finalFixtures.length,
-          deduplicatedFixtures: fixtureDeduplicationMap.size,
-          priorityLeagues: priorityLeagues.length,
-          regularLeagues: regularLeagues.length,
-        });
-
-        return finalFixtures;
+        return fixtures;
 
       } catch (error) {
-        console.error("🚨 [MyNewLeague2] Critical error in parallel fetch:", error);
-        
-        // Return whatever fixtures we managed to get
-        const emergencyFixtures = Array.from(fixtureDeduplicationMap.values());
-        console.log(`🆘 [MyNewLeague2] Emergency return: ${emergencyFixtures.length} fixtures`);
-        return emergencyFixtures;
+        console.error("🚨 [MyNewLeague2] Error in batch fetch:", error);
+        throw error;
       }
     },
     // Apply dynamic cache configuration
     staleTime: dynamicCacheConfig.staleTime,
-    refetchInterval: dynamicCacheConfig.refetchInterval,
+    refetchInterval: dynamicCacheConfig.refetchInterval as number | false,
     refetchOnWindowFocus: dynamicCacheConfig.refetchOnWindowFocus,
     refetchOnReconnect: dynamicCacheConfig.refetchOnReconnect,
     // Additional configuration for better UX
@@ -1221,7 +1128,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     },
     retryDelay: (attemptIndex: number): number =>
       Math.min(1000 * 2 ** attemptIndex, 30000),
-  } as const);
+  });
 
   // Smart cache adjustment based on live match detection and proximity to kickoff
   useEffect(() => {
@@ -1266,48 +1173,48 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     let newCacheConfig;
 
     if ((liveMatches.length > 0 || shouldBeLiveMatches.length > 0) && isToday) {
-      // LIVE matches detected OR matches that should be live - most aggressive cache
+      // LIVE matches detected OR matches that should be live - optimized for live data
       newCacheConfig = {
-        staleTime: 30 * 1000, // 30 seconds - very aggressive
-        refetchInterval: 15 * 1000, // 15 seconds - very frequent updates
-        refetchOnWindowFocus: true,
+        staleTime: 1 * 60 * 1000, // 1 minute - balanced for performance
+        refetchInterval: 30 * 1000, // 30 seconds - reduced from 15s to avoid overload
+        refetchOnWindowFocus: false, // Disabled to reduce unnecessary requests
         refetchOnReconnect: true,
       };
       console.log(
-        `🔴 [MyNewLeague2] ${liveMatches.length} live + ${shouldBeLiveMatches.length} should-be-live matches detected - using most aggressive cache (30s/15s)`,
+        `🔴 [MyNewLeague2] ${liveMatches.length} live + ${shouldBeLiveMatches.length} should-be-live matches - optimized cache (1min/30s)`,
       );
     } else if (imminentMatches.length > 0 && isToday) {
-      // Matches starting within 30 minutes - very aggressive cache
-      newCacheConfig = {
-        staleTime: 1 * 60 * 1000, // 1 minute
-        refetchInterval: 20 * 1000, // 20 seconds
-        refetchOnWindowFocus: true,
-        refetchOnReconnect: true,
-      };
-      console.log(
-        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - using very aggressive cache (1min/20s)`,
-      );
-    } else if (upcomingMatches.length > 0 && isToday) {
-      // Matches starting within 2 hours - aggressive cache
+      // Matches starting within 30 minutes - moderate updates
       newCacheConfig = {
         staleTime: 2 * 60 * 1000, // 2 minutes
-        refetchInterval: 30 * 1000, // 30 seconds
+        refetchInterval: 45 * 1000, // 45 seconds - reduced from 20s
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
       console.log(
-        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - using aggressive cache (2min/30s)`,
+        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - moderate cache (2min/45s)`,
+      );
+    } else if (upcomingMatches.length > 0 && isToday) {
+      // Matches starting within 2 hours - less frequent updates
+      newCacheConfig = {
+        staleTime: 3 * 60 * 1000, // 3 minutes
+        refetchInterval: 60 * 1000, // 1 minute - reduced from 30s
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
+      };
+      console.log(
+        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - relaxed cache (3min/1min)`,
       );
     } else if (isToday && liveMatches.length === 0) {
-      // Today but no live or imminent matches - moderate cache
+      // Today but no live or imminent matches - conservative cache
       newCacheConfig = {
         staleTime: 5 * 60 * 1000, // 5 minutes
-        refetchInterval: 60 * 1000, // 1 minute
+        refetchInterval: 2 * 60 * 1000, // 2 minutes - reduced from 1min
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
       console.log(
-        `⏸️ [MyNewLeague2] No live/imminent matches on today's date - using moderate cache (5min/1min)`,
+        `⏸️ [MyNewLeague2] No live/imminent matches on today - conservative cache (5min/2min)`,
       );
     } else {
       // Past/future dates - extended cache
@@ -1318,7 +1225,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
         refetchOnReconnect: false,
       };
       console.log(
-        `📅 [MyNewLeague2] Non-today date - using extended cache (1 hour/no refetch)`,
+        `📅 [MyNewLeague2] Non-today date - extended cache (1 hour/no refetch)`,
       );
     }
 
