@@ -395,7 +395,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         const response = await apiRequest("GET", "/api/fixtures/live");
         const liveFixtures = await response.json();
         
-        console.log(`🔴 [MyHomeFeaturedMatchNew] Batch updated ${liveFixtures.length} live fixtures`);
+        console.log(`🔴 [MyHomeFeaturedMatchNew] Batch updated ${liveFixtures?.length || 0} live fixtures`);
 
         // Create a map of live fixture data for quick lookup
         const liveDataMap = new Map<number, any>();
