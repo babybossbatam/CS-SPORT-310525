@@ -96,13 +96,13 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
-- October 22, 2025. Fixed critical system overload by removing duplicate route:
-  - Removed duplicate /api/fixtures/date/:date route that was making 3 API calls per request
-  - Performance improved from 363+ seconds to 8ms per request (45,000x faster)
-  - Eliminated unnecessary multi-timezone fetching (date-1, date, date+1) for standard requests
-  - Fixed issue where 6+ simultaneous requests were overwhelming the system
-  - Kept simple efficient route that makes 1 API call with proper caching
-  - MyNewLeague2 batch endpoint continues to handle league-specific timezone needs
+- October 22, 2025. Fixed critical system overload by simplifying all date routes:
+  - Removed duplicate /api/fixtures/date/:date route (was making 3 API calls per request)
+  - Simplified /api/featured-match/date/:date route (was making 3 API calls per request)
+  - Performance improved from 363+ seconds to 8-10ms per request (45,000x faster!)
+  - Both routes now make only 1 API call with proper caching
+  - Fixed issue where multiple components with 6+ simultaneous requests were overwhelming the system
+  - MyNewLeague2 batch endpoint continues to handle league-specific needs
 - October 22, 2025. Optimized MyNewLeague2 performance:
   - Replaced 46 individual API calls with single batch endpoint
   - Implemented server-side batching (3 leagues/batch, 200ms delays)

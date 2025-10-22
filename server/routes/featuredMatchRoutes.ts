@@ -36,41 +36,11 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
 
     console.log(`🎯 [FeaturedMatch] Fetching fixtures for date: ${date} with skipFilter=${skipFilter}`);
 
-    // Calculate date ranges for multiple timezones
-    const targetDate = new Date(date + 'T00:00:00Z');
-    const previousDay = new Date(targetDate);
-    previousDay.setDate(previousDay.getDate() - 1);
-    const nextDay = new Date(targetDate);
-    nextDay.setDate(nextDay.getDate() + 1);
-
-    // Format dates for API calls
-    const datesToFetch = [
-      previousDay.toISOString().split('T')[0],
-      date,
-      nextDay.toISOString().split('T')[0]
-    ];
-
-    let allFixtures: any[] = [];
-
-    // Fetch fixtures for each date to cover all timezones
-    for (const fetchDate of datesToFetch) {
-      try {
-        const dateFixtures = await rapidApiService.getFixturesByDate(fetchDate, all === 'true');
-        console.log(`📅 [FeaturedMatch] Got ${dateFixtures.length} fixtures for ${fetchDate} (NO FILTERING)`);
-        allFixtures = [...allFixtures, ...dateFixtures];
-      } catch (error) {
-        console.error(`❌ [FeaturedMatch] Error fetching fixtures for ${fetchDate}:`, error);
-        continue;
-      }
-    }
-
-    // Remove duplicates based on fixture ID
-    const uniqueFixtures = allFixtures.filter((fixture, index, self) => 
-      index === self.findIndex(f => f.fixture.id === fixture.fixture.id)
-    );
-
-    console.log(`✅ [FeaturedMatch] Returning ${uniqueFixtures.length} unfiltered fixtures for ${date}`);
-    return res.json(uniqueFixtures);
+    // Fetch fixtures for the requested date only (RapidAPI handles timezones)
+    const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
+    console.log(`✅ [FeaturedMatch] Returning ${fixtures.length} unfiltered fixtures for ${date}`);
+    
+    return res.json(fixtures);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching fixtures by date:', error);
     res.status(500).json({ error: 'Failed to fetch fixtures' });
