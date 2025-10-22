@@ -28,7 +28,7 @@ import { teamMappingExtractor } from "@/lib/teamMappingExtractor";
 import { generateCompleteTeamMapping } from "@/lib/generateCompleteTeamMapping";
 import { smartLeagueTranslation } from "@/lib/leagueNameMapping";
 import { smartCountryTranslation } from "@/lib/countryNameMapping";
-import { apiRequest } from "@/lib/apiService"; // Assuming apiRequest is available
+import { apiRequest } from "@/lib/queryClient";
 
 // Intersection Observer Hook for lazy loading
 const useIntersectionObserver = (
@@ -1077,20 +1077,10 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
 
       try {
         // Use the optimized batch endpoint - ONE request instead of 46!
-        const response = await fetch("/api/leagues/batch/fixtures", {
-          method: "POST",
-          body: JSON.stringify({
-            leagueIds: leagueIds,
-            date: selectedDate
-          }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
+        const response = await apiRequest("POST", "/api/leagues/batch/fixtures", {
+          leagueIds: leagueIds,
+          date: selectedDate
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
 
         const data = await response.json();
         const fixtures = data.fixtures || [];
