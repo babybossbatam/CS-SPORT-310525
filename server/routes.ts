@@ -847,44 +847,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // If all fails, return a minimal default set of popular leagues
         return res.json([
-
-
-  // Optimized date-based fixtures for MyNewLeague2 - reduces API calls
-  apiRouter.get(
-    "/fixtures/popular/:date",
-    async (req: Request, res: Response) => {
-      try {
-        const { date } = req.params;
-        const priorityLeagues = [39, 140, 78, 135, 2, 3, 15, 848, 32, 10, 11, 22, 71, 253, 667]; // Same as MyNewLeague2
-
-        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} priority leagues`);
-
-        // Use the existing date endpoint but filter by priority leagues
-        const response = await rapidApiService.getFixturesByDate(date, true);
-        
-        if (!response || !Array.isArray(response)) {
-          return res.json([]);
-        }
-
-        // Filter to only priority leagues
-        const priorityFixtures = response.filter(fixture => 
-          fixture.league && priorityLeagues.includes(fixture.league.id)
-        );
-
-        console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
-
-        res.json(priorityFixtures);
-      } catch (error) {
-        console.error(`❌ [PopularFixtures] Error:`, error);
-        res.status(500).json({ 
-          error: "Failed to fetch popular fixtures",
-          details: error instanceof Error ? error.message : "Unknown error"
-        });
-      }
-    }
-  );
-
-
           {
             league: {
               id: 39,
@@ -903,7 +865,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             league: {
               id: 78,
 
-name: "Bundesliga",
+              name: "Bundesliga",
               type: "League",
               logo: "https://media.api-sports.io/football/leagues/78.png",
               country: "Germany",
@@ -944,6 +906,41 @@ name: "Bundesliga",
       res.json([]);
     }
   });
+
+  // Optimized date-based fixtures for MyNewLeague2 - reduces API calls
+  apiRouter.get(
+    "/fixtures/popular/:date",
+    async (req: Request, res: Response) => {
+      try {
+        const { date } = req.params;
+        const priorityLeagues = [39, 140, 78, 135, 2, 3, 15, 848, 32, 10, 11, 22, 71, 253, 667]; // Same as MyNewLeague2
+
+        console.log(`🎯 [PopularFixtures] Fetching fixtures for ${date} from ${priorityLeagues.length} priority leagues`);
+
+        // Use the existing date endpoint but filter by priority leagues
+        const response = await rapidApiService.getFixturesByDate(date, true);
+
+        if (!response || !Array.isArray(response)) {
+          return res.json([]);
+        }
+
+        // Filter to only priority leagues
+        const priorityFixtures = response.filter(fixture => 
+          fixture.league && priorityLeagues.includes(fixture.league.id)
+        );
+
+        console.log(`✅ [PopularFixtures] Returning ${priorityFixtures.length} fixtures from ${priorityLeagues.length} priority leagues`);
+
+        res.json(priorityFixtures);
+      } catch (error) {
+        console.error(`❌ [PopularFixtures] Error:`, error);
+        res.status(500).json({ 
+          error: "Failed to fetch popular fixtures",
+          details: error instanceof Error ? error.message : "Unknown error"
+        });
+      }
+    }
+  );
 
   // League information endpoint
   apiRouter.get("/leagues/:id", async (req: Request, res: Response) => {
@@ -3269,7 +3266,7 @@ error) {
           id: fixtureId
         },
         headers: {
-          'X-RapidAPI-Key': RAPIDAPI_KEY,
+          'X-RapidAPI-Key': RAPID_API_KEY,
           'X-RapidAPI-Host': 'v3.football.api-sports.io'
         }
       });
@@ -3389,16 +3386,16 @@ error) {
   app.get('/api/players/:playerId/heatmap', async (req, res) => {
     try {
       const { playerId } = req.params;
-      const { eventId, playerName, teamName, homeTeam, awayTeam, matchDate } = req.query;
+      const { eventId, playerName, teamName, matchDate } = req.query;
 
       let sofaScorePlayerId = parseInt(playerId);
       let sofaScoreEventId = eventId ? parseInt(eventId as string) : null;
 
       // If we don't have a direct SofaScore event ID, try to find it
-      if (!sofaScoreEventId && homeTeam && awayTeam && matchDate) {
+      if (!sofaScoreEventId && req.query.homeTeam && req.query.awayTeam && matchDate) {
         sofaScoreEventId = await sofaScoreAPI.findEventBySimilarity(
-          homeTeam as string,
-          awayTeam as string,
+          req.query.homeTeam as string,
+          req.query.awayTeam as string,
           matchDate as string
         );
       }
