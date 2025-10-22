@@ -41,6 +41,9 @@ const fixturesCache = new Map<string, { data: any; timestamp: number }>();
 const leaguesCache = new Map<string, { data: any; timestamp: number }>();
 const playersCache = new Map<string, { data: any; timestamp: number }>();
 
+// In-flight request tracking for deduplication (prevents concurrent duplicate requests)
+const pendingRequests = new Map<string, Promise<any>>();
+
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
   2: ["Real Madrid", "Manchester City", "Bayern Munich", "PSG", "Inter"], // Champions League
@@ -307,7 +310,17 @@ export const rapidApiService = {
       return cached.data;
     }
 
-    try {
+    // REQUEST COALESCING: Check if there's already an in-flight request for this date
+    const pendingKey = cacheKey;
+    const existingRequest = pendingRequests.get(pendingKey);
+    if (existingRequest) {
+      console.log(`🔄 [RapidAPI] Reusing in-flight request for ${date} (preventing duplicate API calls)`);
+      return existingRequest;
+    }
+
+    // Create the promise and store it for request deduplication
+    const requestPromise = (async () => {
+      try {
       let allFixtures: FixtureResponse[] = [];
 
       // For today's matches, prioritize live data first
@@ -578,7 +591,15 @@ export const rapidApiService = {
         throw new Error(`Failed to fetch fixtures: ${error.message}`);
       }
       throw new Error("Failed to fetch fixtures: Unknown error");
+    } finally {
+      // Clean up the pending request when done (success or error)
+      pendingRequests.delete(pendingKey);
     }
+    })();
+
+    // Store the promise for request coalescing
+    pendingRequests.set(pendingKey, requestPromise);
+    return requestPromise;
   },
 
   /**

@@ -36,8 +36,9 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
 
     console.log(`🎯 [FeaturedMatch] Fetching fixtures for date: ${date} with skipFilter=${skipFilter}`);
 
-    // Fetch fixtures for the requested date only (RapidAPI handles timezones)
-    const fixtures = await rapidApiService.getFixturesByDate(date, all === 'true');
+    // Fetch with all=true to get 3-day window (timezone coverage)
+    // Request coalescing in rapidApi service prevents duplicate API calls
+    const fixtures = await rapidApiService.getFixturesByDate(date, true);
     console.log(`✅ [FeaturedMatch] Returning ${fixtures.length} unfiltered fixtures for ${date}`);
     
     return res.json(fixtures);
