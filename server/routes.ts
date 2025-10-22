@@ -847,7 +847,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // If all fails, return a minimal default set of popular leagues
         return res.json([
+          {
+            league: {
+              id: 39,
+              name: "Premier League",
+              type: "League",
+              logo: "https://media.api-sports.io/football/leagues/39.png",
+              country: "England",
+            },
+            country: {
+              name: "England",
+              code: "GB",
+              flag: "https://media.api-sports.io/flags/gb.svg",
+            },
+          },
+          {
+            league: {
+              id: 140,
+              name: "La Liga",
+              type: "League", 
+              logo: "https://media.api-sports.io/football/leagues/140.png",
+              country: "Spain",
+            },
+            country: {
+              name: "Spain",
+              code: "ES",
+              flag: "https://media.api-sports.io/flags/es.svg",
+            },
+          },
+          {
+            league: {
+              id: 78,
+              name: "Bundesliga",
+              type: "League",
+              logo: "https://media.api-sports.io/football/leagues/78.png",
+              country: "Germany",
+            },
+            country: {
+              name: "Germany",
+              code: "DE",
+              flag: "https://media.api-sports.io/flags/de.svg",
+            },
+          },
+          {
+            league: {
+              id: 2,
+              name: "UEFA Champions League",
+              type: "Cup",
+              logo: "https://media.api-sports.io/football/leagues/2.png",
+              country: "World",
+            },
+            country: {
+              name: "World",
+              code: "WO",
+              flag: "https://media.api-sports.io/flags/wo.svg",
+            },
+          },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error fetching leagues:", error);
+      // Return cached data if available as a fallback
+      const cachedLeagues = await storage.getAllCachedLeagues();
 
+      if (cachedLeagues && cachedLeagues.length > 0) {
+        const leagues = cachedLeagues.map((league) => league.data);
+        return res.json(leagues);
+      }
+
+      // If all else fails, return empty array instead of error
+      res.json([]);
+    }
+  });
 
   // Optimized and cached popular fixtures endpoint
   apiRouter.get(
