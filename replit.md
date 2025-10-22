@@ -96,6 +96,13 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 22, 2025. Optimized MyNewLeague2 performance:
+  - Replaced 46 individual API calls with single batch endpoint
+  - Implemented server-side batching (3 leagues/batch, 200ms delays)
+  - Added dynamic season calculation to prevent hardcoded season issues
+  - Reduced refetch intervals: live 30s (was 15s), no-live 2min (was 1min)
+  - Server-side 3-day window fetching (date-1, date, date+1) for timezone coverage
+  - Disabled refetchOnWindowFocus to reduce unnecessary requests
 - July 04, 2025. Initial setup
 ```
 
