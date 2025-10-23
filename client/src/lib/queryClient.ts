@@ -200,8 +200,8 @@ export const queryClient = new QueryClient({
       }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: CACHE_DURATIONS.ONE_HOUR, // Data stays fresh for 60 minutes
-      gcTime: CACHE_DURATIONS.SIX_HOURS, // 6 hours
+      staleTime: 5 * 60 * 1000, // 5 minutes - data stays fresh
+      gcTime: 10 * 60 * 1000, // 10 minutes - keep in cache
       retry: (failureCount, error) => {
         // Don't retry timeout errors
         if (

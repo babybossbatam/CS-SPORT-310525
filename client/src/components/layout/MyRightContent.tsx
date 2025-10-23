@@ -4,6 +4,7 @@ import { RootState } from "@/lib/store";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useDeviceInfo } from "@/hooks/use-mobile";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
 
 // Lazy load heavy components to prevent simultaneous API calls
@@ -36,20 +37,24 @@ const MyRightContent: React.FC = () => {
   // Progressive loading states to prevent overwhelming the system
   const [loadPhase, setLoadPhase] = useState(0);
   
+  // Intersection observer for scroll-based loading of heavy components
+  const { targetRef, isIntersecting } = useIntersectionObserver({
+    threshold: 0.1,
+    rootMargin: '100px',
+  });
+  
   useEffect(() => {
     // Phase 0: Initial render (nothing loaded yet)
-    // Phase 1: Load critical components (Featured matches, Top scorers) after 500ms
-    // Phase 2: Load secondary components (Standings, Popular leagues) after 1.5s
-    // Phase 3: Load tertiary components (Teams, All leagues) after 3s
+    // Phase 1: Load critical components (Featured matches, Top scorers) after 2s
+    // Phase 2: Load secondary components (Standings, Info) after 6s
+    // Phase 3: Load tertiary components (Popular Leagues, Teams, All Leagues) - scroll-based
     
-    const phase1Timer = setTimeout(() => setLoadPhase(1), 500);
-    const phase2Timer = setTimeout(() => setLoadPhase(2), 1500);
-    const phase3Timer = setTimeout(() => setLoadPhase(3), 3000);
+    const phase1Timer = setTimeout(() => setLoadPhase(1), 2000);
+    const phase2Timer = setTimeout(() => setLoadPhase(2), 6000);
     
     return () => {
       clearTimeout(phase1Timer);
       clearTimeout(phase2Timer);
-      clearTimeout(phase3Timer);
     };
   }, []);
 
@@ -118,30 +123,32 @@ const MyRightContent: React.FC = () => {
           </>
         )}
 
-        {/* Phase 3: Tertiary components - Popular Leagues & Teams */}
-        {loadPhase >= 3 ? (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
+        {/* Phase 3: Tertiary components - Load only when scrolled into view */}
+        <div ref={targetRef}>
+          {loadPhase >= 2 && isIntersecting ? (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <Suspense fallback={<ComponentSkeleton />}>
+                  <PopularLeaguesList />
+                </Suspense>
+                <Suspense fallback={<ComponentSkeleton />}>
+                  <PopularTeamsList />
+                </Suspense>
+              </div>
               <Suspense fallback={<ComponentSkeleton />}>
-                <PopularLeaguesList />
-              </Suspense>
-              <Suspense fallback={<ComponentSkeleton />}>
-                <PopularTeamsList />
+                <MyAllLeague onMatchCardClick={handleMatchCardClick} />
               </Suspense>
             </div>
-            <Suspense fallback={<ComponentSkeleton />}>
-              <MyAllLeague onMatchCardClick={handleMatchCardClick} />
-            </Suspense>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <ComponentSkeleton />
+          ) : (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <ComponentSkeleton />
+                <ComponentSkeleton />
+              </div>
               <ComponentSkeleton />
             </div>
-            <ComponentSkeleton />
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Match details overlay - only loaded when needed */}
