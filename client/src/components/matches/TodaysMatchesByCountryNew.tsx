@@ -474,37 +474,19 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
 
     setIsProcessing(true);
 
-    const processDataProgressively = async () => {
+    const processDataImmediately = () => {
       const popularLeagueSet = new Set(POPULAR_LEAGUES);
 
-      // Debug logging for date filtering
-      console.log(`🗓️ [TodaysMatchesByCountryNew] Processing fixtures for selected date: ${selectedDate}`);
-      console.log(`📊 [TodaysMatchesByCountryNew] Total fixtures received: ${fixtures.length}`);
+      console.log(`🗓️ [TodaysMatchesByCountryNew] Processing ${fixtures.length} fixtures for ${selectedDate}`);
 
-      // Pre-filter fixtures with detailed logging
+      // Pre-filter fixtures - server already filtered by date, just validate
       const relevantFixtures = fixtures.filter(fixture => {
-        if (!fixture?.fixture?.id || !fixture.teams || !fixture.league?.country) return false;
-
-        // Use UTC date extraction for consistent filtering
-        const fixtureUTCDate = new Date(fixture.fixture.date);
-        const fixtureDateString = fixtureUTCDate.toISOString().split("T")[0]; // YYYY-MM-DD in UTC
-        const isRelevant = fixtureDateString === selectedDate;
-
-        // Log first few fixtures for debugging
-        if (fixtures.indexOf(fixture) < 5) {
-          console.log(`🔍 [Date Filter] Fixture ${fixture.fixture.id}: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`);
-          console.log(`   Original UTC date: ${fixture.fixture.date}`);
-          console.log(`   Extracted UTC date: ${fixtureDateString}`);
-          console.log(`   Selected date: ${selectedDate}`);
-          console.log(`   Match: ${isRelevant ? '✅' : '❌'}`);
-        }
-
-        return isRelevant;
+        return fixture?.fixture?.id && fixture.teams && fixture.league?.country;
       });
 
-      console.log(`✅ [TodaysMatchesByCountryNew] Filtered to ${relevantFixtures.length} relevant fixtures`);
+      console.log(`✅ [TodaysMatchesByCountryNew] Validated ${relevantFixtures.length} fixtures`);
 
-      // Group fixtures by country first (lightweight operation)
+      // Group fixtures by country
       const fixturesByCountry: Record<string, any[]> = {};
       const countryPriority: Record<string, boolean> = {};
 
@@ -521,7 +503,7 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         if (isPopular) countryPriority[country] = true;
       });
 
-      // Sort countries by priority for processing order
+      // Sort countries by priority
       const countryNames = Object.keys(fixturesByCountry);
       const sortedCountries = [
         ...countryNames.filter(c => c === "World"),
@@ -529,16 +511,14 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
         ...countryNames.filter(c => c !== "World" && !countryPriority[c]).sort()
       ];
 
-      // Store all countries for lazy loading reference
       setAllProcessedCountries(sortedCountries);
 
-      // Process first 8 countries immediately for instant display
-      const initialCountries = sortedCountries.slice(0, 8);
-      const initialCountryData: Record<string, any> = {};
+      // Process ALL countries at once - no batching!
+      const allCountryData: Record<string, any> = {};
 
-      for (const country of initialCountries) {
+      for (const country of sortedCountries) {
         const countryFixtures = fixturesByCountry[country];
-        initialCountryData[country] = {
+        allCountryData[country] = {
           country,
           leagues: {},
           hasPopularLeague: countryPriority[country],
@@ -549,94 +529,28 @@ const TodaysMatchesByCountryNew: React.FC<TodaysMatchesByCountryNewProps> = ({
           const leagueId = fixture.league.id;
           const isPopular = popularLeagueSet.has(leagueId);
 
-          if (!initialCountryData[country].leagues[leagueId]) {
-            initialCountryData[country].leagues[leagueId] = {
+          if (!allCountryData[country].leagues[leagueId]) {
+            allCountryData[country].leagues[leagueId] = {
               league: fixture.league,
               matches: [],
               isPopular,
             };
           }
 
-          initialCountryData[country].leagues[leagueId].matches.push(fixture);
+          allCountryData[country].leagues[leagueId].matches.push(fixture);
         });
       }
 
-      // Set initial data immediately (first 8 countries)
-      setProcessedCountryData(initialCountryData);
-      setProcessedCountries(new Set(initialCountries));
-
-      // Finish initial processing
+      // Set all data at once - instant loading!
+      setProcessedCountryData(allCountryData);
+      setProcessedCountries(new Set(sortedCountries));
+      setBackgroundProcessingComplete(true);
       setIsProcessing(false);
 
-      // Process ALL remaining countries in background (for immediate availability)
-      const remainingCountries = sortedCountries.slice(8);
-      if (remainingCountries.length > 0) {
-        console.log(`🔄 [TodaysMatchesByCountryNew] Starting background processing of ${remainingCountries.length} remaining countries`);
-
-        // Use requestIdleCallback for better performance, fallback to setTimeout
-        const processInBackground = () => {
-          const batchSize = 15; // Larger batches since it's background processing
-          let currentIndex = 0;
-
-          const processBatch = async () => {
-            if (currentIndex >= remainingCountries.length) {
-              setBackgroundProcessingComplete(true);
-              console.log(`✅ [TodaysMatchesByCountryNew] Background processing completed for all ${remainingCountries.length} countries`);
-              return;
-            }
-
-            const batch = remainingCountries.slice(currentIndex, currentIndex + batchSize);
-            const batchData: Record<string, any> = {};
-
-            for (const country of batch) {
-              const countryFixtures = fixturesByCountry[country];
-              batchData[country] = {
-                country,
-                leagues: {},
-                hasPopularLeague: countryPriority[country],
-              };
-
-              countryFixtures.forEach(fixture => {
-                const leagueId = fixture.league.id;
-                const isPopular = popularLeagueSet.has(leagueId);
-
-                if (!batchData[country].leagues[leagueId]) {
-                  batchData[country].leagues[leagueId] = {
-                    league: fixture.league,
-                    matches: [],
-                    isPopular,
-                  };
-                }
-
-                batchData[country].leagues[leagueId].matches.push(fixture);
-              });
-            }
-
-            // Merge batch data with existing data
-            setProcessedCountryData(prev => ({ ...prev, ...batchData }));
-            setProcessedCountries(prev => new Set([...prev, ...batch]));
-
-            currentIndex += batchSize;
-
-            // Continue with next batch using requestIdleCallback for better performance
-            if (window.requestIdleCallback) {
-              window.requestIdleCallback(processBatch, { timeout: 100 });
-            } else {
-              setTimeout(processBatch, 10);
-            }
-          };
-
-          processBatch();
-        };
-
-        // Start background processing after a short delay to let initial render complete
-        setTimeout(processInBackground, 200);
-      } else {
-        setBackgroundProcessingComplete(true);
-      }
+      console.log(`✅ [TodaysMatchesByCountryNew] Processed ${sortedCountries.length} countries instantly`);
     };
 
-    processDataProgressively();
+    processDataImmediately();
   }, [fixtures, selectedDate]);
 
   // Country list based on processed countries (maintains order from progressive processing)
