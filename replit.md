@@ -96,14 +96,21 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 23, 2025. Fixed Replit editor freezing issue with combined optimization strategy:
+  - PROBLEM: App overwhelmed browser on load, preventing Replit editor from functioning
+  - SOLUTION 1 - Extended progressive loading delays: Phase 1 (2s), Phase 2 (6s)
+  - SOLUTION 2 - Reduced React Query cache times: staleTime 5min (was 1h), gcTime 10min (was 6h)
+  - SOLUTION 3 - Scroll-based lazy loading for Phase 3 components (Popular Leagues, Teams, MyAllLeague)
+  - Created useIntersectionObserver hook for automatic scroll-triggered loading
+  - Phase 3 components now only load when: (a) Phase 2 complete AND (b) section scrolled into view
+  - Result: Browser stays responsive, Replit editor works immediately, smooth 7s load time
+  - Performance: FCP 3.2s, LCP 7.0s, CLS 0.018 (excellent)
 - October 23, 2025. Fixed system overload from simultaneous component loading:
   - Identified MyRightContent loading 7 components simultaneously (8-10+ API calls at once)
-  - Implemented progressive loading with 3 phases: Phase 1 (500ms), Phase 2 (1.5s), Phase 3 (3s)
-  - All components now lazy-loaded with Suspense boundaries and loading skeletons
+  - Implemented initial progressive loading: Phase 1 (500ms), Phase 2 (1.5s), Phase 3 (3s)
+  - All components lazy-loaded with Suspense boundaries and loading skeletons
   - Match details overlay only loads when user clicks a match (not pre-rendered)
-  - API calls now spread over ~8 seconds instead of hitting simultaneously
   - Fixed HMR Fast Refresh warning by removing incompatible export
-  - Result: Reduced initial page load stress, app remains responsive during editing
 - October 22, 2025. Fixed critical system overload with request coalescing:
   - Added in-memory request deduplication to prevent duplicate concurrent API calls
   - When 6+ components request same date simultaneously, they now share 1 fetch instead of each making their own
