@@ -14,6 +14,7 @@ import { store, RootState } from "@/lib/store";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { CentralDataProvider } from "./providers/CentralDataProvider";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { InactivityProvider } from "./contexts/InactivityContext";
 import LanguageToast from "./components/common/LanguageToast";
 import { BrowserRouter } from "react-router-dom"; // Import BrowserRouter
 import "./lib/eventEmitterUtils"; // Initialize EventEmitter limits
@@ -283,7 +284,9 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AppWithLanguageRouting />
+      <InactivityProvider>
+        <AppWithLanguageRouting />
+      </InactivityProvider>
     </QueryClientProvider>
   );
 }

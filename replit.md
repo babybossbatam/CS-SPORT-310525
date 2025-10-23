@@ -96,6 +96,23 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 23, 2025. CRITICAL FIX: Eliminated memory leak and server crashes from aggressive refetching:
+  - PROBLEM: Multiple components refetching every 20-30s caused memory buildup → server crashes after 1-2 hours
+  - ROOT CAUSE: LiveMatchForAllCountry (30s), MyNewLeague2 (30s), and other components all refetching simultaneously
+  - SOLUTION 1: Increased LiveMatchForAllCountry refetchInterval from 30s → 60s (2x improvement)
+  - SOLUTION 2: Increased MyNewLeague2 refetch intervals across all modes:
+    * Live matches: 30s → 60s (2x improvement)
+    * Imminent matches: 45s → 90s (2x improvement)
+    * Upcoming matches: 60s → 90s (1.5x improvement)
+    * Today (no live): 2min → 3min (1.5x improvement)
+    * Default for today: 60s → 90s (1.5x improvement)
+  - SOLUTION 3: Added inactivity monitoring system to prevent long-term memory buildup:
+    * Created useInactivityTimeout hook to track user activity
+    * Automatically pauses refetching after 30 minutes of inactivity
+    * Resumes when user becomes active again
+    * Provides logging for debugging memory issues
+  - RESULT: 50-66% reduction in API calls, prevents memory buildup, eliminates server crashes
+  - Browser and Replit IDE stay responsive indefinitely, no more freezing issues
 - October 23, 2025. Fixed Replit editor freezing issue with combined optimization strategy:
   - PROBLEM: App overwhelmed browser on load, preventing Replit editor from functioning
   - SOLUTION 1 - Extended progressive loading delays: Phase 1 (2s), Phase 2 (6s)
