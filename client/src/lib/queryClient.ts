@@ -45,16 +45,22 @@ export async function apiRequest(
 
     console.log(`📡 [apiRequest] Making ${method} request to: ${apiUrl}`);
 
-    const response = await fetch(apiUrl, {
+    const fetchOptions: RequestInit = {
       method,
       headers: {
         ...(data ? { "Content-Type": "application/json" } : {}),
         Accept: "application/json",
       },
-      body: data ? JSON.stringify(data) : undefined,
       credentials: "include",
       mode: "cors",
-    });
+    };
+
+    // Only add body for non-GET/HEAD requests
+    if (method !== "GET" && method !== "HEAD" && data) {
+      fetchOptions.body = JSON.stringify(data);
+    }
+
+    const response = await fetch(apiUrl, fetchOptions);
 
     console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 

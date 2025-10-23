@@ -44,6 +44,111 @@ const playersCache = new Map<string, { data: any; timestamp: number }>();
 // In-flight request tracking for deduplication (prevents concurrent duplicate requests)
 const pendingRequests = new Map<string, Promise<any>>();
 
+// Rate Limit Guard: Circuit breaker and exponential backoff
+interface RateLimitState {
+  isCircuitOpen: boolean;
+  circuitOpenUntil: number;
+  consecutiveFailures: number;
+  lastRetryAfter: number | null;
+}
+
+const rateLimitState: RateLimitState = {
+  isCircuitOpen: false,
+  circuitOpenUntil: 0,
+  consecutiveFailures: 0,
+  lastRetryAfter: null,
+};
+
+const MAX_CONSECUTIVE_FAILURES = 3;
+const CIRCUIT_BREAKER_DURATION = 60 * 1000; // 1 minute
+const MAX_RETRY_DELAY = 30 * 1000; // 30 seconds max
+
+/**
+ * Rate-limit resilient API guard with exponential backoff and circuit breaker
+ */
+async function guardedApiCall<T>(
+  cacheKey: string,
+  cache: Map<string, { data: any; timestamp: number }>,
+  apiCall: () => Promise<T>,
+): Promise<{ data: T | null; stale: boolean; error?: string; lastUpdated?: number }> {
+  const now = Date.now();
+  const cached = cache.get(cacheKey);
+
+  // Circuit breaker: if open, immediately return stale cache
+  if (rateLimitState.isCircuitOpen && now < rateLimitState.circuitOpenUntil) {
+    const timeRemaining = Math.ceil((rateLimitState.circuitOpenUntil - now) / 1000);
+    console.warn(`🔴 [Rate Limit Guard] Circuit breaker OPEN (${timeRemaining}s remaining). Serving stale cache.`);
+    
+    if (cached) {
+      const ageMinutes = Math.round((now - cached.timestamp) / 60000);
+      console.log(`📦 [Rate Limit Guard] Returning stale cached data (age: ${ageMinutes}min)`);
+      return {
+        data: cached.data,
+        stale: true,
+        error: `Rate limit exceeded. Retry in ${timeRemaining}s.`,
+        lastUpdated: cached.timestamp,
+      };
+    }
+    
+    return {
+      data: null,
+      stale: false,
+      error: `Rate limit exceeded. No cached data available. Retry in ${timeRemaining}s.`,
+    };
+  }
+
+  try {
+    const result = await apiCall();
+    
+    // Success: reset failure counter and close circuit
+    rateLimitState.consecutiveFailures = 0;
+    rateLimitState.isCircuitOpen = false;
+    rateLimitState.lastRetryAfter = null;
+    
+    return { data: result, stale: false };
+  } catch (error: any) {
+    const is429 = error?.response?.status === 429;
+    const is5xx = error?.response?.status >= 500;
+
+    if (is429 || is5xx) {
+      rateLimitState.consecutiveFailures++;
+      
+      // Extract Retry-After header if present
+      const retryAfter = error?.response?.headers?.['retry-after'];
+      if (retryAfter) {
+        const retrySeconds = parseInt(retryAfter, 10);
+        if (!isNaN(retrySeconds)) {
+          rateLimitState.lastRetryAfter = now + (retrySeconds * 1000);
+        }
+      }
+
+      console.error(`⚠️ [Rate Limit Guard] ${is429 ? '429 Too Many Requests' : error.response.status + ' Server Error'} (failure #${rateLimitState.consecutiveFailures})`);
+
+      // Open circuit breaker after consecutive failures
+      if (rateLimitState.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        rateLimitState.isCircuitOpen = true;
+        rateLimitState.circuitOpenUntil = now + CIRCUIT_BREAKER_DURATION;
+        console.warn(`🛑 [Rate Limit Guard] Circuit breaker OPENED for ${CIRCUIT_BREAKER_DURATION / 1000}s after ${MAX_CONSECUTIVE_FAILURES} failures`);
+      }
+
+      // Return stale cache if available
+      if (cached) {
+        const ageMinutes = Math.round((now - cached.timestamp) / 60000);
+        console.log(`📦 [Rate Limit Guard] Returning stale cached data on ${is429 ? 'rate limit' : 'server error'} (age: ${ageMinutes}min)`);
+        return {
+          data: cached.data,
+          stale: true,
+          error: is429 ? 'Rate limit exceeded' : 'Server error',
+          lastUpdated: cached.timestamp,
+        };
+      }
+    }
+
+    // Other errors or no cache: propagate
+    throw error;
+  }
+}
+
 // Mock data for popular leagues and teams
 const popularLeagues: { [leagueId: number]: string[] } = {
   2: ["Real Madrid", "Manchester City", "Bayern Munich", "PSG", "Inter"], // Champions League
@@ -477,11 +582,31 @@ export const rapidApiService = {
               );
               allFixtures = [...allFixtures, ...newFixtures];
             }
-          } catch (error) {
+          } catch (error: any) {
+            const is429 = error?.response?.status === 429;
+            const is5xx = error?.response?.status >= 500;
+            
             console.error(
               `Error fetching fixtures for date ${queryDate}:`,
               error,
             );
+            
+            // On rate limit or server error, stop making more requests
+            if (is429 || is5xx) {
+              rateLimitState.consecutiveFailures++;
+              console.warn(`⚠️ [getFixturesByDate] ${is429 ? 'Rate limit hit' : 'Server error'}. Breaking out of date loop to prevent further failures.`);
+              
+              // Open circuit breaker if too many failures
+              if (rateLimitState.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+                rateLimitState.isCircuitOpen = true;
+                rateLimitState.circuitOpenUntil = Date.now() + CIRCUIT_BREAKER_DURATION;
+              }
+              
+              // Break out instead of continuing to hammer the API
+              break;
+            }
+            
+            // For other errors, continue trying other dates
             continue;
           }
         }
@@ -579,14 +704,35 @@ export const rapidApiService = {
         timestamp: now,
       });
 
+      // Success: reset circuit breaker state
+      rateLimitState.consecutiveFailures = 0;
+      rateLimitState.isCircuitOpen = false;
+      rateLimitState.lastRetryAfter = null;
+
       return allFixtures;
-    } catch (error) {
+    } catch (error: any) {
+      const is429 = error?.response?.status === 429;
+      const is5xx = error?.response?.status >= 500;
+      
       console.error("RapidAPI: Error fetching fixtures by date:", error);
 
       if (cached?.data) {
-        console.log("Using cached data due to API error");
+        const ageMinutes = Math.round((now - cached.timestamp) / 60000);
+        if (is429) {
+          console.warn(`⚠️ [getFixturesByDate] Rate limit exceeded. Returning cached data (age: ${ageMinutes}min)`);
+        } else if (is5xx) {
+          console.warn(`⚠️ [getFixturesByDate] Server error. Returning cached data (age: ${ageMinutes}min)`);
+        } else {
+          console.log(`📦 [getFixturesByDate] Using cached data due to API error (age: ${ageMinutes}min)`);
+        }
         return cached.data;
       }
+      
+      // No cache available - propagate error
+      if (is429) {
+        console.error("❌ [getFixturesByDate] Rate limit exceeded and no cached data available");
+      }
+      
       if (error instanceof Error) {
         throw new Error(`Failed to fetch fixtures: ${error.message}`);
       }
@@ -696,34 +842,37 @@ export const rapidApiService = {
   },
 
   /**
-   * Get live fixtures - ALWAYS fetch fresh data for live matches
+   * Get live fixtures - ALWAYS fetch fresh data for live matches (with rate-limit fallback)
    */
   async getLiveFixtures(): Promise<FixtureResponse[]> {
-    // NO CACHE for live fixtures - always fetch fresh data for accuracy
+    const cacheKey = "live-fixtures";
+    
+    // Use guardedApiCall for rate-limit protection
+    const result = await guardedApiCall(
+      cacheKey,
+      fixturesCache,
+      async () => {
+        console.log(
+          "🔴 [RapidAPI PRO] Fetching live fixtures without timezone restriction...",
+        );
+        const response = await apiClient.get("/fixtures", {
+          params: {
+            live: "all",
+          },
+          headers: {
+            "X-RapidAPI-Key": apiKey,
+            "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
+          },
+        });
 
-    try {
-      console.log(
-        "🔴 [RapidAPI PRO] Fetching live fixtures without timezone restriction...",
-      );
-      const response = await apiClient.get("/fixtures", {
-        params: {
-          live: "all",
-          // No timezone parameter - get all live fixtures regardless of timezone
-        },
-        headers: {
-          "X-RapidAPI-Key": apiKey,
-          "X-RapidAPI-Host": "api-football-v1.p.rapidapi.com",
-        },
-      });
-
-      if (
-        response.data &&
-        response.data.response &&
-        response.data.response.length > 0
-      ) {
-        // Enhanced esports filtering for live fixtures
-        const filteredLiveFixtures = response.data.response.filter(
-          (fixture: any) => {
+        if (
+          response.data &&
+          response.data.response &&
+          response.data.response.length > 0
+        ) {
+          // Enhanced esports filtering for live fixtures
+          const filteredLiveFixtures = response.data.response.filter(
+            (fixture: any) => {
             const leagueName = fixture.league?.name?.toLowerCase() || "";
             const homeTeamName = fixture.teams?.home?.name?.toLowerCase() || "";
             const awayTeamName = fixture.teams?.away?.name?.toLowerCase() || "";
@@ -807,64 +956,40 @@ export const rapidApiService = {
           },
         );
 
-        console.log(
-          `🔴 [LIVE API] Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering (NO CACHE - always fresh)`,
-        );
-        // NO CACHING for live fixtures - always return fresh data
-        return filteredLiveFixtures;
-      }
-
-      /*  Removed B365 API fallback
-      // If RapidAPI returns no live fixtures, try B365API as fallback
-      console.log('RapidAPI: No live fixtures found, trying B365API as fallback...');
-      const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
-
-      if (b365LiveMatches && b365LiveMatches.length > 0) {
-        // Convert B365 matches to RapidAPI format
-        const convertedMatches = b365LiveMatches.map(match => 
-          b365ApiService.convertToRapidApiFormat(match)
-        );
-
-        console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures`);
-        fixturesCache.set(cacheKey, { 
-          data: convertedMatches, 
-          timestamp: now 
-        });
-        return convertedMatches;
-      }
-      */
-
-      return [];
-    } catch (error) {
-      console.error("RapidAPI: Error fetching live fixtures:", error);
-
-      /* Removed B365 API fallback
-      // Try B365API as fallback when RapidAPI fails
-      try {
-        console.log('RapidAPI failed, trying B365API as fallback...');
-        const b365LiveMatches = await b365ApiService.getLiveFootballMatches();
-
-        if (b365LiveMatches && b365LiveMatches.length > 0) {
-          const convertedMatches = b365LiveMatches.map(match => 
-            b365ApiService.convertToRapidApiFormat(match)
+          console.log(
+            `🔴 [LIVE API] Retrieved ${response.data.response.length} live fixtures, ${filteredLiveFixtures.length} after filtering (NO CACHE - always fresh)`,
           );
-
-          console.log(`B365API Fallback: Retrieved ${convertedMatches.length} live fixtures after RapidAPI error`);
-          fixturesCache.set(cacheKey, { 
-            data: convertedMatches, 
-            timestamp: now 
+          
+          // Cache the filtered results for fallback
+          fixturesCache.set(cacheKey, {
+            data: filteredLiveFixtures,
+            timestamp: Date.now(),
           });
-          return convertedMatches;
+          
+          return filteredLiveFixtures;
         }
-      } catch (b365Error) {
-        console.error('B365API Fallback also failed:', b365Error);
-      }
-      */
 
-      // For live fixtures, we don't use cache as fallback since they need real-time data
-      console.error("Live fixture API request failed - returning empty array for real-time accuracy");
-      return [];
+        return [];
+      }
+    );
+
+    // Handle guarded result with stale data support
+    if (result.data) {
+      if (result.stale) {
+        const ageMinutes = result.lastUpdated 
+          ? Math.round((Date.now() - result.lastUpdated) / 60000)
+          : 'unknown';
+        console.warn(`⚠️ [LIVE] Serving stale data (age: ${ageMinutes}min) due to: ${result.error}`);
+      }
+      return result.data;
     }
+
+    // No data available (not cached, rate limited)
+    if (result.error) {
+      console.error(`❌ [LIVE] ${result.error}`);
+    }
+    
+    return [];
   },
 
   /**
