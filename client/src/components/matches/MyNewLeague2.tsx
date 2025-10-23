@@ -3341,19 +3341,40 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
           );
         })}
       
-      {/* Load More Button */}
-      {loadedChunks < 3 && (
-        <div className="flex justify-center p-4 mt-4">
-          <button
-            onClick={() => setLoadedChunks(prev => Math.min(prev + 1, 3))}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-            data-testid="button-load-more-leagues"
-          >
-            {t("Load More Leagues")} ({loadedChunks === 1 ? secondaryLeagueIds.length : tertiaryLeagueIds.length} more)
-          </button>
-        </div>
-      )}
+      {/* Infinite Scroll Sentinel - automatically loads more when scrolled into view */}
+      {loadedChunks < 3 && <InfiniteScrollSentinel onLoadMore={() => setLoadedChunks(prev => Math.min(prev + 1, 3))} />}
     </>
+  );
+};
+
+// Infinite scroll sentinel component - triggers loading when scrolled into view
+const InfiniteScrollSentinel: React.FC<{ onLoadMore: () => void }> = ({ onLoadMore }) => {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const hasTriggeredRef = useRef(false);
+  
+  const { isIntersecting } = useIntersectionObserver(sentinelRef, {
+    threshold: 0.1,
+    rootMargin: "400px", // Start loading 400px before it comes into view
+  });
+
+  useEffect(() => {
+    if (isIntersecting && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      onLoadMore();
+      // Reset after a delay to allow for next chunk
+      setTimeout(() => {
+        hasTriggeredRef.current = false;
+      }, 1000);
+    }
+  }, [isIntersecting, onLoadMore]);
+
+  return (
+    <div ref={sentinelRef} className="flex justify-center p-4 mt-4">
+      <div className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+        <Skeleton className="h-4 w-4 rounded-full animate-pulse" />
+        <span>Loading more leagues...</span>
+      </div>
+    </div>
   );
 };
 
