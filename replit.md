@@ -96,6 +96,14 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 23, 2025. Fixed system overload from simultaneous component loading:
+  - Identified MyRightContent loading 7 components simultaneously (8-10+ API calls at once)
+  - Implemented progressive loading with 3 phases: Phase 1 (500ms), Phase 2 (1.5s), Phase 3 (3s)
+  - All components now lazy-loaded with Suspense boundaries and loading skeletons
+  - Match details overlay only loads when user clicks a match (not pre-rendered)
+  - API calls now spread over ~8 seconds instead of hitting simultaneously
+  - Fixed HMR Fast Refresh warning by removing incompatible export
+  - Result: Reduced initial page load stress, app remains responsive during editing
 - October 22, 2025. Fixed critical system overload with request coalescing:
   - Added in-memory request deduplication to prevent duplicate concurrent API calls
   - When 6+ components request same date simultaneously, they now share 1 fetch instead of each making their own
