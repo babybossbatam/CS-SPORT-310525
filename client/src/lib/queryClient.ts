@@ -60,7 +60,13 @@ export async function apiRequest(
       fetchOptions.body = JSON.stringify(data);
     }
 
+    // Add timeout controller (5 minutes to match server timeout)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
+    fetchOptions.signal = controller.signal;
+
     const response = await fetch(apiUrl, fetchOptions);
+    clearTimeout(timeoutId);
 
     console.log(`📡 [apiRequest] Response status: ${response.status} for ${method} ${url}`);
 

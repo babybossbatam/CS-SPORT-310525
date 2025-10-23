@@ -633,12 +633,31 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   const [selectedMatchId, setSelectedMatchId] = useState<number | null>(null);
   const [hoveredMatchId, setHoveredMatchId] = useState<number | null>(null);
 
-  // League IDs without any filtering - removed duplicates
-  const leagueIds = [
-    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
-    307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
-    850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
+  // League IDs split into priority chunks for progressive loading
+  // Chunk 1 (15 leagues): Top priority leagues that load immediately
+  const priorityLeagueIds = [
+    39, 140, 135, 78, 61, 2, 3, 5, 71, 307, 4, 15, 32, 38, 29,
   ];
+  
+  // Chunk 2 (15 leagues): Secondary priority leagues
+  const secondaryLeagueIds = [
+    10, 11, 848, 22, 79, 72, 73, 75, 76, 233, 531, 667, 301, 908, 1169,
+  ];
+  
+  // Chunk 3 (Remaining leagues): Lower priority leagues
+  const tertiaryLeagueIds = [
+    23, 253, 850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743, 886, 1022, 772,
+  ];
+
+  // State for pagination
+  const [loadedChunks, setLoadedChunks] = useState<number>(1);
+  
+  // Get leagues to load based on chunks
+  const leagueIds = useMemo(() => {
+    if (loadedChunks === 1) return priorityLeagueIds;
+    if (loadedChunks === 2) return [...priorityLeagueIds, ...secondaryLeagueIds];
+    return [...priorityLeagueIds, ...secondaryLeagueIds, ...tertiaryLeagueIds];
+  }, [loadedChunks]);
 
   // Helper function to add delay between requests
   const delay = (ms: number) =>
@@ -3321,6 +3340,19 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
             </div>
           );
         })}
+      
+      {/* Load More Button */}
+      {loadedChunks < 3 && (
+        <div className="flex justify-center p-4 mt-4">
+          <button
+            onClick={() => setLoadedChunks(prev => Math.min(prev + 1, 3))}
+            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            data-testid="button-load-more-leagues"
+          >
+            {t("Load More Leagues")} ({loadedChunks === 1 ? secondaryLeagueIds.length : tertiaryLeagueIds.length} more)
+          </button>
+        </div>
+      )}
     </>
   );
 };

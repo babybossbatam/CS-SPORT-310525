@@ -164,9 +164,15 @@ app.use('/attached_assets', express.static(path.join(import.meta.dirname, "../at
   // this serves both the API and the client.
   const port = process.env.PORT || 5000;
   
+  // Increase server timeout to handle large batch requests (5 minutes)
+  server.timeout = 300000; // 5 minutes = 300 seconds
+  server.keepAliveTimeout = 310000; // Slightly longer than timeout
+  server.headersTimeout = 320000; // Slightly longer than keepAliveTimeout
+  
   // Single port binding - no retry logic to prevent double binding
   server.listen(Number(port), "0.0.0.0", () => {
     log(`serving on port ${port}`);
+    log(`server timeout set to ${server.timeout}ms`);
   }).on('error', (err: any) => {
     if (err.code === 'EADDRINUSE') {
       console.error(`Port ${port} is already in use. Please stop other processes using this port.`);
