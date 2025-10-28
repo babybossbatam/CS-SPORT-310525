@@ -231,8 +231,8 @@ const Football = () => {
 
       <MyFootballMain fixtures={fixtures} />
 
-      {/* Footer with proper spacing to prevent content overlap */}
-      <div className="mt-16 mb-8">
+      {/* Footer */}
+      <div className="mt-16">
         <Footer />
       </div>
       <RegionModal />

@@ -74,8 +74,8 @@ const Home = () => {
         )}
       </div>
 
-      {/* Footer with proper spacing to prevent content overlap */}
-      <div className="mt-10 mb-8">
+      {/* Footer with minimal spacing */}
+      <div className="mt-10">
         <Suspense fallback={<div className="h-20 bg-gray-50"></div>}>
           <Footer />
         </Suspense>

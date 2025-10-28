@@ -26,10 +26,7 @@ const HorseRacing = () => {
         feature="horse racing"
       />
       
-      {/* Footer with proper spacing to prevent content overlap */}
-      <div className="mb-8">
-        <Footer />
-      </div>
+      <Footer />
     </>
   );
 };

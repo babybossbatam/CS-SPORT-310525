@@ -75,7 +75,6 @@ vite-error-overlay,
   min-height: 100vh;
   background-color: #fafaf9;
   /* stone-50 */
-  padding-bottom: 2rem; /* Prevent content from going under footer */
 }
 
 /* Dark mode root background */
