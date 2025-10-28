@@ -113,7 +113,7 @@ interface LiveMatchForAllCountryProps {
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
-  refreshInterval = 60000, // Increased from 30s to 60s to reduce memory pressure
+  refreshInterval = 30000,
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
@@ -299,13 +299,13 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
 
       return data;
     },
-    staleTime: 60000, // Increased from 20s to 60s to reduce memory pressure
+    staleTime: 20000, // 20 seconds for faster World competition updates
     gcTime: 2 * 60 * 1000, // 2 minutes garbage collection time
     enabled: enableFetching && !propsFixtures, // Only fetch if no props data
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: refreshInterval, // Auto-refresh (default 60 seconds)
+    refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
   });
 
   // Use props data if available, otherwise use fetched data

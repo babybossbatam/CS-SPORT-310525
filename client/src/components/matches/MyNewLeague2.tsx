@@ -967,7 +967,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
     return isToday
       ? {
           staleTime: 5 * 60 * 1000, // 5 minutes - default for today
-          refetchInterval: 90 * 1000, // 1.5 minutes - increased from 60s to reduce memory pressure
+          refetchInterval: 60 * 1000, // 1 minute - default for today
           refetchOnWindowFocus: false,
           refetchOnReconnect: true,
         }
@@ -1195,45 +1195,45 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // LIVE matches detected OR matches that should be live - optimized for live data
       newCacheConfig = {
         staleTime: 1 * 60 * 1000, // 1 minute - balanced for performance
-        refetchInterval: 60 * 1000, // 60 seconds - increased from 30s to reduce memory pressure
+        refetchInterval: 30 * 1000, // 30 seconds - reduced from 15s to avoid overload
         refetchOnWindowFocus: false, // Disabled to reduce unnecessary requests
         refetchOnReconnect: true,
       };
       console.log(
-        `🔴 [MyNewLeague2] ${liveMatches.length} live + ${shouldBeLiveMatches.length} should-be-live matches - optimized cache (1min/60s)`,
+        `🔴 [MyNewLeague2] ${liveMatches.length} live + ${shouldBeLiveMatches.length} should-be-live matches - optimized cache (1min/30s)`,
       );
     } else if (imminentMatches.length > 0 && isToday) {
       // Matches starting within 30 minutes - moderate updates
       newCacheConfig = {
         staleTime: 2 * 60 * 1000, // 2 minutes
-        refetchInterval: 90 * 1000, // 90 seconds - increased from 45s to reduce memory pressure
+        refetchInterval: 45 * 1000, // 45 seconds - reduced from 20s
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
       console.log(
-        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - moderate cache (2min/90s)`,
+        `🟡 [MyNewLeague2] ${imminentMatches.length} matches starting within 30min - moderate cache (2min/45s)`,
       );
     } else if (upcomingMatches.length > 0 && isToday) {
       // Matches starting within 2 hours - less frequent updates
       newCacheConfig = {
         staleTime: 3 * 60 * 1000, // 3 minutes
-        refetchInterval: 90 * 1000, // 1.5 minutes - increased from 60s to reduce memory pressure
+        refetchInterval: 60 * 1000, // 1 minute - reduced from 30s
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
       console.log(
-        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - relaxed cache (3min/1.5min)`,
+        `🟠 [MyNewLeague2] ${upcomingMatches.length} matches starting within 2h - relaxed cache (3min/1min)`,
       );
     } else if (isToday && liveMatches.length === 0) {
       // Today but no live or imminent matches - conservative cache
       newCacheConfig = {
         staleTime: 5 * 60 * 1000, // 5 minutes
-        refetchInterval: 3 * 60 * 1000, // 3 minutes - increased from 2min to reduce memory pressure
+        refetchInterval: 2 * 60 * 1000, // 2 minutes - reduced from 1min
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
       console.log(
-        `⏸️ [MyNewLeague2] No live/imminent matches on today - conservative cache (5min/3min)`,
+        `⏸️ [MyNewLeague2] No live/imminent matches on today - conservative cache (5min/2min)`,
       );
     } else {
       // Past/future dates - extended cache
