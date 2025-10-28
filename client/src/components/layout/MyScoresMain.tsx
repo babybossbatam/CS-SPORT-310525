@@ -3,9 +3,8 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import MyScoresLeft from "@/components/matches/MyScoresLeft";
-import MyRightContent, {
-  MyRightDetails,
-} from "@/components/layout/MyRightContent";
+import MyRightContent from "@/components/layout/MyRightContent";
+import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MyScoresRight from "@/components/layout/MyScoresRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
@@ -143,7 +142,7 @@ const MyScoresMain: React.FC<MyScoresMainProps> = ({
             )}
           >
             {selectedFixture ? (
-              <MyRightDetails
+              <MyMainLayoutRight
                 selectedFixture={selectedFixture}
                 onClose={handleBackToMain}
               />
@@ -156,7 +155,7 @@ const MyScoresMain: React.FC<MyScoresMainProps> = ({
         {/* Mobile-only full-screen fixture details */}
         {isMobile && selectedFixture && (
           <div className="fixed inset-0 bg-[#FDFBF7] z-50 overflow-y-auto">
-            <MyRightDetails
+            <MyMainLayoutRight
               selectedFixture={selectedFixture}
               onClose={handleBackToMain}
             />

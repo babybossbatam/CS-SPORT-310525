@@ -4,7 +4,7 @@ import { RootState } from "@/lib/store";
 import { useLocation } from "wouter";
 import MyLeftDetailsCard from "@/components/matches/MyLeftDetailsCard";
 import MyDetailsRightCard from "@/components/matches/MyDetailsRightCard";
-import { MyRightDetails } from "@/components/layout/MyRightContent";
+import MyMainLayoutRight from "@/components/layout/MyMainLayoutRight";
 import MySmartTimeFilter from "@/lib/MySmartTimeFilter";
 import { format } from "date-fns";
 
@@ -15,6 +15,7 @@ interface MyDetailsTabCardProps {
   featuredMatchId?: number;
   onFeaturedMatchSelect?: (matchId: number) => void;
   children?: React.ReactNode;
+  loading?: boolean;
 }
 
 const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
@@ -43,12 +44,12 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
     }
   };
 
-  // Expose the handler through the callback prop
+  // Call the handler when featured match ID changes
   React.useEffect(() => {
-    if (onFeaturedMatchSelect) {
-      onFeaturedMatchSelect(handleFeaturedMatchSelect);
+    if (featuredMatchId && onFeaturedMatchSelect) {
+      handleFeaturedMatchSelect(featuredMatchId);
     }
-  }, [onFeaturedMatchSelect]);
+  }, [featuredMatchId]);
 
 
   // Apply UTC date filtering to fixtures
@@ -151,7 +152,7 @@ const MyDetailsTabCard: React.FC<MyDetailsTabCardProps> = ({
               onClose={handleBackToMain}
             />
           ) : (
-            <MyRightDetails
+            <MyMainLayoutRight
               selectedFixture={null}
               onClose={handleBackToMain}
             />
