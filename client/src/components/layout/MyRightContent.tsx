@@ -1,32 +1,19 @@
 import React, { useState, useEffect, Suspense, lazy } from "react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/lib/store";
-import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronUp, Loader2 } from "lucide-react";
 import { useDeviceInfo } from "@/hooks/use-mobile";
 import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 import { cn } from "@/lib/utils";
+import PopularLeaguesList from "@/components/leagues/PopularLeaguesList";
+import PopularTeamsList from "@/components/teams/PopularTeamsList";
 
 // Lazy load heavy components to prevent simultaneous API calls
 const MyHomeFeaturedMatchNew = lazy(() => import("@/components/matches/MyHomeFeaturedMatchNew"));
 const HomeTopScorersList = lazy(() => import("@/components/leagues/HomeTopScorersList"));
 const LeagueStandingsFilter = lazy(() => import("@/components/leagues/LeagueStandingsFilter"));
-const PopularLeaguesList = lazy(() => import("@/components/leagues/PopularLeaguesList"));
-const PopularTeamsList = lazy(() => import("@/components/teams/PopularTeamsList"));
 const MyAllLeague = lazy(() => import("@/components/matches/MyAllLeague"));
 const MyMainLayoutRight = lazy(() => import("@/components/layout/MyMainLayoutRight"));
 const MyInfo = lazy(() => import("@/components/info/MyInfo"));
-
-// Simple skeleton loader
-const ComponentSkeleton = () => (
-  <Card className="w-full">
-    <CardContent className="p-4">
-      <div className="flex items-center justify-center h-20">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    </CardContent>
-  </Card>
-);
 
 const MyRightContent: React.FC = () => {
   const selectedDate = useSelector((state: RootState) => state.ui.selectedDate);
@@ -84,11 +71,11 @@ const MyRightContent: React.FC = () => {
         style={{ height: '100%', minHeight: '100%' }}
       >
         {/* Phase 1: Critical components - Featured Match & Top Scorers */}
-        {loadPhase >= 1 ? (
+        {loadPhase >= 1 && (
           <>
             {/* Featured Match Section - Hidden on mobile */}
             {!isMobile && (
-              <Suspense fallback={<ComponentSkeleton />}>
+              <Suspense fallback={<div />}>
                 <MyHomeFeaturedMatchNew
                   selectedDate={selectedDate}
                   maxMatches={12}
@@ -97,58 +84,39 @@ const MyRightContent: React.FC = () => {
               </Suspense>
             )}
 
-            <Suspense fallback={<ComponentSkeleton />}>
+            <Suspense fallback={<div />}>
               <HomeTopScorersList />
             </Suspense>
-          </>
-        ) : (
-          <>
-            {!isMobile && <ComponentSkeleton />}
-            <ComponentSkeleton />
           </>
         )}
 
         {/* Phase 2: Secondary components - Standings & Info */}
-        {loadPhase >= 2 ? (
+        {loadPhase >= 2 && (
           <>
-            <Suspense fallback={<ComponentSkeleton />}>
+            <Suspense fallback={<div />}>
               <LeagueStandingsFilter />
             </Suspense>
             <Suspense fallback={<div />}>
               <MyInfo />
             </Suspense>
           </>
-        ) : (
-          <>
-            <ComponentSkeleton />
-          </>
         )}
 
-        {/* Phase 3: Tertiary components - Load only when scrolled into view */}
-        <div ref={targetRef}>
-          {loadPhase >= 2 && isIntersecting ? (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <Suspense fallback={<ComponentSkeleton />}>
-                  <PopularLeaguesList />
-                </Suspense>
-                <Suspense fallback={<ComponentSkeleton />}>
-                  <PopularTeamsList />
-                </Suspense>
-              </div>
-              <Suspense fallback={<ComponentSkeleton />}>
+        {/* Popular Leagues & Teams - Show immediately (dynamic data) */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-4">
+            <PopularLeaguesList />
+            <PopularTeamsList />
+          </div>
+          
+          {/* Phase 3: All Leagues - Load only when scrolled into view */}
+          <div ref={targetRef}>
+            {loadPhase >= 2 && isIntersecting && (
+              <Suspense fallback={<div />}>
                 <MyAllLeague onMatchCardClick={handleMatchCardClick} />
               </Suspense>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <ComponentSkeleton />
-                <ComponentSkeleton />
-              </div>
-              <ComponentSkeleton />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
@@ -160,7 +128,7 @@ const MyRightContent: React.FC = () => {
             selectedFixture ? "z-10 transform translate-x-0" : "z-0 transform translate-x-full pointer-events-none"
           )}
         >
-          <Suspense fallback={<ComponentSkeleton />}>
+          <Suspense fallback={<div />}>
             <MyMainLayoutRight
               selectedFixture={selectedFixture}
               onClose={handleCloseDetails}
