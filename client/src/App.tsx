@@ -192,10 +192,10 @@ function App() {
     //   console.log('✅ [Cache Cleanup] Stale inactive queries removed');
     // }, 30 * 60 * 1000); // Every 30 minutes
 
-    // Cleanup on unmount
-    // return () => {
-    //   clearInterval(cacheCleanupInterval);
-    // };
+    // No cleanup needed since intervals are disabled
+    return () => {
+      // Cleanup logic if needed in the future
+    };
   }, []);
 
   // Add additional error handling for dynamic imports and runtime errors
@@ -281,7 +281,7 @@ function App() {
     window.addEventListener("error", handleError);
 
     return () => {
-      // clearInterval(cleanupInterval);
+      // No interval to clear since it's disabled
       window.removeEventListener(
         "unhandledrejection",
         handleUnhandledRejection,
