@@ -228,20 +228,19 @@ const POPULAR_LEAGUES = [
   { id: 38, name: "UEFA U21 Championship", country: "World" },
   { id: 9, name: "Copa America", country: "World" },
   { id: 16, name: "CONCACAF Gold Cup", country: "World" },
-  { id: 667, name: "Friendlies Clubs", country: "World" },
 ];
 
 // Define featured leagues (UEFA Europa Conference League ID 848 and Regionalliga - Bayern ID 169 explicitly excluded)
 // Premier League (39) is prioritized first
 const FEATURED_MATCH_LEAGUE_IDS = [
-  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 667, 9, 16, 45, 550, 531,
+  39, 140, 135, 78, 61, 2, 3, 5, 1, 4, 15, 38, 32, 850, 9, 16, 45, 550, 531,
 ];
 
 // Explicitly excluded leagues
 const EXPLICITLY_EXCLUDED_LEAGUE_IDS = [
   848, 169, 940, 85, 80, 84, 87, 86, 41, 772, 62, 931, 59, 60, 869, 180, 67, 68, 69,
 ]; // UEFA Europa Conference League, Regionalliga - Bayern, League 940, Regionalliga - Nordost, 3. Liga, Regionalliga - Nord, Regionalliga - West, Regionalliga - SudWest, League One, League 772, Ligue 2, Non League Premier - Southern Central, League 59, League 60, CECAFA Club Cup, National 2 - Group A
-const PRIORITY_LEAGUE_IDS = [39, 140, 78, 2, 15, 38, 32, 29, 850, 667, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
+const PRIORITY_LEAGUE_IDS = [39, 140, 78, 2, 15, 38, 32, 29, 850, 22, 45, 550, 531]; // Premier League first, then La Liga, Bundesliga (78), UEFA Champions League, FIFA Club World Cup, UEFA U21 Championship, CONCACAF Gold Cup, FA Cup, League 550, League 531
 
 interface FeaturedMatch {
   fixture: {
@@ -916,97 +915,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           console.log(`🚀 [MyHomeFeaturedMatchNew] Parallel fetch complete: ${parallelFixtures.length} fixtures from ${priorityLeagueIds.length} leagues`)
 
-          // Fetch popular team friendlies from Friendlies Clubs league (667)
-          try {
-            console.log(
-              `🔍 [MyHomeFeaturedMatchNew] Fetching Friendlies Clubs fixtures for popular teams`,
-            );
-
-            const friendliesResponse = await apiRequest(
-              "GET",
-              `/api/featured-match/leagues/667/fixtures?skipFilter=true`,
-            );
-            const friendliesData = await friendliesResponse.json();
-
-            if (Array.isArray(friendliesData)) {
-              const popularFriendlies = friendliesData
-                .filter((fixture: any) => {
-                  // Must have valid teams and NOT be live
-                  const hasValidTeams = isValidMatch(fixture);
-                  const isNotLive = !isLiveMatch(fixture.fixture.status.short);
-
-                  if (!hasValidTeams || !isNotLive) {
-                    return false;
-                  }
-
-                  // Check if it involves popular teams
-                  const homeTeamId = fixture.teams?.home?.id;
-                  const awayTeamId = fixture.teams?.away?.id;
-                  const homeTeam = fixture.teams?.home?.name || "";
-                  const awayTeam = fixture.teams?.away?.name || "";
-
-                  const isPopular = isPopularTeamMatch(
-                    homeTeam,
-                    awayTeam,
-                    homeTeamId,
-                    awayTeamId,
-                    fixture.league?.id, // Pass league ID
-                  );
-
-                  if (isPopular) {
-                    console.log(
-                      `🎯 [MyHomeFeaturedMatchNew] Popular club friendly found: ${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-                    );
-                    return true;
-                  }
-
-                  return false;
-                })
-                .map((fixture: any) => ({
-                  fixture: {
-                    id: fixture.fixture.id,
-                    date: fixture.fixture.date,
-                    status: fixture.fixture.status,
-                    venue: fixture.fixture.venue,
-                  },
-                  league: {
-                    id: fixture.league.id,
-                    name: fixture.league.name,
-                    country: fixture.league.country,
-                    logo: fixture.league.logo,
-                    round: fixture.league.round,
-                  },
-                  teams: {
-                    home: {
-                      id: fixture.teams.home.id,
-                      name: fixture.teams.home.name,
-                      logo: fixture.teams.home.logo,
-                    },
-                    away: {
-                      id: fixture.teams.away.id,
-                      name: fixture.teams.away.name,
-                      logo: fixture.teams.away.logo,
-                    },
-                  },
-                  goals: {
-                    home: fixture.goals?.home ?? null,
-                    away: fixture.goals?.away ?? null,
-                  },
-                  venue: fixture.venue,
-                }));
-
-              console.log(
-                `🎯 [MyHomeFeaturedMatchNew] Found ${popularFriendlies.length} popular team friendlies`,
-              );
-              allFixtures.push(...popularFriendlies);
-            }
-          } catch (friendliesError) {
-            console.warn(
-              `Failed to fetch Friendlies Clubs data:`,
-              friendliesError,
-            );
-          }
-
           // Fetch non-live matches from cached date-based data
           for (const dateInfo of dates) {
             try {
@@ -1233,7 +1141,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
                       if (
                         leagueName.includes("club friendlies") ||
                         leagueName.includes("friendlies clubs") ||
-                        fixture.league.id === 667 ||
                         (leagueName.includes("friendlies") &&
                           !leagueName.includes("international") &&
                           !leagueName.includes("women"))
@@ -1960,21 +1867,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               const aLeagueName = a.league.name?.toLowerCase() || "";
               const bLeagueName = b.league.name?.toLowerCase() || "";
 
-              // Check for Friendlies Clubs vs FA Cup priority
-              const aIsFriendliesClubs =
-                aLeagueName.includes("friendlies clubs") || a.league.id === 667;
-              const bIsFriendliesClubs =
-                bLeagueName.includes("friendlies clubs") || b.league.id === 667;
-
-              const aIsFACup =
-                aLeagueName.includes("fa cup") || a.league.id === 45;
-              const bIsFACup =
-                bLeagueName.includes("fa cup") || b.league.id === 45;
-
-              // Friendlies Clubs has priority over FA Cup
-              if (aIsFriendliesClubs && bIsFACup) return -1;
-              if (aIsFACup && bIsFriendliesClubs) return 1;
-
               // Priority leagues
               const aPriority = priorityLeagueIds.indexOf(a.league.id);
               const bPriority = priorityLeagueIds.indexOf(b.league.id);
@@ -1984,22 +1876,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
               if (aPriority !== -1 && bPriority !== -1)
                 return aPriority - bPriority;
 
-              // Popular team friendlies get priority over regular matches
-              const aIsPopularFriendly =
-                (aLeagueName.includes("friendlies") ||
-                  aLeagueName.includes("friendlies clubs") ||
-                  a.league.id === 667) &&
-                (POPULAR_TEAM_IDS.includes(a.teams.home.id) ||
-                  POPULAR_TEAM_IDS.includes(a.teams.away.id));
-              const bIsPopularFriendly =
-                (bLeagueName.includes("friendlies") ||
-                  bLeagueName.includes("friendlies clubs") ||
-                  b.league.id === 667) &&
-                (POPULAR_TEAM_IDS.includes(b.teams.home.id) ||
-                  POPULAR_TEAM_IDS.includes(b.teams.away.id));
-
-              if (aIsPopularFriendly && !bIsPopularFriendly) return -1;
-              if (!aIsPopularFriendly && bIsPopularFriendly) return 1;
 
               // Premier League (ID 39) priority - always show first within same status category
               const aIsPremierLeague = a.league.id === 39;

@@ -27,7 +27,7 @@ featuredMatchRouter.get("/live", async (req: Request, res: Response) => {
 featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
   try {
     const { date } = req.params;
-    const { skipFilter, all } = req.query;
+    const { skipFilter, all, limit } = req.query;
 
     // Validate date format
     if (!date || !date.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -39,9 +39,14 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
     // Fetch with all=true to get 3-day window (timezone coverage)
     // Request coalescing in rapidApi service prevents duplicate API calls
     const fixtures = await rapidApiService.getFixturesByDate(date, true);
-    console.log(`✅ [FeaturedMatch] Returning ${fixtures.length} unfiltered fixtures for ${date}`);
     
-    return res.json(fixtures);
+    // Apply pagination limit to prevent browser overload (default: 200 fixtures max)
+    const maxFixtures = limit ? parseInt(limit as string) : 200;
+    const limitedFixtures = fixtures.slice(0, maxFixtures);
+    
+    console.log(`✅ [FeaturedMatch] Returning ${limitedFixtures.length}/${fixtures.length} fixtures for ${date} (limit: ${maxFixtures})`);
+    
+    return res.json(limitedFixtures);
   } catch (error) {
     console.error('❌ [FeaturedMatch] Error fetching fixtures by date:', error);
     res.status(500).json({ error: 'Failed to fetch fixtures' });
@@ -51,7 +56,7 @@ featuredMatchRouter.get("/date/:date", async (req: Request, res: Response) => {
 featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
-    const { skipFilter, season } = req.query;
+    const { skipFilter, season, limit } = req.query;
     
     // Calculate current season
     const currentDate = new Date();
@@ -69,9 +74,14 @@ featuredMatchRouter.get("/leagues/:id/fixtures", async (req: Request, res: Respo
 
     // Use API-Football directly without filtering
     const fixtures = await rapidApiService.getFixturesByLeague(id, seasonYear);
-    console.log(`✅ [FeaturedMatch] Retrieved ${fixtures ? fixtures.length : 0} fixtures for league ${id} (NO FILTERING)`);
+    
+    // Apply pagination limit to prevent browser overload (default: 200 fixtures max)
+    const maxFixtures = limit ? parseInt(limit as string) : 200;
+    const limitedFixtures = fixtures ? fixtures.slice(0, maxFixtures) : [];
+    
+    console.log(`✅ [FeaturedMatch] Returning ${limitedFixtures.length}/${fixtures ? fixtures.length : 0} fixtures for league ${id} (limit: ${maxFixtures})`);
 
-    res.json(fixtures);
+    res.json(limitedFixtures);
   } catch (error) {
     console.error(`❌ [FeaturedMatch] Error fetching fixtures for league ID ${req.params.id}:`, error);
     res.status(500).json({ message: "Failed to fetch league fixtures" });
