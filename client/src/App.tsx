@@ -184,9 +184,17 @@ function App() {
       document.head.appendChild(fontPreload);
     }
 
-    // Minimal cleanup
+    // Automatic cache cleanup every 30 minutes to prevent memory buildup
+    const cacheCleanupInterval = setInterval(() => {
+      console.log('🧹 [Cache Cleanup] Running automatic cleanup...');
+      queryClient.clear();
+      clearAllLogoCaches();
+      console.log('✅ [Cache Cleanup] Memory freed successfully');
+    }, 30 * 60 * 1000); // Every 30 minutes
+
+    // Cleanup on unmount
     return () => {
-      // Cleanup will be handled by individual components
+      clearInterval(cacheCleanupInterval);
     };
   }, []);
 

@@ -199,7 +199,7 @@ export const TodayMatchPageCard = ({
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: 30000,
+    refetchInterval: 60000, // 60 seconds - optimized to prevent IDE freeze
   });
 
   console.log(`📊 [TodayMatchPageCard] Rendering for date: ${selectedDate}`);

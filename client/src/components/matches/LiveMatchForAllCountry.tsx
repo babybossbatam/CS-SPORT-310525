@@ -305,7 +305,7 @@ const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     refetchOnReconnect: true,
-    refetchInterval: refreshInterval, // Auto-refresh every 30 seconds
+    refetchInterval: 60000, // 60 seconds - optimized to prevent IDE freeze
   });
 
   // Use props data if available, otherwise use fetched data

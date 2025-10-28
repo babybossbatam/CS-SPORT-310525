@@ -1197,7 +1197,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // LIVE matches detected OR matches that should be live - optimized for live data
       newCacheConfig = {
         staleTime: 1 * 60 * 1000, // 1 minute - balanced for performance
-        refetchInterval: 30 * 1000, // 30 seconds - reduced from 15s to avoid overload
+        refetchInterval: 60 * 1000, // 60 seconds - optimized to prevent IDE freeze
         refetchOnWindowFocus: false, // Disabled to reduce unnecessary requests
         refetchOnReconnect: true,
       };
@@ -1208,7 +1208,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Matches starting within 30 minutes - moderate updates
       newCacheConfig = {
         staleTime: 2 * 60 * 1000, // 2 minutes
-        refetchInterval: 45 * 1000, // 45 seconds - reduced from 20s
+        refetchInterval: 75 * 1000, // 75 seconds - optimized to prevent IDE freeze
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
@@ -1219,7 +1219,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Matches starting within 2 hours - less frequent updates
       newCacheConfig = {
         staleTime: 3 * 60 * 1000, // 3 minutes
-        refetchInterval: 60 * 1000, // 1 minute - reduced from 30s
+        refetchInterval: 90 * 1000, // 90 seconds - optimized to prevent IDE freeze
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };
@@ -1230,7 +1230,7 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
       // Today but no live or imminent matches - conservative cache
       newCacheConfig = {
         staleTime: 5 * 60 * 1000, // 5 minutes
-        refetchInterval: 2 * 60 * 1000, // 2 minutes - reduced from 1min
+        refetchInterval: 3 * 60 * 1000, // 3 minutes - optimized to prevent IDE freeze
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       };

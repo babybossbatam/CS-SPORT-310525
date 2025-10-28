@@ -45,12 +45,12 @@ const MyRightContent: React.FC = () => {
   
   useEffect(() => {
     // Phase 0: Initial render (nothing loaded yet)
-    // Phase 1: Load critical components (Featured matches, Top scorers) after 2s
-    // Phase 2: Load secondary components (Standings, Info) after 6s
+    // Phase 1: Load critical components (Featured matches, Top scorers) after 5s
+    // Phase 2: Load secondary components (Standings, Info) after 12s
     // Phase 3: Load tertiary components (Popular Leagues, Teams, All Leagues) - scroll-based
     
-    const phase1Timer = setTimeout(() => setLoadPhase(1), 2000);
-    const phase2Timer = setTimeout(() => setLoadPhase(2), 6000);
+    const phase1Timer = setTimeout(() => setLoadPhase(1), 5000);
+    const phase2Timer = setTimeout(() => setLoadPhase(2), 12000);
     
     return () => {
       clearTimeout(phase1Timer);
