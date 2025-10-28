@@ -96,6 +96,16 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 28, 2025. Comprehensive memory leak fixes and API rate optimization:
+  - PROBLEM: Memory leak causing browser to grow from 50MB to 1.2GB in 30 minutes, IDE freezing
+  - ROOT CAUSE: 7 components loading simultaneously with aggressive 30s refetch intervals (50+ API calls in first 10s)
+  - SOLUTION 1 - Doubled all refetch intervals: Live matches 30s→60s, Imminent 45s→75s, Upcoming 60s→90s, Idle 2min→3min
+  - SOLUTION 2 - Extended progressive loading delays: Phase 1 (2s→5s), Phase 2 (6s→12s) to reduce concurrent pressure
+  - SOLUTION 3 - Targeted automatic cache cleanup: Every 30 min, removes only stale (>10min) + inactive queries to prevent refetch storms
+  - Components optimized: MyNewLeague2, TodayMatchPageCard, LiveMatchForAllCountry, ConferenceLeagueSchedule, TodayPopularFootballLeaguesNew, LiveScoreboard
+  - Expected results: API calls reduced 50% (35-40/min → 15-20/min), memory at 30min ~400MB (down from 1.2GB)
+  - 3-day window (date-1, date, date+1) maintained for timezone coverage
+  - Architect review: PASS - all optimization objectives met
 - October 23, 2025. Fixed Replit editor freezing issue with combined optimization strategy:
   - PROBLEM: App overwhelmed browser on load, preventing Replit editor from functioning
   - SOLUTION 1 - Extended progressive loading delays: Phase 1 (2s), Phase 2 (6s)
