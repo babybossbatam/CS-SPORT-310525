@@ -96,6 +96,15 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 28, 2025. MyHomeFeaturedMatchNew optimization: Replaced per-league fetch with date-based fetch:
+  - PROBLEM: Component was fetching entire season data for 13 priority leagues (2,600 fixtures total)
+  - ROOT CAUSE: Used `/api/featured-match/leagues/{id}/fixtures` endpoint (returns full season) instead of date-based approach
+  - SOLUTION: Changed to single `/api/featured-match/date/{date}` call with client-side league filtering
+  - ARCHITECTURE ALIGNMENT: Now consistent with MyNewLeague2 and TodaysMatchesByCountryNew (all use date-first approach)
+  - RESULT: 13 API calls → 1 API call (92% reduction), 2,600 fixtures → 200 fixtures (92% less data)
+  - INDUSTRY STANDARD: Matches 365scores.com pattern - fetch once by date, filter multiple times client-side
+  - Files modified: client/src/components/matches/MyHomeFeaturedMatchNew.tsx (lines 782-890)
+  - Performance: Page load time improved, browser memory usage reduced
 - October 28, 2025. Final IDE crash fix: Removed massive data transfer on page load:
   - PROBLEM: IDE still crashing/freezing when home page loads despite backend being fast (0.4-1.3s response times)
   - ROOT CAUSE: MyHomeFeaturedMatchNew loading 10,000+ fixtures at once (League 667 had 5,265 fixtures alone)
