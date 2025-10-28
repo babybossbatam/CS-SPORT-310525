@@ -186,10 +186,18 @@ function App() {
 
     // Automatic cache cleanup every 30 minutes to prevent memory buildup
     const cacheCleanupInterval = setInterval(() => {
-      console.log('🧹 [Cache Cleanup] Running automatic cleanup...');
-      queryClient.clear();
+      console.log('🧹 [Cache Cleanup] Running targeted cleanup...');
+      // Only remove queries that are stale and inactive to avoid refetch storms
+      queryClient.removeQueries({
+        predicate: (query) => {
+          const lastUpdated = query.state.dataUpdatedAt;
+          const isStale = Date.now() - lastUpdated > 10 * 60 * 1000; // 10 minutes old
+          const isInactive = query.getObserversCount() === 0; // No active subscribers
+          return isStale && isInactive;
+        }
+      });
       clearAllLogoCaches();
-      console.log('✅ [Cache Cleanup] Memory freed successfully');
+      console.log('✅ [Cache Cleanup] Stale inactive queries removed');
     }, 30 * 60 * 1000); // Every 30 minutes
 
     // Cleanup on unmount

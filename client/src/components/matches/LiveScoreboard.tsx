@@ -91,7 +91,7 @@ export function LiveScoreboard({
   const { data: liveMatches, isLoading, error } = useQuery<FixtureResponse[]>({
     queryKey: ['/api/fixtures/live'],
     staleTime: 15000, // 15 seconds
-    refetchInterval: 30000, // Refresh every 30 seconds for live matches
+    refetchInterval: 60000, // 60 seconds - optimized to prevent IDE freeze
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false

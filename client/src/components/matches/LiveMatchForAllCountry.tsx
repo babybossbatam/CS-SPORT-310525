@@ -113,7 +113,7 @@ interface LiveMatchForAllCountryProps {
 }
 
 const LiveMatchForAllCountry: React.FC<LiveMatchForAllCountryProps> = ({
-  refreshInterval = 30000,
+  refreshInterval = 60000, // 60 seconds - optimized to prevent IDE freeze
   isTimeFilterActive = false,
   liveFilterActive = false,
   timeFilterActive = false,
