@@ -176,26 +176,26 @@ function App() {
       document.head.appendChild(fontPreload);
     }
 
-    // Automatic cache cleanup every 30 minutes to prevent memory buildup
-    const cacheCleanupInterval = setInterval(() => {
-      console.log('🧹 [Cache Cleanup] Running targeted cleanup...');
-      // Only remove queries that are stale and inactive to avoid refetch storms
-      queryClient.removeQueries({
-        predicate: (query) => {
-          const lastUpdated = query.state.dataUpdatedAt;
-          const isStale = Date.now() - lastUpdated > 10 * 60 * 1000; // 10 minutes old
-          const isInactive = query.getObserversCount() === 0; // No active subscribers
-          return isStale && isInactive;
-        }
-      });
-      clearAllLogoCaches();
-      console.log('✅ [Cache Cleanup] Stale inactive queries removed');
-    }, 30 * 60 * 1000); // Every 30 minutes
+    // DISABLED: Cache cleanup interval causes continuous background processes that freeze Replit IDE
+    // const cacheCleanupInterval = setInterval(() => {
+    //   console.log('🧹 [Cache Cleanup] Running targeted cleanup...');
+    //   // Only remove queries that are stale and inactive to avoid refetch storms
+    //   queryClient.removeQueries({
+    //     predicate: (query) => {
+    //       const lastUpdated = query.state.dataUpdatedAt;
+    //       const isStale = Date.now() - lastUpdated > 10 * 60 * 1000; // 10 minutes old
+    //       const isInactive = query.getObserversCount() === 0; // No active subscribers
+    //       return isStale && isInactive;
+    //     }
+    //   });
+    //   clearAllLogoCaches();
+    //   console.log('✅ [Cache Cleanup] Stale inactive queries removed');
+    // }, 30 * 60 * 1000); // Every 30 minutes
 
     // Cleanup on unmount
-    return () => {
-      clearInterval(cacheCleanupInterval);
-    };
+    // return () => {
+    //   clearInterval(cacheCleanupInterval);
+    // };
   }, []);
 
   // Add additional error handling for dynamic imports and runtime errors
@@ -272,15 +272,16 @@ function App() {
       });
     };
 
-    // Run immediately and then periodically
+    // Run immediately but DISABLE periodic removal to prevent continuous background process
     removeExistingOverlays();
-    const cleanupInterval = setInterval(removeExistingOverlays, 1000);
+    // DISABLED: This setInterval runs every 1 second and freezes Replit IDE
+    // const cleanupInterval = setInterval(removeExistingOverlays, 1000);
 
     window.addEventListener("unhandledrejection", handleUnhandledRejection);
     window.addEventListener("error", handleError);
 
     return () => {
-      clearInterval(cleanupInterval);
+      // clearInterval(cleanupInterval);
       window.removeEventListener(
         "unhandledrejection",
         handleUnhandledRejection,

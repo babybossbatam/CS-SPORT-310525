@@ -43,8 +43,8 @@ const monitorMemory = () => {
   }
 };
 
-// Check memory every 2 minutes to reduce overhead
-setInterval(monitorMemory, 120000);
+// DISABLED: Memory monitoring interval causes continuous background process that freezes Replit IDE
+// setInterval(monitorMemory, 120000);
 
 // Set BALANCED limits for better performance while maintaining stability
 process.setMaxListeners(10); // Increased for better functionality
@@ -82,14 +82,14 @@ process.on('warning', (warning) => {
   console.warn('Process Warning:', warning.message);
 });
 
-// Monitor process uptime and stability
-let startTime = Date.now();
-setInterval(() => {
-  const uptime = Math.floor((Date.now() - startTime) / 1000);
-  if (uptime % 300 === 0) { // Every 5 minutes
-    console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
-  }
-}, 1000);
+// DISABLED: Uptime monitoring runs EVERY SECOND and freezes Replit IDE
+// let startTime = Date.now();
+// setInterval(() => {
+//   const uptime = Math.floor((Date.now() - startTime) / 1000);
+//   if (uptime % 300 === 0) { // Every 5 minutes
+//     console.log(`✅ Server stable for ${Math.floor(uptime / 60)} minutes`);
+//   }
+// }, 1000);
 
 // Per-request timeout protection (60 seconds for API routes)
 app.use((req, res, next) => {
