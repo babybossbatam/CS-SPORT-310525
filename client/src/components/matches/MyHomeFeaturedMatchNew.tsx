@@ -350,7 +350,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const [fixturesByLeague, setFixturesByLeague] = useState<Record<number, FeaturedMatch[]>>({});
   const [expandedLeagues, setExpandedLeagues] = useState<Set<string>>(new Set());
   const [starredMatches, setStarredMatches] = useState<Set<number>>(new Set());
-  const [liveMatchData, setLiveMatchData] = useState<Map<number, Partial<FeaturedMatch>>>(new Map());
 
   const {
     translateTeamName,
@@ -362,54 +361,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
   const { t } = useTranslation();
 
   const mountedRef = useRef(false);
-  const selectiveUpdateIntervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Function to manage selective updates for matches
-  const manageSelectiveUpdates = useCallback(() => {
-    // Clear existing interval if any
-    if (selectiveUpdateIntervalRef.current) {
-      clearInterval(selectiveUpdateIntervalRef.current);
-    }
-
-    // Set a new interval for periodic updates (e.g., every 30 seconds)
-    selectiveUpdateIntervalRef.current = setInterval(() => {
-      if (!mountedRef.current) return; // Prevent updates if component is unmounted
-
-      setFeaturedMatches((prevMatches) => {
-        const updatedMatches = prevMatches.map((dayData) => ({
-          ...dayData,
-          matches: dayData.matches.map((match) => {
-            // Check if this match is live and needs an update
-            const status = match.fixture.status.short;
-            const isLive = ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status);
-
-            if (isLive) {
-              // Fetch real-time data for live matches
-              fetch(`/api/fixtures/${match.fixture.id}`) // Assuming an endpoint for individual fixture updates
-                .then((res) => res.json())
-                .then((data: Partial<FeaturedMatch>) => {
-                  // Update the liveMatchData state for selective rendering
-                  setLiveMatchData((prevData) => {
-                    const newData = new Map(prevData);
-                    newData.set(match.fixture.id, {
-                      goals: data.goals,
-                      fixture: {
-                        ...match.fixture,
-                        status: data.fixture?.status || match.fixture.status, // Ensure status is updated
-                      },
-                    });
-                    return newData;
-                  });
-                })
-                .catch((error) => console.error("Error fetching live match data:", error));
-            }
-            return match; // Return the original match data if not live
-          }),
-        }));
-        return updatedMatches;
-      });
-    }, 30000); // Update every 30 seconds
-  }, []); // Dependencies: none, as it relies on its own interval logic
 
   const fetchRoundsForLeague = useCallback(
     async (leagueId: number, season: number) => {
@@ -461,91 +412,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     // Use 2-hour rule for better performance
     return hoursAgo > 2;
   }, []);
-
-  // Cache key for ended matches
-  const getCacheKey = useCallback((date: string, leagueId: number) => {
-    return `ended_matches_${date}_${leagueId}`;
-  }, []);
-
-  // Get cached ended matches with strict date validation
-  const getCachedEndedMatches = useCallback(
-    (date: string, leagueId: number): any[] => {
-      try {
-        const cacheKey = getCacheKey(date, leagueId);
-        const cached = localStorage.getItem(cacheKey);
-
-        if (!cached) return [];
-
-        const { fixtures, timestamp, date: cachedDate } = JSON.parse(cached);
-
-        // CRITICAL: Ensure cached date exactly matches requested date
-        if (cachedDate !== date) {
-          console.log(
-            `🚨 [MyHomeFeaturedMatchNew] Date mismatch in cache - cached: ${cachedDate}, requested: ${date}, clearing cache`,
-          );
-          localStorage.removeItem(cacheKey);
-          return [];
-        }
-
-        // Check cache age (24 hours max for ended matches)
-        const cacheAge = Date.now() - timestamp;
-        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
-
-        if (cacheAge < maxAge) {
-          // Validate all fixtures are still old ended matches
-          const validFixtures = fixtures.filter((fixture: any) =>
-            isMatchOldEnded(fixture),
-          );
-
-          console.log(
-            `✅ [MyHomeFeaturedMatchNew] Using cached ended matches for league ${leagueId} on ${date}: ${validFixtures.length} matches`,
-          );
-          return validFixtures;
-        } else {
-          // Remove expired cache
-          localStorage.removeItem(cacheKey);
-          console.log(
-            `⏰ [MyHomeFeaturedMatchNew] Removed expired cache for league ${leagueId} on ${date} (age: ${Math.round(cacheAge / 60000)}min)`,
-          );
-        }
-      } catch (error) {
-        console.error("Error reading cached ended matches:", error);
-        // Clear corrupted cache
-        const cacheKey = getCacheKey(date, leagueId);
-        localStorage.removeItem(cacheKey);
-      }
-
-      return [];
-    },
-    [getCacheKey, isMatchOldEnded],
-  );
-
-  // Cache ended matches
-  const cacheEndedMatches = useCallback(
-    (date: string, leagueId: number, fixtures: any[]) => {
-      try {
-        const endedFixtures = fixtures.filter(isMatchOldEnded);
-
-        if (endedFixtures.length === 0) return;
-
-        const cacheKey = getCacheKey(date, leagueId);
-        const cacheData = {
-          fixtures: endedFixtures,
-          timestamp: Date.now(),
-          date,
-          leagueId,
-        };
-
-        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
-        console.log(
-          `💾 [MyHomeFeaturedMatchNew] Cached ${endedFixtures.length} ended matches for league ${leagueId} on ${date}`,
-        );
-      } catch (error) {
-        console.error("Error caching ended matches:", error);
-      }
-    },
-    [getCacheKey, isMatchOldEnded],
-  );
 
   const fetchFeaturedMatches = useCallback(
     async (forceRefresh = false) => {
@@ -1928,8 +1794,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           if (prevIds.join(',') !== newIds.join(',')) {
             console.log(`🔄 [MyHomeFeaturedMatchNew] Match IDs changed, updating state`);
-            // Trigger selective update management after state update
-            setTimeout(() => manageSelectiveUpdates(), 100);
             return allMatches;
           }
 
@@ -1950,8 +1814,6 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
 
           if (hasStatusChanges) {
             console.log(`⚽ [MyHomeFeaturedMatchNew] Match status/score changes detected, updating state`);
-            // Trigger selective update management after state update
-            setTimeout(() => manageSelectiveUpdates(), 100);
             return allMatches;
           }
 
@@ -1964,7 +1826,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
         setIsLoading(false);
       }
     },
-    [maxMatches, manageSelectiveUpdates, featuredMatches.length, learnFromFixtures, smartLeagueCountryTranslation, t, translateLeagueName, translateTeamName, getMatchStatusTranslation],
+    [maxMatches, featuredMatches.length, learnFromFixtures, smartLeagueCountryTranslation, t, translateLeagueName, translateTeamName, getMatchStatusTranslation],
   );
 
   // Clear caches related to excluded leagues
@@ -2084,17 +1946,8 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       fetchFeaturedMatches(true);
     }, 5000); // Increased from 1000ms to 5000ms
 
-    // Start the selective update interval management
-    if (featuredMatches.length > 0) {
-      manageSelectiveUpdates();
-    }
-
     return () => {
       mountedRef.current = false; // Mark component as unmounted
-      if (selectiveUpdateIntervalRef.current) {
-        clearInterval(selectiveUpdateIntervalRef.current);
-        selectiveUpdateIntervalRef.current = null;
-      }
       clearTimeout(timer);
     };
   }, []); // Empty dependency array ensures this runs only on mount and unmount
@@ -2218,7 +2071,7 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
       clearInterval(intervalId);
       console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
     };
-  }, [featuredMatches, fetchFeaturedMatches, manageSelectiveUpdates]); // Depend on featuredMatches to re-evaluate interval
+  }, [featuredMatches, fetchFeaturedMatches]); // Depend on featuredMatches to re-evaluate interval
 
   const formatMatchTime = (dateString: string) => {
     try {
