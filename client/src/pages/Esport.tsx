@@ -26,7 +26,10 @@ const Esport = () => {
         feature="esports"
       />
       
-      <Footer />
+      {/* Footer with proper spacing to prevent content overlap */}
+      <div className="mb-8">
+        <Footer />
+      </div>
     </>
   );
 };
