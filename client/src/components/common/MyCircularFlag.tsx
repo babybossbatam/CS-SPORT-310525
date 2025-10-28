@@ -44,27 +44,39 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     const mainDetection = isNationalTeam({ name: teamName });
 
     // Specific check for European microstates
-    const isMicrostate = ['andorra', 'san marino', 'monaco', 'liechtenstein', 'vatican city', 'malta']
-      .includes(teamName.toLowerCase());
+    const isMicrostate = [
+      "andorra",
+      "san marino",
+      "monaco",
+      "liechtenstein",
+      "vatican city",
+      "malta",
+    ].includes(teamName.toLowerCase());
 
     const finalResult = mainDetection || isMicrostate;
 
     // Debug logging for problematic teams
-    if (teamName.toLowerCase().includes('andorra') || teamName.toLowerCase().includes('san marino')) {
+    if (
+      teamName.toLowerCase().includes("andorra") ||
+      teamName.toLowerCase().includes("san marino")
+    ) {
       console.log(`🚨 [MyCircularFlag] MICROSTATE DEBUG for ${teamName}:`, {
         mainDetection,
         isMicrostate,
         finalResult,
-        teamName
+        teamName,
       });
     }
 
-    console.log(`🔍 [MyCircularFlag] National team detection for ${teamName}:`, {
-      mainDetection,
-      isMicrostate,
-      finalResult,
-      teamName
-    });
+    console.log(
+      `🔍 [MyCircularFlag] National team detection for ${teamName}:`,
+      {
+        mainDetection,
+        isMicrostate,
+        finalResult,
+        teamName,
+      },
+    );
 
     return finalResult;
   }, [teamName]);
@@ -104,6 +116,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
       UAE: "AE",
       Pakistan: "PK",
       Australia: "AU",
+
       Yemen: "YE",
       Lebanon: "LB",
       Kuwait: "KW",
@@ -185,6 +198,7 @@ const MyCircularFlag: React.FC<MyCircularFlagProps> = ({
     England: "gb-eng",
     Netherlands: "nl",
     "North Macedonia": "mk",
+    Armenia: "am",
     Belgium: "be",
     Croatia: "hr",
     Cyprus: "cy",
