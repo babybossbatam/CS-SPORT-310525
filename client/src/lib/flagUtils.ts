@@ -729,25 +729,22 @@ export function initializeFlagCachePersistence(): void {
   // Load existing cache on startup
   loadFlagCacheFromStorage();
 
-  // Save cache less frequently (every 10 minutes instead of 5)
-  setInterval(saveFlagCacheToStorage, 10 * 60 * 1000);
-
-  // Run intelligent cache cleanup every 15 minutes
-  setInterval(intelligentCacheCleanup, 15 * 60 * 1000);
-
-  // Run storage cleanup every 30 minutes
-  setInterval(() => {
-    try {
-      const storage = getStorageSize();
-      const usagePercent = (storage.used / (4 * 1024 * 1024)) * 100;
-      if (usagePercent > 80) {
-        console.log(`🧹 Storage usage at ${usagePercent.toFixed(1)}%, running cleanup...`);
-        cleanupOldCacheEntries();
-      }
-    } catch (error) {
-      console.warn("Storage cleanup check failed:", error);
-    }
-  }, 30 * 60 * 1000);
+  // DISABLED: All continuous intervals cause background processes that freeze Replit IDE
+  // Cache will be saved only on page unload and visibility change
+  // setInterval(saveFlagCacheToStorage, 10 * 60 * 1000);
+  // setInterval(intelligentCacheCleanup, 15 * 60 * 1000);
+  // setInterval(() => {
+  //   try {
+  //     const storage = getStorageSize();
+  //     const usagePercent = (storage.used / (4 * 1024 * 1024)) * 100;
+  //     if (usagePercent > 80) {
+  //       console.log(`🧹 Storage usage at ${usagePercent.toFixed(1)}%, running cleanup...`);
+  //       cleanupOldCacheEntries();
+  //     }
+  //   } catch (error) {
+  //     console.warn("Storage cleanup check failed:", error);
+  //   }
+  // }, 30 * 60 * 1000);
 
   // Save cache when page is unloaded (with error handling)
   window.addEventListener("beforeunload", () => {

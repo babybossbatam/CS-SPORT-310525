@@ -90,7 +90,8 @@ export class MemoryManager {
   }
 }
 
-// Auto-initialize
-if (typeof window !== 'undefined') {
-  MemoryManager.getInstance().init();
-}
+// DISABLED: Auto-initialization causes continuous background process that freezes Replit IDE
+// If needed, manually call MemoryManager.getInstance().init() from a specific component
+// if (typeof window !== 'undefined') {
+//   MemoryManager.getInstance().init();
+// }

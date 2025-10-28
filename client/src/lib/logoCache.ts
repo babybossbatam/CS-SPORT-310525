@@ -32,19 +32,21 @@ class LogoCache {
 
   constructor(config: Partial<LogoCacheConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
-    this.startCleanupTimer();
+    // DISABLED: Cleanup timer causes continuous background process that freezes Replit IDE
+    // Cleanup will happen on-demand when cache size exceeds limit
+    // this.startCleanupTimer();
     // Clear all cached data on initialization to force refetch
     this.cache.clear();
   }
 
   private startCleanupTimer() {
-    if (this.cleanupTimer) {
-      clearInterval(this.cleanupTimer);
-    }
-
-    this.cleanupTimer = setInterval(() => {
-      this.cleanup();
-    }, this.config.cleanupInterval);
+    // DISABLED: Continuous cleanup interval freezes Replit IDE
+    // if (this.cleanupTimer) {
+    //   clearInterval(this.cleanupTimer);
+    // }
+    // this.cleanupTimer = setInterval(() => {
+    //   this.cleanup();
+    // }, this.config.cleanupInterval);
   }
 
   private cleanup() {
@@ -86,6 +88,11 @@ class LogoCache {
       verified,
       retryCount: 0
     });
+
+    // On-demand cleanup: trigger cleanup when cache size exceeds limit
+    if (this.cache.size > this.config.maxSize * 0.9) { // 90% threshold
+      this.cleanup();
+    }
 
     console.log(`💾 [logoCache.ts:setCached] Setting cache for key: ${key}`, {
       url,

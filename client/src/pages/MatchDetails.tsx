@@ -348,12 +348,58 @@ const MatchDetails = () => {
 
     fetchMatchDetails();
 
-    // If match is live, set up polling for updates
+    // Bounded refresh for live matches while page is visible
+    let refreshTimeoutId: NodeJS.Timeout | null = null;
+    
+    const scheduleLiveRefresh = () => {
+      // Clear any existing timeout
+      if (refreshTimeoutId) {
+        clearTimeout(refreshTimeoutId);
+        refreshTimeoutId = null;
+      }
+      
+      // Only schedule refresh if match is live and page is visible
+      if (currentFixture && isLiveMatch(currentFixture.fixture.status.short) && !document.hidden) {
+        console.log('⏰ [MatchDetails] Scheduling live refresh in 5 minutes');
+        refreshTimeoutId = setTimeout(() => {
+          console.log('🔄 [MatchDetails] Refreshing live match data');
+          fetchMatchDetails();
+          scheduleLiveRefresh(); // Schedule next refresh
+        }, 5 * 60 * 1000); // 5 minutes
+      }
+    };
+
+    // Event-driven refresh: update when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('👁️ [MatchDetails] Page visible, refreshing match data');
+        fetchMatchDetails();
+        scheduleLiveRefresh(); // Restart refresh cycle when page becomes visible
+      } else {
+        // Clear refresh when page is hidden to prevent background updates
+        if (refreshTimeoutId) {
+          console.log('💤 [MatchDetails] Page hidden, clearing refresh timeout');
+          clearTimeout(refreshTimeoutId);
+          refreshTimeoutId = null;
+        }
+      }
+    };
+
+    // Set up visibility listener and initial refresh schedule
     if (currentFixture && isLiveMatch(currentFixture.fixture.status.short)) {
-      const intervalId = setInterval(fetchMatchDetails, 1800000); // Update every 30 minutes (1,800,000 ms)
-      return () => clearInterval(intervalId);
+      document.addEventListener('visibilitychange', handleVisibilityChange);
+      scheduleLiveRefresh(); // Start refresh cycle for live match
     }
-  }, [id, dispatch, toast, currentFixture?.fixture.status.short]);
+
+    // Cleanup on unmount or when dependencies change
+    return () => {
+      if (refreshTimeoutId) {
+        clearTimeout(refreshTimeoutId);
+        refreshTimeoutId = null;
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [id, dispatch, toast, currentFixture?.fixture?.status?.short]);
 
   // Update tab in URL when changed
   useEffect(() => {

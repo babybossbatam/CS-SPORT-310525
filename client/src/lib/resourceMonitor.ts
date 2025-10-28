@@ -82,7 +82,8 @@ export class ResourceMonitor {
   }
 }
 
-// Auto-initialize with balanced settings
-if (typeof window !== 'undefined') {
-  ResourceMonitor.getInstance().init();
-}
+// DISABLED: Auto-initialization causes continuous background process that freezes Replit IDE
+// If needed, manually call ResourceMonitor.getInstance().init() from a specific component
+// if (typeof window !== 'undefined') {
+//   ResourceMonitor.getInstance().init();
+// }

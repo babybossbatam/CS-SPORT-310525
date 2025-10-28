@@ -14,8 +14,9 @@ class BackgroundCache {
   private defaultTTL = 10 * 60 * 1000; // 10 minutes for better performance
 
   constructor() {
-    // Cleanup expired items every 2 minutes instead of 1
-    setInterval(() => this.cleanup(), 120000);
+    // DISABLED: Continuous cleanup interval causes background process that freezes Replit IDE
+    // Cleanup will happen on-demand when cache size exceeds limit
+    // setInterval(() => this.cleanup(), 120000);
   }
 
   async get(key: string): Promise<any> {
@@ -27,6 +28,11 @@ class BackgroundCache {
   }
 
   set(key: string, data: any, ttl = this.defaultTTL): void {
+    // On-demand cleanup: remove expired items when setting new items
+    if (this.cache.size >= this.maxCacheSize * 0.8) { // 80% threshold
+      this.cleanup();
+    }
+    
     if (this.cache.size >= this.maxCacheSize) {
       this.evictOldest();
     }
