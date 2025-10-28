@@ -636,7 +636,9 @@ const MyNewLeague2Component: React.FC<MyNewLeague2Props> = ({
   // League IDs split into priority chunks for progressive loading
   // Chunk 1 (15 leagues): Top priority leagues that load immediately
   const priorityLeagueIds = [
-    39, 140, 135, 78, 61, 2, 3, 5, 71, 307, 4, 15, 32, 38, 29,
+    32, 38, 39, 29, 15, 78, 140, 135, 79, 61, 2, 4, 10, 11, 848, 886, 1022, 772,
+      307, 71, 3, 5, 531, 22, 72, 73, 75, 76, 233, 667, 301, 908, 1169, 23, 253,
+      850, 893, 921, 130, 128, 493, 239, 265, 237, 235, 743,
   ];
   
   // Chunk 2 (15 leagues): Secondary priority leagues
