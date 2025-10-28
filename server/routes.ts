@@ -58,7 +58,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use("/api", apiRouter);
 
   // Featured match routes for MyHomeFeaturedMatch component
-  apiRouter.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/featured-match", featuredMatchRoutes);
   app.use("/api/youtube", youtubeRoutes);
   app.use("/api/highlights", highlightsRoutes);

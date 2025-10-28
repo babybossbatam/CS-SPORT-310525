@@ -477,8 +477,8 @@ export const rapidApiService = {
           `[Timezone-inclusive] Querying date range: ${dateRange.join(", ")} for World competitions`,
         );
 
-        // Fetch fixtures from all dates in range
-        for (const queryDate of dateRange) {
+        // Fetch fixtures from all dates in range IN PARALLEL for speed
+        const datePromises = dateRange.map(async (queryDate) => {
           try {
             console.log(
               `🌍 [RapidAPI] Making API request for date: ${queryDate}`,
@@ -577,11 +577,9 @@ export const rapidApiService = {
 
               // Merge with existing fixtures, avoiding duplicates
               const existingIds = new Set(allFixtures.map((f) => f.fixture.id));
-              const newFixtures = validFixtures.filter(
-                (f: any) => !existingIds.has(f.fixture.id),
-              );
-              allFixtures = [...allFixtures, ...newFixtures];
+              return validFixtures;
             }
+            return [];
           } catch (error: any) {
             const is429 = error?.response?.status === 429;
             const is5xx = error?.response?.status >= 500;
@@ -591,25 +589,38 @@ export const rapidApiService = {
               error,
             );
             
-            // On rate limit or server error, stop making more requests
+            // On rate limit or server error, mark the failure
             if (is429 || is5xx) {
               rateLimitState.consecutiveFailures++;
-              console.warn(`⚠️ [getFixturesByDate] ${is429 ? 'Rate limit hit' : 'Server error'}. Breaking out of date loop to prevent further failures.`);
+              console.warn(`⚠️ [getFixturesByDate] ${is429 ? 'Rate limit hit' : 'Server error'} for ${queryDate}`);
               
               // Open circuit breaker if too many failures
               if (rateLimitState.consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
                 rateLimitState.isCircuitOpen = true;
                 rateLimitState.circuitOpenUntil = Date.now() + CIRCUIT_BREAKER_DURATION;
               }
-              
-              // Break out instead of continuing to hammer the API
-              break;
             }
             
-            // For other errors, continue trying other dates
-            continue;
+            return [];
           }
-        }
+        });
+
+        // Wait for all parallel requests to complete
+        const results = await Promise.all(datePromises);
+        
+        // Merge all results, avoiding duplicates
+        // CRITICAL: Seed with existing IDs to prevent duplicates
+        const existingIds = new Set<number>(allFixtures.map(f => f.fixture.id));
+        results.forEach(validFixtures => {
+          const newFixtures = validFixtures.filter((f: any) => {
+            if (existingIds.has(f.fixture.id)) {
+              return false;
+            }
+            existingIds.add(f.fixture.id);
+            return true;
+          });
+          allFixtures = [...allFixtures, ...newFixtures];
+        });
 
         console.log(
           `[Timezone-inclusive] Total fixtures collected: ${allFixtures.length} for date ${date}`,

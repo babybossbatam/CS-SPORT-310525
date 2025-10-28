@@ -91,6 +91,20 @@ setInterval(() => {
   }
 }, 1000);
 
+// Per-request timeout protection (60 seconds for API routes)
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api')) {
+    // Set a 60-second timeout for API requests
+    req.setTimeout(60000, () => {
+      console.warn(`⏱️ Request timeout: ${req.method} ${req.path}`);
+      if (!res.headersSent) {
+        res.status(504).json({ error: 'Request timeout. Please try again.' });
+      }
+    });
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
