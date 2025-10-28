@@ -34,14 +34,14 @@ const MyRightContent: React.FC = () => {
   };
 
   return (
-    <div className="h-full min-h-0 relative overflow-y-hidden" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+    <div className="h-full min-h-0 relative overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
       {/* Main content - always rendered, keeps state active */}
       <div 
         className={cn(
-          "h-full min-h-0 space-y-2 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out overflow-y-hidden",
+          "h-full min-h-0 space-y-2 pb-4 absolute inset-0 transition-transform duration-300 ease-in-out overflow-y-auto",
           selectedFixture ? "z-0 transform translate-x-full pointer-events-none" : "z-10 transform translate-x-0"
         )}
-        style={{ height: '100%', minHeight: '100%' }}
+        style={{ height: 'auto', minHeight: '100%' }}
       >
         {/* Featured Match Section - Hidden on mobile */}
         {!isMobile && (
