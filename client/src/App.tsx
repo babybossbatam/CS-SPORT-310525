@@ -110,14 +110,6 @@ const AppWithLanguageRouting = () => {
     </Switch>
   );
 };
-const Settings = lazy(() => import("@/pages/Settings"));
-const SearchResults = lazy(() => import("@/pages/SearchResults"));
-const LiveMatches = lazy(() => import("@/pages/LiveMatches"));
-const LiveScoresPage = lazy(() => import("@/pages/LiveScoresPage"));
-const NewsPage = lazy(() => import("@/pages/NewsPage"));
-const ScoreboardDemo = lazy(() => import("./pages/ScoreboardDemo"));
-import Scores365Page from "./pages/Scores365Page";
-import LiveScoreboardPage from "@/pages/LiveScoreboardPage";
 
 // Mock functions for cache refresh and preloading (replace with actual implementation)
 const setupCacheRefresh = () => {

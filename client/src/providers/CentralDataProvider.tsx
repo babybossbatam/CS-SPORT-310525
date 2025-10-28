@@ -311,7 +311,7 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     },
     staleTime: 120000, // 2 minutes for live data
     gcTime: 10 * 60 * 1000, // 10 minutes
-    refetchInterval: 300000, // Refetch every 5 minutes (much less aggressive)
+    refetchInterval: false, // DISABLED: Prevents continuous background polling that freezes Replit IDE
     refetchOnWindowFocus: false, // Disable to prevent memory leaks
     retry: 3, // Enable retries with exponential backoff
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -335,27 +335,27 @@ export function CentralDataProvider({ children, selectedDate }: CentralDataProvi
     };
   }, []);
 
-  // Prefetch related data with reduced frequency
-  useEffect(() => {
-    const prefetchTimer = setTimeout(() => {
-      // Prefetch tomorrow's fixtures
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+  // DISABLED: Prefetch causes continuous background API calls that freeze Replit IDE
+  // useEffect(() => {
+  //   const prefetchTimer = setTimeout(() => {
+  //     // Prefetch tomorrow's fixtures
+  //     const tomorrow = new Date();
+  //     tomorrow.setDate(tomorrow.getDate() + 1);
+  //     const tomorrowStr = tomorrow.toISOString().slice(0, 10);
 
-      queryClient.prefetchQuery({
-        queryKey: ['central-date-fixtures', tomorrowStr],
-        queryFn: async () => {
-          const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
-          if (!response.ok) return [];
-          return response.json();
-        },
-        staleTime: CACHE_DURATIONS.FOUR_HOURS,
-      });
-    }, 5000); // Delay prefetch to reduce initial load
+  //     queryClient.prefetchQuery({
+  //       queryKey: ['central-date-fixtures', tomorrowStr],
+  //       queryFn: async () => {
+  //         const response = await fetch(`/api/fixtures/date/${tomorrowStr}?all=true`);
+  //         if (!response.ok) return [];
+  //         return response.json();
+  //       },
+  //       staleTime: CACHE_DURATIONS.FOUR_HOURS,
+  //     });
+  //   }, 5000); // Delay prefetch to reduce initial load
 
-    return () => clearTimeout(prefetchTimer);
-  }, [selectedDate, queryClient]);
+  //   return () => clearTimeout(prefetchTimer);
+  // }, [selectedDate, queryClient]);
 
   const contextValue: CentralDataContextType = {
     fixtures: dateFixtures,
