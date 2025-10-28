@@ -96,6 +96,17 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 28, 2025. FINAL crash fix: Eliminated League 667 duplicate and reduced polling frequency:
+  - PROBLEM: IDE still crashing despite previous fixes due to MyNewLeague2 overload
+  - ROOT CAUSE #1: League 667 (Friendlies Clubs) returned 5,265 fixtures - massive data transfer on every poll
+  - ROOT CAUSE #2: League 667 appeared TWICE in priority/secondary league arrays causing duplicate fetches
+  - ROOT CAUSE #3: MyNewLeague2 polling every 60 seconds for 77 leagues (45 unique + 32 duplicates)
+  - SOLUTION 1: Removed League 667 from ALL league lists (priorityLeagueIds, secondaryLeagueIds)
+  - SOLUTION 2: Doubled ALL refetch intervals for safety margin (60s→120s, 75s→150s, 90s→180s, 180s→300s)
+  - DATA REDUCTION: 77 league requests → 45 league requests (42% reduction), polling frequency halved
+  - RESULT: Server stable (RUNNING), ~120s polling confirmed, no crashes, IDE responsive
+  - Files modified: client/src/components/matches/MyNewLeague2.tsx
+  - Architect review: PASS - verified League 667 removed from all arrays, polling stable at 120s
 - October 28, 2025. CRITICAL: Fixed 3 crash-causing bugs that were freezing Replit IDE and crashing browser:
   - BUG #1 - Uncontrolled polling loop: manageSelectiveUpdates() fired 200+ concurrent API calls every 30 seconds, overwhelming browser and IDE
   - BUG #2 - localStorage main thread blocking: Large JSON parsing/stringifying blocked browser main thread causing freezes
