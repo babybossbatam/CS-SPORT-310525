@@ -1952,126 +1952,126 @@ const MyHomeFeaturedMatchNew: React.FC<MyHomeFeaturedMatchNewProps> = ({
     };
   }, []); // Empty dependency array ensures this runs only on mount and unmount
 
-  // Smart cache interval management based on match states
-  useEffect(() => {
-    if (featuredMatches.length === 0) return;
+  // DISABLED: Smart cache interval management - causes continuous background polling that freezes Replit IDE
+  // useEffect(() => {
+  //   if (featuredMatches.length === 0) return;
 
-    const now = new Date();
-    let refreshInterval = 300000; // Default: 5 minutes
-    let shouldRefresh = false;
+  //   const now = new Date();
+  //   let refreshInterval = 300000; // Default: 5 minutes
+  //   let shouldRefresh = false;
 
-    // Analyze current match states to determine optimal refresh strategy
-    const analysis = featuredMatches.reduce(
-      (analysis, dayData) => {
-        dayData.matches.forEach((match) => {
-          const status = match.fixture.status.short;
-          const matchDate = new Date(match.fixture.date);
-          const minutesFromKickoff =
-            (now.getTime() - matchDate.getTime()) / (1000 * 60);
+  //   // Analyze current match states to determine optimal refresh strategy
+  //   const analysis = featuredMatches.reduce(
+  //     (analysis, dayData) => {
+  //       dayData.matches.forEach((match) => {
+  //         const status = match.fixture.status.short;
+  //         const matchDate = new Date(match.fixture.date);
+  //         const minutesFromKickoff =
+  //           (now.getTime() - matchDate.getTime()) / (1000 * 60);
 
-          // Categorize matches
-          if (
-            ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
-          ) {
-            analysis.liveMatches++;
-          } else if (status === "NS") {
-            if (Math.abs(minutesFromKickoff) <= 30) {
-              analysis.imminentMatches++; // Starting within 30 minutes
-            } else if (Math.abs(minutesFromKickoff) <= 120) {
-              analysis.upcomingMatches++; // Starting within 2 hours
-            }
+  //         // Categorize matches
+  //         if (
+  //           ["LIVE", "LIV", "1H", "HT", "2H", "ET", "BT", "P", "INT"].includes(status)
+  //         ) {
+  //           analysis.liveMatches++;
+  //         } else if (status === "NS") {
+  //           if (Math.abs(minutesFromKickoff) <= 30) {
+  //             analysis.imminentMatches++; // Starting within 30 minutes
+  //           } else if (Math.abs(minutesFromKickoff) <= 120) {
+  //             analysis.upcomingMatches++; // Starting within 2 hours
+  //           }
 
-            // Check for stale "Starting now" matches (should have started already)
-            if (minutesFromKickoff > 5 && minutesFromKickoff < 180) {
-              analysis.staleMatches++;
-            }
-          }
-        });
-        return analysis;
-      },
-      {
-        liveMatches: 0,
-        imminentMatches: 0,
-        upcomingMatches: 0,
-        staleMatches: 0,
-      },
-    );
+  //           // Check for stale "Starting now" matches (should have started already)
+  //           if (minutesFromKickoff > 5 && minutesFromKickoff < 180) {
+  //             analysis.staleMatches++;
+  //           }
+  //         }
+  //       });
+  //       return analysis;
+  //     },
+  //     {
+  //       liveMatches: 0,
+  //       imminentMatches: 0,
+  //       upcomingMatches: 0,
+  //       staleMatches: 0,
+  //     },
+  //   );
 
-    // Count today's ended matches for enhanced refresh strategy
-    const todayEndedMatches = featuredMatches.reduce((count, dayData) => {
-      return count + dayData.matches.filter(match => {
-        const matchDate = new Date(match.fixture.date);
-        const matchDateString = format(matchDate, "yyyy-MM-dd");
-        const todayString = format(now, "yyyy-MM-dd");
-        const isToday = matchDateString === todayString;
-        const isEnded = ["FT", "AET", "PEN"].includes(match.fixture.status.short);
-        return isToday && isEnded;
-      }).length;
-    }, 0);
+  //   // Count today's ended matches for enhanced refresh strategy
+  //   const todayEndedMatches = featuredMatches.reduce((count, dayData) => {
+  //     return count + dayData.matches.filter(match => {
+  //       const matchDate = new Date(match.fixture.date);
+  //       const matchDateString = format(matchDate, "yyyy-MM-dd");
+  //       const todayString = format(now, "yyyy-MM-dd");
+  //       const isToday = matchDateString === todayString;
+  //       const isEnded = ["FT", "AET", "PEN"].includes(match.fixture.status.short);
+  //       return isToday && isEnded;
+  //     }).length;
+  //   }, 0);
 
-    // OPTIMIZED refresh strategy to reduce network overhead
-    if (analysis.liveMatches > 0) {
-      // Aggressive but not overwhelming: Live matches detected
-      refreshInterval = 30000; // 30 seconds for live matches (reduced from 15s)
-      shouldRefresh = true;
-      console.log(
-        `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using optimized refresh (30s)`,
-      );
-    } else if (todayEndedMatches > 0) {
-      // Moderate for today's ended matches
-      refreshInterval = 60000; // 1 minute (reduced from 30s)
-      shouldRefresh = true;
-      console.log(
-        `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`,
-      );
-    } else if (analysis.staleMatches > 0) {
-      // Moderate: Stale matches that should have started
-      refreshInterval = 45000; // 45 seconds (reduced from 20s)
-      shouldRefresh = true;
-      console.log(
-        `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using moderate refresh (45s)`,
-      );
-    } else if (analysis.imminentMatches > 0) {
-      // Less frequent: Matches starting within 30 minutes
-      refreshInterval = 120000; // 2 minutes (reduced from 1min)
-      shouldRefresh = true;
-      console.log(
-        `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using balanced refresh (2min)`,
-      );
-    } else if (analysis.upcomingMatches > 0) {
-      // Standard: Matches starting within 2 hours
-      refreshInterval = 180000; // 3 minutes (reduced from 2min)
-      shouldRefresh = true;
-      console.log(
-        `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`,
-      );
-    } else {
-      // Extended: No urgent matches
-      refreshInterval = 600000; // 10 minutes (increased from 5min)
-      shouldRefresh = false;
-      console.log(
-        `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using extended refresh (10min)`,
-      );
-    }
+  //   // OPTIMIZED refresh strategy to reduce network overhead
+  //   if (analysis.liveMatches > 0) {
+  //     // Aggressive but not overwhelming: Live matches detected
+  //     refreshInterval = 30000; // 30 seconds for live matches (reduced from 15s)
+  //     shouldRefresh = true;
+  //     console.log(
+  //       `🔴 [MyHomeFeaturedMatchNew] ${analysis.liveMatches} live matches - using optimized refresh (30s)`,
+  //     );
+  //   } else if (todayEndedMatches > 0) {
+  //     // Moderate for today's ended matches
+  //     refreshInterval = 60000; // 1 minute (reduced from 30s)
+  //     shouldRefresh = true;
+  //     console.log(
+  //       `📊 [MyHomeFeaturedMatchNew] ${todayEndedMatches} today's ended matches - using moderate refresh (1min)`,
+  //     );
+  //   } else if (analysis.staleMatches > 0) {
+  //     // Moderate: Stale matches that should have started
+  //     refreshInterval = 45000; // 45 seconds (reduced from 20s)
+  //     shouldRefresh = true;
+  //     console.log(
+  //       `🟡 [MyHomeFeaturedMatchNew] ${analysis.staleMatches} stale matches detected - using moderate refresh (45s)`,
+  //     );
+  //   } else if (analysis.imminentMatches > 0) {
+  //     // Less frequent: Matches starting within 30 minutes
+  //     refreshInterval = 120000; // 2 minutes (reduced from 1min)
+  //     shouldRefresh = true;
+  //     console.log(
+  //       `🟠 [MyHomeFeaturedMatchNew] ${analysis.imminentMatches} imminent matches - using balanced refresh (2min)`,
+  //     );
+  //   } else if (analysis.upcomingMatches > 0) {
+  //     // Standard: Matches starting within 2 hours
+  //     refreshInterval = 180000; // 3 minutes (reduced from 2min)
+  //     shouldRefresh = true;
+  //     console.log(
+  //       `🟢 [MyHomeFeaturedMatchNew] ${analysis.upcomingMatches} upcoming matches - using standard refresh (3min)`,
+  //     );
+  //   } else {
+  //     // Extended: No urgent matches
+  //     refreshInterval = 600000; // 10 minutes (increased from 5min)
+  //     shouldRefresh = false;
+  //     console.log(
+  //       `⏸️ [MyHomeFeaturedMatchNew] No urgent matches - using extended refresh (10min)`,
+  //     );
+  //   }
 
-    if (!shouldRefresh) {
-      console.log(`⭕ [MyHomeFeaturedMatchNew] No active refresh needed`);
-      return;
-    }
+  //   if (!shouldRefresh) {
+  //     console.log(`⭕ [MyHomeFeaturedMatchNew] No active refresh needed`);
+  //     return;
+  //   }
 
-    // Prevent double intervals by checking if one is already running
-    const intervalId = setInterval(() => {
-      console.log(
-        `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
-      );
-      fetchFeaturedMatches(false); // Background refresh without loading state
-    }, refreshInterval);
+  //   // Prevent double intervals by checking if one is already running
+  //   const intervalId = setInterval(() => {
+  //     console.log(
+  //       `🔄 [MyHomeFeaturedMatchNew] Smart refresh triggered (interval: ${refreshInterval / 1000}s)`,
+  //     );
+  //     fetchFeaturedMatches(false); // Background refresh without loading state
+  //   }, refreshInterval);
 
-    return () => {
-      clearInterval(intervalId);
-      console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
-    };
-  }, [featuredMatches, fetchFeaturedMatches]); // Depend on featuredMatches to re-evaluate interval
+  //   return () => {
+  //     clearInterval(intervalId);
+  //     console.log(`🧹 [MyHomeFeaturedMatchNew] Cleaned up refresh interval`);
+  //   };
+  // }, [featuredMatches, fetchFeaturedMatches]); // Depend on featuredMatches to re-evaluate interval
 
   const formatMatchTime = (dateString: string) => {
     try {
