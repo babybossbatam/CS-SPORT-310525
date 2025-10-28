@@ -96,6 +96,16 @@ This is a full-stack football scores application built with React (frontend) and
 
 ```
 Changelog:
+- October 28, 2025. CRITICAL: Fixed 3 crash-causing bugs that were freezing Replit IDE and crashing browser:
+  - BUG #1 - Uncontrolled polling loop: manageSelectiveUpdates() fired 200+ concurrent API calls every 30 seconds, overwhelming browser and IDE
+  - BUG #2 - localStorage main thread blocking: Large JSON parsing/stringifying blocked browser main thread causing freezes
+  - BUG #3 - Redundant API calls: 13 parallel league fetches on page load creating excessive network pressure
+  - FIX #1: Completely removed manageSelectiveUpdates function, selectiveUpdateIntervalRef, liveMatchData state, and all polling mechanisms
+  - FIX #2: Deleted getCacheKey, getCachedEndedMatches, cacheEndedMatches functions that wrote large blobs to localStorage
+  - FIX #3: Already fixed by previous optimization (single date-based fetch instead of 13 league fetches)
+  - VERIFICATION: Server stable (no NOT_STARTED crashes), browser console clean (no polling loops), architect review PASS
+  - FILES: client/src/components/matches/MyHomeFeaturedMatchNew.tsx (removed ~100 lines of dangerous code)
+  - RESULT: IDE stays responsive, browser doesn't freeze, app runs continuously without crashes
 - October 28, 2025. MyHomeFeaturedMatchNew optimization: Replaced per-league fetch with date-based fetch:
   - PROBLEM: Component was fetching entire season data for 13 priority leagues (2,600 fixtures total)
   - ROOT CAUSE: Used `/api/featured-match/leagues/{id}/fixtures` endpoint (returns full season) instead of date-based approach
